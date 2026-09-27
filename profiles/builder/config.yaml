@@ -1,0 +1,119 @@
+model:
+  default: poolside/laguna-s-2.1:free
+  provider: nous
+fallback_providers:
+- provider: openai-codex
+  model: gpt-6-sol
+  base_url: https://chatgpt.com/backend-api/codex
+  api_mode: codex_responses
+agent:
+  max_turns: 60
+  bot_mode_protocol: false
+  verify_on_stop: false
+  verbose: false
+  reasoning_effort: medium
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+skills:
+  write_approval: true
+command_allowlist: []
+plugins:
+  enabled: []
+_config_version: 45
+platform_toolsets:
+  cli:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  telegram:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  discord:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  whatsapp:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  signal:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  homeassistant:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  qqbot:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  yuanbao:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  teams:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+  google_chat:
+  - code_execution
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - vision
+CANVAS_BASE_URL: https://canvas.sfu.ca
+onboarding:
+  seen:
+    tool_progress_prompt: true
+platforms:
+  discord:
+    enabled: false
+mcp_servers:
+  github:
+    command: npx
+    args:
+    - -y
+    - '@modelcontextprotocol/server-github'
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}

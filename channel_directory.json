@@ -1,0 +1,463 @@
+{
+  "updated_at": "2026-09-08T21:45:12.362847",
+  "platforms": {
+    "discord": [
+      {
+        "id": "1546286423689404446",
+        "name": "⚖️council",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542698856075231285",
+        "name": "💬general",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542754618503602216",
+        "name": "📢announcements",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542763730750808134",
+        "name": "📋briefings",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1543456026206928926",
+        "name": "📈markets",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1543456027448578078",
+        "name": "✅weekly-review",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1543662026721599519",
+        "name": "📓journal",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542763732067946516",
+        "name": "🚨alerts",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542988669277966357",
+        "name": "🎙️voice-transcripts",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1542798100270161920",
+        "name": "💡ideas",
+        "guild": "monkey crew",
+        "type": "channel"
+      },
+      {
+        "id": "1546968940385796138:1546968940385796138",
+        "name": "monkey crew / #💬general / add reminder tonight 5pm to review bots tab on hermes’ / topic 1546968940385796138",
+        "type": "thread",
+        "thread_id": "1546968940385796138"
+      },
+      {
+        "id": "1546754058776346664:1546754058776346664",
+        "name": "monkey crew / #💬general / i have a new schedule for this upcoming semester, can you audit all my classe... / topic 1546754058776346664",
+        "type": "thread",
+        "thread_id": "1546754058776346664"
+      },
+      {
+        "id": "1544017637506285710:1544017637506285710",
+        "name": "monkey crew / #💬general / add reminder everyday 10pm to send dad expenses / topic 1544017637506285710",
+        "type": "thread",
+        "thread_id": "1544017637506285710"
+      },
+      {
+        "id": "1546682435645874177:1546682435645874177",
+        "name": "monkey crew / #💬general / edit 9am welcome day tmrw to 10am / topic 1546682435645874177",
+        "type": "thread",
+        "thread_id": "1546682435645874177"
+      },
+      {
+        "id": "1546594954149629972:1546594954149629972",
+        "name": "monkey crew / #💬general / which models would you recommend to use for each part of council, preferred f... / topic 1546594954149629972",
+        "type": "thread",
+        "thread_id": "1546594954149629972"
+      },
+      {
+        "id": "1546404101716189245:1546404101716189245",
+        "name": "monkey crew / #💬general / currently council just got made and has lots of bugs, run tests to find bugs ... / topic 1546404101716189245",
+        "type": "thread",
+        "thread_id": "1546404101716189245"
+      },
+      {
+        "id": "1546566473944662026:1546566473944662026",
+        "name": "monkey crew / #💬general / topic 1546566473944662026",
+        "type": "thread",
+        "thread_id": "1546566473944662026"
+      },
+      {
+        "id": "1546545592430370876:1546545592430370876",
+        "name": "monkey crew / #💬general / move morning systems summary to briefings channel / topic 1546545592430370876",
+        "type": "thread",
+        "thread_id": "1546545592430370876"
+      },
+      {
+        "id": "1546400926020145162:1546400926020145162",
+        "name": "monkey crew / #💬general / list of things to do for tmrw: change council models, explore council ideas, ... / topic 1546400926020145162",
+        "type": "thread",
+        "thread_id": "1546400926020145162"
+      },
+      {
+        "id": "1546396377561567246:1546396377561567246",
+        "name": "monkey crew / #💬general / if you check the link, council page has been configured by a third party. i l... / topic 1546396377561567246",
+        "type": "thread",
+        "thread_id": "1546396377561567246"
+      },
+      {
+        "id": "1546398685204586576:1546398685204586576",
+        "name": "monkey crew / #💬general / is it posisble to combine victory hunter dispatch with council in order to cr... / topic 1546398685204586576",
+        "type": "thread",
+        "thread_id": "1546398685204586576"
+      },
+      {
+        "id": "1546397470852907019:1546397470852907019",
+        "name": "monkey crew / #💬general / is council able to access internet / topic 1546397470852907019",
+        "type": "thread",
+        "thread_id": "1546397470852907019"
+      },
+      {
+        "id": "1546397782523252736:1546397782523252736",
+        "name": "monkey crew / #⚖️council / i want the council to research canadian stock trading using ai. i am looking ... / Council synthesis channel — queries are routed through the Council for recommendation and approval; no automatic external actions.",
+        "type": "thread",
+        "thread_id": "1546397782523252736"
+      },
+      {
+        "id": "1546330451701014549:1546330451701014549",
+        "name": "monkey crew / #💬general / how come u can’t access google tasks, help fix / topic 1546330451701014549",
+        "type": "thread",
+        "thread_id": "1546330451701014549"
+      },
+      {
+        "id": "1546361104895320094:1546361104895320094",
+        "name": "monkey crew / #💬general / what happens to blocked kanban tasks, does it just stay blocked forever. find... / topic 1546361104895320094",
+        "type": "thread",
+        "thread_id": "1546361104895320094"
+      },
+      {
+        "id": "1546325890949062666:1546325890949062666",
+        "name": "monkey crew / #💬general / i can’t approve this skill help me /skills approve d4cf4afa / topic 1546325890949062666",
+        "type": "thread",
+        "thread_id": "1546325890949062666"
+      },
+      {
+        "id": "1546316625911750756:1546316625911750756",
+        "name": "monkey crew / #💬general / i sent message in council channel, did everything run properly, run audit rq / topic 1546316625911750756",
+        "type": "thread",
+        "thread_id": "1546316625911750756"
+      },
+      {
+        "id": "1546296950096138270:1546296950096138270",
+        "name": "monkey crew / #💬general / start implementing this / topic 1546296950096138270",
+        "type": "thread",
+        "thread_id": "1546296950096138270"
+      },
+      {
+        "id": "1546315319750955018:1546315319750955018",
+        "name": "monkey crew / #⚖️council / find me some useful repos, mcps or skills to add onto hermes / Council synthesis channel — queries are routed through the Council for recommendation and approval; no automatic external actions.",
+        "type": "thread",
+        "thread_id": "1546315319750955018"
+      },
+      {
+        "id": "1546283507674783835:1546283507674783835",
+        "name": "monkey crew / #💬general / Hermes / topic 1546283507674783835",
+        "type": "thread",
+        "thread_id": "1546283507674783835"
+      },
+      {
+        "id": "1546298269788016780:1546298269788016780",
+        "name": "monkey crew / #💬general / fix this: The worker also found an unrelated pre-existing syntax issue in: ap... / topic 1546298269788016780",
+        "type": "thread",
+        "thread_id": "1546298269788016780"
+      },
+      {
+        "id": "1546293293632069794:1546293293632069794",
+        "name": "monkey crew / #⚖️council / test / Council synthesis channel — queries are routed through the Council for recommendation and approval; no automatic external actions.",
+        "type": "thread",
+        "thread_id": "1546293293632069794"
+      },
+      {
+        "id": "1546278870620311562:1546278870620311562",
+        "name": "monkey crew / #💬general / is it possible to have a cron job run every night where bot runs for 5 minute... / topic 1546278870620311562",
+        "type": "thread",
+        "thread_id": "1546278870620311562"
+      },
+      {
+        "id": "1545868345063116870:1545868345063116870",
+        "name": "monkey crew / #💬general / pick up pharmacy cream tmrw richmond / topic 1545868345063116870",
+        "type": "thread",
+        "thread_id": "1545868345063116870"
+      },
+      {
+        "id": "1545549321527754832:1545549321527754832",
+        "name": "monkey crew / #💬general / from now on, make sure all briefings, morning briefing and ai summary is sent... / topic 1545549321527754832",
+        "type": "thread",
+        "thread_id": "1545549321527754832"
+      },
+      {
+        "id": "1545888101560356904:1545888101560356904",
+        "name": "monkey crew / #💬general / add new rule, every time i ask for a task, update on google task and send me ... / topic 1545888101560356904",
+        "type": "thread",
+        "thread_id": "1545888101560356904"
+      },
+      {
+        "id": "1545161357081444482:1545161357081444482",
+        "name": "monkey crew / #💬general / can you check online how sfu student parking works I paid for a online semest... / topic 1545161357081444482",
+        "type": "thread",
+        "thread_id": "1545161357081444482"
+      },
+      {
+        "id": "1545149666025537687:1545149666025537687",
+        "name": "monkey crew / #💬general / what does it mean that there is no nous portal login and that all my crimen j... / topic 1545149666025537687",
+        "type": "thread",
+        "thread_id": "1545149666025537687"
+      },
+      {
+        "id": "1545515244632285315:1545515244632285315",
+        "name": "monkey crew / #💬general / what went wrong, Cronjob Response: Daily Journal (job_id: 7af1f0e654ec) -----... / topic 1545515244632285315",
+        "type": "thread",
+        "thread_id": "1545515244632285315"
+      },
+      {
+        "id": "1545301909118914580:1545301909118914580",
+        "name": "monkey crew / #💬general / add this to list of things to do, remind me tmrw at 8am for these items: figu... / topic 1545301909118914580",
+        "type": "thread",
+        "thread_id": "1545301909118914580"
+      },
+      {
+        "id": "1545293864678592512:1545293864678592512",
+        "name": "monkey crew / #💬general / are briefings back to using longcat2.0 free from nous. if so test run ai brie... / topic 1545293864678592512",
+        "type": "thread",
+        "thread_id": "1545293864678592512"
+      },
+      {
+        "id": "1545098780855246960:1545098780855246960",
+        "name": "monkey crew / #💬general / what happened with cron jobs, it says no creditation or something / topic 1545098780855246960",
+        "type": "thread",
+        "thread_id": "1545098780855246960"
+      },
+      {
+        "id": "1544772279471181976:1544772279471181976",
+        "name": "monkey crew / #💬general / i feel like journal for yesterday was a bit off, i created the obsidian decon... / topic 1544772279471181976",
+        "type": "thread",
+        "thread_id": "1544772279471181976"
+      },
+      {
+        "id": "1544823352487583815:1544823352487583815",
+        "name": "monkey crew / #💬general / sep 8 9am-4pm sfu welcome day / topic 1544823352487583815",
+        "type": "thread",
+        "thread_id": "1544823352487583815"
+      },
+      {
+        "id": "1544554679873052712:1544554679873052712",
+        "name": "monkey crew / #💬general / test / topic 1544554679873052712",
+        "type": "thread",
+        "thread_id": "1544554679873052712"
+      },
+      {
+        "id": "1544471269762801785:1544471269762801785",
+        "name": "monkey crew / #💬general / i’m pretty interested in building an AI second brain where all my information... / topic 1544471269762801785",
+        "type": "thread",
+        "thread_id": "1544471269762801785"
+      },
+      {
+        "id": "1544499983561269319:1544499983561269319",
+        "name": "monkey crew / #💬general / how come gamatatsu has been in blocked phase for so long, what happened / topic 1544499983561269319",
+        "type": "thread",
+        "thread_id": "1544499983561269319"
+      },
+      {
+        "id": "1544439463793528944:1544439463793528944",
+        "name": "monkey crew / #💬general / drill me for desigining new budget on the spreadsheet / topic 1544439463793528944",
+        "type": "thread",
+        "thread_id": "1544439463793528944"
+      },
+      {
+        "id": "1544470014122401812:1544470014122401812",
+        "name": "monkey crew / #💬general / is there a way to for me to connect my Gemini Pro subscription to Hermes? I k... / topic 1544470014122401812",
+        "type": "thread",
+        "thread_id": "1544470014122401812"
+      },
+      {
+        "id": "1544454079407853689:1544454079407853689",
+        "name": "monkey crew / #💬general / discrod bot unable to see images help fix / topic 1544454079407853689",
+        "type": "thread",
+        "thread_id": "1544454079407853689"
+      },
+      {
+        "id": "1544437677502242868:1544437677502242868",
+        "name": "monkey crew / #💬general / make sure discord threads are closed after 24 hours if unused / topic 1544437677502242868",
+        "type": "thread",
+        "thread_id": "1544437677502242868"
+      },
+      {
+        "id": "1544267486067822612:1544267486067822612",
+        "name": "monkey crew / #💬general / i dont need coder b, can you replace the fucntions of coder b with the speed,... / topic 1544267486067822612",
+        "type": "thread",
+        "thread_id": "1544267486067822612"
+      },
+      {
+        "id": "1544257627364663296:1544257627364663296",
+        "name": "monkey crew / #💬general / in second tab of boojat spreadsheet, make me a budget / topic 1544257627364663296",
+        "type": "thread",
+        "thread_id": "1544257627364663296"
+      },
+      {
+        "id": "1544257178918060072:1544257178918060072",
+        "name": "monkey crew / #💬general / what can i do to improve hermes right now, base off of online models / topic 1544257178918060072",
+        "type": "thread",
+        "thread_id": "1544257178918060072"
+      },
+      {
+        "id": "1544259337302843393:1544259337302843393",
+        "name": "monkey crew / #💬general / add qwen token plan: https://token-plan.ap-southeast-1.maas.aliyuncs.com/comp... / topic 1544259337302843393",
+        "type": "thread",
+        "thread_id": "1544259337302843393"
+      },
+      {
+        "id": "1544230280708104272:1544230280708104272",
+        "name": "monkey crew / #💬general / make me a list of things to do / topic 1544230280708104272",
+        "type": "thread",
+        "thread_id": "1544230280708104272"
+      },
+      {
+        "id": "1544225198826463252:1544225198826463252",
+        "name": "monkey crew / #💬general / run complex subagents test for all subagents listed on victory command center / topic 1544225198826463252",
+        "type": "thread",
+        "thread_id": "1544225198826463252"
+      },
+      {
+        "id": "1543700854446497892:1543700854446497892",
+        "name": "monkey crew / #💬general / what else has to be completed in the characters / topic 1543700854446497892",
+        "type": "thread",
+        "thread_id": "1543700854446497892"
+      },
+      {
+        "id": "1543700139237974079:1543700139237974079",
+        "name": "monkey crew / #💬general / help remove all openclaw files, delete all subagents from openclaw / topic 1543700139237974079",
+        "type": "thread",
+        "thread_id": "1543700139237974079"
+      },
+      {
+        "id": "1543697414525948034:1543697414525948034",
+        "name": "monkey crew / #💬general / connect outlook account / topic 1543697414525948034",
+        "type": "thread",
+        "thread_id": "1543697414525948034"
+      },
+      {
+        "id": "1543699461572661298:1543699461572661298",
+        "name": "monkey crew / #💬general / fix journal, make it cron job daily at 2am, should be ~750 char containing th... / topic 1543699461572661298",
+        "type": "thread",
+        "thread_id": "1543699461572661298"
+      },
+      {
+        "id": "1543669789463937145:1543669789463937145",
+        "name": "monkey crew / #💬general / how can i consolidate memory, what does it mean when memory limit is alsmot r... / topic 1543669789463937145",
+        "type": "thread",
+        "thread_id": "1543669789463937145"
+      },
+      {
+        "id": "1543660794648989736:1543660794648989736",
+        "name": "monkey crew / #💬general / did morning briefing run today, i only see the ai briefing / topic 1543660794648989736",
+        "type": "thread",
+        "thread_id": "1543660794648989736"
+      },
+      {
+        "id": "1543667470311755917:1543667470311755917",
+        "name": "Cron / topic 1543667470311755917",
+        "type": "thread",
+        "thread_id": "1543667470311755917"
+      },
+      {
+        "id": "1543665156116971641:1543665156116971641",
+        "name": "Cron / topic 1543665156116971641",
+        "type": "thread",
+        "thread_id": "1543665156116971641"
+      },
+      {
+        "id": "1543661818919125112:1543661818919125112",
+        "name": "Cron / topic 1543661818919125112",
+        "type": "thread",
+        "thread_id": "1543661818919125112"
+      },
+      {
+        "id": "1543657419375382528:1543657419375382528",
+        "name": "monkey crew / #💬general / change the haircut to sep 1 at 3:15 / topic 1543657419375382528",
+        "type": "thread",
+        "thread_id": "1543657419375382528"
+      },
+      {
+        "id": "1543636862189445163:1543636862189445163",
+        "name": "Cron / topic 1543636862189445163",
+        "type": "thread",
+        "thread_id": "1543636862189445163"
+      },
+      {
+        "id": "1543497222841172039:1543497222841172039",
+        "name": "monkey crew / #💬general / help me find my vault, where is all my hermes files stored / topic 1543497222841172039",
+        "type": "thread",
+        "thread_id": "1543497222841172039"
+      },
+      {
+        "id": "1543477522551935036:1543477522551935036",
+        "name": "monkey crew / #💬general / add haircut sep 2 2:30pm / topic 1543477522551935036",
+        "type": "thread",
+        "thread_id": "1543477522551935036"
+      },
+      {
+        "id": "1543469764431716412:1543469764431716412",
+        "name": "monkey crew / #💬general / move gateway auto restart watchdog to alerts / topic 1543469764431716412",
+        "type": "thread",
+        "thread_id": "1543469764431716412"
+      },
+      {
+        "id": "1543465707591835681:1543465707591835681",
+        "name": "monkey crew / #💬general / continue pinning messages on channels / topic 1543465707591835681",
+        "type": "thread",
+        "thread_id": "1543465707591835681"
+      },
+      {
+        "id": "1543450615160508586:1543450615160508586",
+        "name": "monkey crew / #💬general / Hermes / topic 1543450615160508586",
+        "type": "thread",
+        "thread_id": "1543450615160508586"
+      },
+      {
+        "id": "1542698856075231285",
+        "name": "bizarre adventure / #general",
+        "type": "group",
+        "thread_id": null
+      },
+      {
+        "id": "1543274179980296254:1543274179980296254",
+        "name": "Cron / topic 1543274179980296254",
+        "type": "thread",
+        "thread_id": "1543274179980296254"
+      },
+      {
+        "id": "1542704757767012443:1542704757767012443",
+        "name": "bizarre adventure / #general / hi / topic 1542704757767012443",
+        "type": "thread",
+        "thread_id": "1542704757767012443"
+      }
+    ]
+  }
+}

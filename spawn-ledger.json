@@ -1,0 +1,28 @@
+[
+  {
+    "pid": 2768,
+    "create_time": 1790208743.4330993,
+    "purpose": "serve",
+    "install": "3807be060ddc",
+    "spawner_pid": 3952,
+    "spawner_create": 1790208700.182,
+    "registered_at": 1790208749.0238802,
+    "argv": "C:\\Users\\wesle\\AppData\\Local\\hermes\\hermes-agent\\hermes_cli\\main.py serve --host 127.0.0.1 --port 0",
+    "host": "127.0.0.1",
+    "port": 57873,
+    "profile": ""
+  },
+  {
+    "pid": 29204,
+    "create_time": 1790452580.227092,
+    "purpose": "mcp-helper",
+    "install": "3807be060ddc",
+    "spawner_pid": 8428,
+    "spawner_create": 1790452571.867912,
+    "registered_at": 1790452580.3929853,
+    "argv": "C:\\Windows\\system32\\cmd.exe /c C:\\Program Files\\nodejs\\npx.CMD -y @modelcontextprotocol/server-github",
+    "host": "",
+    "port": null,
+    "profile": ""
+  }
+]

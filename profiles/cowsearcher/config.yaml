@@ -1,0 +1,138 @@
+model:
+  default: upstage/solar-pro4:free
+  provider: nous
+agent:
+  bot_mode_protocol: false
+  max_turns: 15
+  verify_on_stop: false
+  verbose: false
+  reasoning_effort: medium
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+tts:
+  provider: openai
+  use_gateway: true
+stt:
+  enabled: false
+  provider: openai
+  use_gateway: true
+skills:
+  write_approval: true
+  disabled: []
+plugins:
+  enabled: []
+_config_version: 45
+platform_toolsets:
+  cli:
+  - connections
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  telegram:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  discord:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  whatsapp:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  signal:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  homeassistant:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  qqbot:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  yuanbao:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  teams:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+  google_chat:
+  - connections
+  - file
+  - skills
+  - kanban
+  - web
+known_plugin_toolsets:
+  cli:
+  - a2a
+  - spotify
+known_builtin_toolsets:
+  cli:
+  - browser
+  - clarify
+  - code_execution
+  - computer_use
+  - connections
+  - context_engine
+  - cronjob
+  - delegation
+  - discord
+  - discord_admin
+  - file
+  - homeassistant
+  - image_gen
+  - session_search
+  - skills
+  - spotify
+  - stt
+  - terminal
+  - todo
+  - tts
+  - video
+  - video_gen
+  - vision
+  - web
+  - x_search
+  - yuanbao
+onboarding:
+  seen:
+    tool_progress_prompt: true
+fallback_providers:
+- provider: openai-codex
+  model: gpt-6-sol
+  base_url: https://chatgpt.com/backend-api/codex
+  api_mode: codex_responses
+platforms:
+  discord:
+    enabled: false
+mcp_servers:
+  github:
+    command: npx
+    args:
+    - -y
+    - '@modelcontextprotocol/server-github'
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}

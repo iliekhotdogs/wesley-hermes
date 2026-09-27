@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "installed": {
+    "ascii-art": {
+      "source": "official",
+      "identifier": "official/creative/ascii-art",
+      "trust_level": "builtin",
+      "scan_verdict": "backfilled",
+      "content_hash": "sha256:29e23c2fdb90e5ab",
+      "install_path": "creative/ascii-art",
+      "files": [
+        "SKILL.md"
+      ],
+      "metadata": {
+        "backfilled_from": "optional-skills"
+      },
+      "installed_at": "2026-09-15T01:16:51.314990+00:00",
+      "updated_at": "2026-09-15T01:16:51.314990+00:00"
+    }
+  }
+}

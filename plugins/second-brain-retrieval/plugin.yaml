@@ -1,0 +1,5 @@
+name: second-brain-retrieval
+version: "0.1.0"
+description: Read-only retrieval from a local Obsidian second-brain index.
+provides_tools:
+  - second_brain_search

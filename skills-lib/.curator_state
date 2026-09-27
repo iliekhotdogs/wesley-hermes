@@ -1,0 +1,9 @@
+{
+  "last_report_path": "C:\\Users\\wesle\\AppData\\Local\\hermes\\logs\\curator\\20260904-024752",
+  "last_run_at": "2026-09-04T02:47:52.654314+00:00",
+  "last_run_duration_seconds": 2.110045,
+  "last_run_summary": "auto: no changes; llm: skipped (consolidation off)",
+  "last_run_summary_shown_at": null,
+  "paused": false,
+  "run_count": 1
+}

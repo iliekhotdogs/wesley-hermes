@@ -1,0 +1,63 @@
+# Secrets — never commit real values
+.env
+auth.json
+!/auth.placeholder-note
+!/ .env.placeholder-note
+
+# Databases — conversation & session history, not config
+*.db
+*.db-wal
+*.db-shm
+*.db.auto-maintenance.lock
+state.db*
+projects.db
+notepad.db
+executions.db
+jobs.db
+
+# Logs
+logs/
+gateway-starts.log
+gateway-service/
+
+# Caches
+cache/
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Curator backups (blobs, internal)
+.curator_backups/
+
+# Node modules & LSP runtime deps (upstream, not personal)
+node_modules/
+lsp/
+lsp/bin/
+lsp/node_modules/
+
+# Worktrees — upstream Hermes source, not personal config
+worktrees/
+
+# Backups & snapshots (local history, not config)
+backups/
+profile-exports/
+
+# Temp / lock / scratch files
+*.lock
+*.tmp
+*.tmp1*
+.backup.lock
+.clean_shutdown
+.update_exit_code
+.codex_gpt55_autoraise_notice
+.scratch_tip_shown
+.models_dev_cache_*
+.npm_lock_hash_*
+.spawn_lock*
+.auth.lock
+.mcp-discovery.lock
+.skills_prompt_snapshot.json
+.no-bundled-skills
+.update_check
+.trigger_cmd_running
+dependency-recovery-status.txt

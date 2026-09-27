@@ -1,0 +1,146 @@
+model:
+  default: gpt-6-sol
+  provider: openai-codex
+  base_url: https://chatgpt.com/backend-api/codex
+  api_mode: codex_responses
+agent:
+  max_turns: 20
+  bot_mode_protocol: false
+  verify_on_stop: false
+  verbose: false
+  reasoning_effort: low
+tool_loop_guardrails:
+  warnings_enabled: true
+  hard_stop_enabled: true
+  warn_after:
+    exact_failure: 2
+    same_tool_failure: 2
+    idempotent_no_progress: 2
+  hard_stop_after:
+    exact_failure: 4
+    same_tool_failure: 5
+    idempotent_no_progress: 6
+stt:
+  enabled: true
+memory:
+  memory_enabled: false
+  user_profile_enabled: false
+skills:
+  write_approval: true
+discord:
+  require_mention: true
+  free_response_channels: []
+delegation:
+  max_concurrent_children: 1
+approvals:
+  cron_mode: deny
+  unattended_mode: deny
+command_allowlist: []
+plugins:
+  enabled: []
+cron:
+  max_parallel_jobs: 1
+kanban:
+  max_in_progress: 2
+  max_in_progress_per_profile: 1
+code_execution:
+  timeout: 180
+  max_tool_calls: 16
+onboarding:
+  seen:
+    tool_progress_prompt: true
+_config_version: 45
+platform_toolsets:
+  cli:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  telegram:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  discord:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  whatsapp:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  signal:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  homeassistant:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  qqbot:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  yuanbao:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  teams:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+  google_chat:
+  - connections
+  - cronjob
+  - file
+  - skills
+  - kanban
+  - terminal
+  - web
+platforms:
+  discord:
+    enabled: true
+    home_channel:
+      platform: discord
+      chat_id: '1542698856075231285'
+      name: 'bizarre adventure / #general'
+      user_id: '721098580697546794'
+resource_governor:
+  max_secondary_desktop_backends: 1
+  max_background_workers: 2
+  min_available_memory_mb: 1536
+  max_council_parallel_members: 1
