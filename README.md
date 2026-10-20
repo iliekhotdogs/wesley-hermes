@@ -2,7 +2,7 @@
 
 **This is the setup behind my assistant—not a new AI model or a copy of my accounts.**
 
-It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configurable agent framework, with a primary assistant, five specialist profiles, skills, and optional custom integrations. I talk to `main` through Discord; it can research, write files/code, coordinate work, and use services I have authorized.
+It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configurable agent framework, with a primary assistant, four specialist profiles, skills, and optional custom integrations. I talk to `main` through Discord; it can research, write files/code, coordinate work, and use services I have authorized.
 
 **Verified snapshot: 2026-10-19.** The primary profile is configured for **`gpt-6.1-sol` through `openai-codex`**. Model access depends on your own account; you can choose another available model. This repository does **not** provide model weights, a subscription, or credentials.
 
@@ -16,8 +16,7 @@ It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configur
 | `builder` | Implementation, files, code, debugging and tests | `gpt-6.1-sol` | `openai-codex` |
 | `cowsearcher` | Research and current-fact verification | `meituan/longcat-2.5-preview:free` | `nous` |
 | `cron` | Schedules, reminders and authorized Workspace operations | `gpt-6.1-sol` | `openai-codex` |
-| `lib` | Durable memory and second-brain retrieval/writes | `gpt-6.1-sol` | `openai-codex` |
-| `speedy` | Small, bounded transformations and quick tasks | `gpt-6-luna` | `openai-codex` |
+| `lib` | Memory curation only: dedupe, reconcile, prune | `gpt-6.1-sol` | `openai-codex` |
 
 These are **profile defaults**, not proof that every past conversation or scheduled job used those models. Fallback choices and per-job snapshots can differ. The separate `default` profile is not `main` and is not exported as the current assistant.
 
@@ -28,23 +27,23 @@ flowchart TD
     Board --> Builder[builder: implement and test]
     Board --> Research[cowsearcher: verify sources]
     Board --> Cron[cron: schedules and Workspace]
-    Board --> Lib[lib: memory and second brain]
-    Board --> Speedy[speedy: bounded quick tasks]
+    Board --> Lib[lib: memory curation]
     Builder --> Main
     Research --> Main
     Cron --> Main
     Lib --> Main
-    Speedy --> Main
 ```
 
-Profiles are separate assistant homes with their own prompts and settings. The coordinator delegates real tasks through Hermes' board, reads the results, and handles recovery. Mentioning an agent name in Discord is not itself a worker launch. Role prompts describe intended behavior; they are not an OS security boundary.
+Profiles are separate assistant homes with their own prompts and settings. The coordinator handles small tasks itself, delegates real tasks through Hermes' board, reads the results, and handles recovery. Mentioning an agent name in Discord is not itself a worker launch. Role prompts describe intended behavior; they are not an OS security boundary.
+
+**Memory: one source of truth.** The Obsidian vault plus its second-brain index holds durable knowledge. Main reads and writes routine memory directly; lib only curates. `MEMORY.md` stays compact, and finished tasks go to a separate completion log.
 
 ## What you get
 
-- Six **adapted, portable profile templates**, retaining the observed model choices and core roles.
+- Five **adapted, portable profile templates**, retaining the observed model choices and core roles.
 - Sanitized **live prompt and allowlisted settings references**, clearly separated from what the installer uses.
 - Profile-scoped skill snapshots: coding, GitHub, research, documents, Google Workspace, Canvas, memory and more. Skills are opt-in when installing; optional tools still need their own dependencies and accounts.
-- Optional source for the permissions hook, tool router, briefing curation, second-brain retrieval/package, Workspace request helper and host-automation scripts. These are **reference extensions, not automatically installed or enabled**.
+- Optional source for the permissions hook, briefing curation, second-brain retrieval/package, Workspace request helper and host-automation scripts. These are **reference extensions, not automatically installed or enabled**.
 - An exact payload hash manifest, a non-clobbering installer, tests and GitHub validation workflow.
 - A machine-readable [inventory](inventory.json) showing observed versus bundled skills, enabled plugin names and schedule counts, without private job contents.
 
@@ -88,13 +87,13 @@ Inspect the prompts, configuration and optional skill scripts before installing 
 **Native Windows — PowerShell:**
 
 ```powershell
-python tools/bundle.py install --target "$env:LOCALAPPDATA\hermes" --profiles main builder cowsearcher cron lib speedy
+python tools/bundle.py install --target "$env:LOCALAPPDATA\hermes" --profiles main builder cowsearcher cron lib
 ```
 
 **Linux/macOS/WSL:**
 
 ```bash
-python tools/bundle.py install --target "$HOME/.hermes" --profiles main builder cowsearcher cron lib speedy
+python tools/bundle.py install --target "$HOME/.hermes" --profiles main builder cowsearcher cron lib
 ```
 
 `--target` is the **Hermes data root**, not `profiles/main` and not an already-active profile's `HERMES_HOME`. If you deliberately installed Hermes with a custom data root, use that root rather than these defaults. The installer refuses to overwrite **any selected existing profile**; it does not merge, delete, back up or reset your current setup. Use a separate test installation or review individual files manually if names collide.
@@ -135,6 +134,8 @@ The prompts do not grant my administrative or Google API authority to you. Optio
 
 - [Reproducibility and exact differences](docs/REPRODUCIBILITY.md)
 - [Optional integrations and custom code](docs/INTEGRATIONS.md)
+- [Discord channel layout](docs/DISCORD.md)
+- [Cron job inventory](docs/CRON-INVENTORY.md)
 - [Security and old-history caveat](SECURITY.md)
 - [Snapshot inventory](inventory.json)
 - [Validation evidence](docs/VERIFICATION.md)

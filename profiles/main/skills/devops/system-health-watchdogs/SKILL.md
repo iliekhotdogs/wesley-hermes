@@ -200,5 +200,5 @@ type C:\Users\YOUR_USER\AppData\Local\hermes\logs\gateway_watchdog.log
 
 ### Related Existing Patterns
 
-- **Discord Bot Watchdog** (job #67ed12e695a1): every 5m, uses `discord_bot_watchdog.py` — similar pattern for bot process monitoring
+- **Discord Bot Watchdog**: retired; its checks are merged into `gateway_watchdog.py`. Run one watchdog, not several.
 - **Paused Gateway Watchdog** (job #2909af255b5b): every 5m, previously set up but paused — this new job supersedes it with a 10m interval and updated script

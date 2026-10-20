@@ -84,6 +84,8 @@ This pattern complements the gateway recovery above by providing automatic Disco
 
 ### Implementation
 
+> The live setup merged this into `gateway_watchdog.py`; `discord_bot_watchdog.py` was deleted. Prefer extending that one watchdog over adding another.
+
 1. **Create a watchdog script** in `<HERMES_HOME>/scripts/` that:
    - Checks for the Discord bot process (via `tasklist` or hermes gateway state)
    - Attempts restart via `npm run start` in the bot's directory

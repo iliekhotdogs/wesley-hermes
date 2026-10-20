@@ -7,6 +7,8 @@ import os
 import subprocess
 from pathlib import Path
 
+FINISHED = {"done", "completed", "cancelled", "canceled", "archived"}
+
 
 def state_path() -> Path:
     override = os.environ.get("KANBAN_BLOCK_ALERT_STATE")
@@ -68,17 +70,30 @@ def main() -> int:
         return 0
 
     lines = [f"⚠️ Hermes Kanban: {len(current)} blocked task(s)."]
+    oauth: list[str] = []
     for task_id, info in changed:
         try:
             detail = command_json("kanban", "show", task_id)
-            reason, fix = reason_and_fix(detail if isinstance(detail, dict) else {})
+            detail = detail if isinstance(detail, dict) else {}
+            if str(detail.get("status") or "").lower() in FINISHED:
+                continue  # Resolved since listing; a stale alert would mislead.
+            reason, fix = reason_and_fix(detail)
         except Exception as exc:
             reason, fix = f"Could not read task details: {exc}", "Run hermes kanban show " + task_id
+        if "invalid_grant" in reason.lower():
+            oauth.append(task_id)
+            continue
         lines.extend([
             f"\n• {task_id} — {info['title']} ({info['assignee']})",
             f"  Reason: {reason[:500]}",
             f"  Suggested fix: {fix}",
         ])
+    if oauth:
+        # One expired Google grant blocks many tasks; report it as one incident.
+        lines.insert(1, f"\n• Google OAuth invalid_grant incident: {len(oauth)} task(s) ({', '.join(oauth)})\n"
+                        "  Suggested fix: re-authorize the Google account once, then unblock these tasks.")
+    if len(lines) == 1:
+        return 0
     lines.append("\nOpen Kanban or run: hermes kanban list --status blocked")
     print("\n".join(lines)[:1900])
     return 0

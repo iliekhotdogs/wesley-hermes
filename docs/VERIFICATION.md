@@ -2,6 +2,8 @@
 
 ## Local executions
 
+> These counts were recorded on 2026-10-19 with six profiles and the token-router extension. `speedy` and the router have since been removed, so rerun `python tools/bundle.py validate` and the tests for current counts.
+
 Performed by main during takeover of the existing blocked update task, using its preserved isolated clone. The running profile settings, credentials and schedules were not edited.
 
 - `python tools/bundle.py validate`: **PASS**. Recomputed **1,887 payload-file hashes** across the six profiles and optional/reference/example trees.

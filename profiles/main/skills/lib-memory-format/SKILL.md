@@ -1,6 +1,6 @@
 # lib-memory-format
 
-**Audience:** lib (and main when proposing memory entries for lib to store)
+**Audience:** lib (curation) and main (routine memory writes)
 
 **Purpose:** Define a token-efficient, Karpathy-flavored format for how lib stores durable memories. This is the canonical format; all memory entries lib writes should follow it.
 
@@ -56,9 +56,9 @@ What something fundamentally is or how it works. Stable, revisited often, worth 
 - Example:
   ```
   [topic: memory-routing] [layer: principle] How durable memory routing works
-  main decides what merits remembering; lib decides placement/form and alone writes MEMORY.md, USER.md,
-  and the second brain across sessions. main never writes these files directly. Memory/log/storage
-  requests route through lib. The split exists so durable user-state stays in one authoritative writer.
+  The Obsidian vault plus its second-brain index is the one source of truth. main records and looks up
+  routine facts itself with the memory and second_brain_search tools; lib curates (dedupe, merge, prune,
+  reconcile) on a schedule or on main's request. MEMORY.md stays compact; completion logs never go there.
   ```
 
 ### `fact` — keep cheap
@@ -98,8 +98,8 @@ A learning from a specific event. The value is in the *why*, not just the conclu
   ```
   [topic: memory-routing] [layer: lesson] Don't route memory writes through main
   Attempting to write lib's MEMORY.md from main's session silently failed — main lacks write access to
-  lib's memory files. No error was surfaced; the write just didn't land. Correct path: main proposes the
-  content, lib writes it. Cost of getting this wrong: silent no-op, not a visible error.
+  lib's memory files. No error was surfaced; the write just didn't land. Correct path: main writes its own
+  entry with the memory tool, and lib curates later. Cost of getting this wrong: silent no-op, not a visible error.
   ```
 
 ---

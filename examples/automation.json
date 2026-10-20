@@ -1,9 +1,11 @@
 {
+  "note": "output_contract: report = one post to its report channel; dependency = no post, other jobs read its output; silent-unless-changed = post only when the result differs from the last run. Diagnostics, retries and errors go to an ops thread (for example #system-alerts or #cron-health), never to report channels.",
   "active_jobs": [],
   "templates": [
     {
       "category": "daily briefing",
       "enabled": false,
+      "output_contract": "report",
       "requires": [
         "your source accounts",
         "your chosen schedule and timezone",
@@ -13,6 +15,7 @@
     {
       "category": "weekly review",
       "enabled": false,
+      "output_contract": "report",
       "requires": [
         "your task/calendar account",
         "your chosen schedule and timezone",
@@ -22,6 +25,7 @@
     {
       "category": "system health check",
       "enabled": false,
+      "output_contract": "silent-unless-changed",
       "requires": [
         "your host-specific check script",
         "your chosen schedule and timezone"

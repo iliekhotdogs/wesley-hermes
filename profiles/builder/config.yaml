@@ -39,7 +39,6 @@
     "enabled": [],
     "disabled": [
       "profile-permissions",
-      "hermes-token-router",
       "briefing-curation",
       "second-brain-retrieval"
     ]

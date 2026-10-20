@@ -1,0 +1,22 @@
+{
+  "role_toolsets": {
+    "builder": ["file", "skills", "kanban", "terminal", "vision", "connections", "todo", "github", "mcp-github", "firecrawl", "mcp-firecrawl"],
+    "cowsearcher": ["file", "skills", "kanban", "terminal", "web", "connections", "todo", "github", "mcp-github", "firecrawl", "mcp-firecrawl"],
+    "cron": ["file", "skills", "kanban", "terminal", "cronjob", "web", "session_search", "connections", "todo"],
+    "lib": ["file", "skills", "kanban", "memory", "session_search", "connections", "todo", "second_brain"]
+  },
+  "worker_kanban": [
+    "kanban_show", "kanban_list", "kanban_complete", "kanban_block", "kanban_comment",
+    "kanban_heartbeat", "kanban_attach", "kanban_attach_url", "kanban_attachments",
+    "kanban_request_review"
+  ],
+  "cron_google_routine": {
+    "calendar": ["list", "create", "update"],
+    "tasks": ["lists", "list", "get", "create", "update", "complete"],
+    "gmail": ["search", "get", "labels"],
+    "drive": ["search", "get", "download", "upload", "create-folder"],
+    "docs": ["get", "create", "append"],
+    "sheets": ["get", "create", "update", "append"],
+    "contacts": ["list"]
+  }
+}

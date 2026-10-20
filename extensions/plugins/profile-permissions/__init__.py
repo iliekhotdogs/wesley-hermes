@@ -2,20 +2,15 @@
 import re
 import shlex
 import hashlib
+import json
+from datetime import datetime, timezone
 from pathlib import Path
 
-ROLE_TOOLSETS = {
-    'builder': {'file', 'skills', 'kanban', 'terminal', 'vision', 'connections', 'todo', 'github', 'mcp-github', 'firecrawl', 'mcp-firecrawl'},
-    'cowsearcher': {'file', 'skills', 'kanban', 'terminal', 'web', 'connections', 'todo', 'github', 'mcp-github', 'firecrawl', 'mcp-firecrawl'},
-    'cron': {'file', 'skills', 'kanban', 'terminal', 'cronjob', 'web', 'session_search', 'connections', 'todo'},
-    'lib': {'file', 'skills', 'kanban', 'memory', 'session_search', 'connections', 'todo', 'second_brain'},
-    'speedy': {'file', 'skills', 'kanban', 'terminal', 'connections', 'todo'},
-}
-WORKER_KANBAN = {
-    'kanban_show', 'kanban_list', 'kanban_complete', 'kanban_block', 'kanban_comment',
-    'kanban_heartbeat', 'kanban_attach', 'kanban_attach_url', 'kanban_attachments',
-    'kanban_request_review',
-}
+_POLICY = json.loads((Path(__file__).resolve().parent / 'policy.json').read_text(encoding='utf-8'))
+ROLE_TOOLSETS = {role: set(names) for role, names in _POLICY['role_toolsets'].items()}
+WORKER_KANBAN = set(_POLICY['worker_kanban'])
+CRON_GOOGLE_ROUTINE = {service: set(ops) for service, ops in _POLICY['cron_google_routine'].items()}
+GOOGLE_NON_ROUTINE = 'Google sharing, email sending, deletion, or authentication changes require main'
 PRIVILEGED_COMMAND = re.compile(
     r'(?i)\b(?:sudo|runas|icacls|takeown|reg|schtasks|set-acl|remove-item|rm|rmdir|del|taskkill|stop-process)\b'
     r'|\b(?:pip|pip3|uv|npm|pnpm|yarn|winget|choco)\s+(?:install|add|remove|uninstall|upgrade|update|sync|exec)\b'
@@ -33,7 +28,7 @@ SHELL_CONTROL = re.compile(r'[;&|<>`\n\r]|\$\(')
 
 
 def _blocked(role, reason):
-    return {'action': 'block', 'message': (
+    return {'action': 'block', 'reason': reason, 'message': (
         f'MAIN_REQUIRED: {role}: {reason}. Do not retry, rephrase, change permissions, '
         'or ask the user. On a Kanban assignment call kanban_block once with kind="capability" '
         'and include the exact step and target needed from main. Otherwise return the request '
@@ -48,6 +43,30 @@ def _paths(args):
         values.extend(re.findall(r'^\*\*\*\s*(?:Add|Update|Delete) File:\s*(.+)$', patch, re.M))
         values.extend(re.findall(r'^\*\*\*\s*Move to:\s*(.+)$', patch, re.M))
     return [Path(value).expanduser().resolve() for value in values if isinstance(value, str) and value]
+
+
+def _request_file_reason(value):
+    # shortcut: checks the file at hook time only; the caller can rewrite it before execution.
+    path = Path(value).expanduser()
+    if not path.is_absolute() or SECRET_NAMES.search(str(path)):
+        return 'workspace requests need an absolute task-local JSON file'
+    try:
+        payload = json.loads(path.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return 'the workspace request file is missing or not readable JSON'
+    for item in payload if isinstance(payload, list) else [payload]:
+        if not isinstance(item, dict):
+            return GOOGLE_NON_ROUTINE
+        method, resource = item.get('method'), item.get('resource')
+        if not isinstance(method, str) or not isinstance(resource, list) or not all(isinstance(s, str) for s in resource):
+            return GOOGLE_NON_ROUTINE
+        lowered = method.lower()
+        if lowered == 'send' or 'delete' in lowered or 'trash' in lowered:
+            return GOOGLE_NON_ROUTINE
+        # Drive permissions and Calendar acl share data; Gmail settings hold forwarding and delegates.
+        if any(segment in {'permissions', 'acl', 'settings'} for segment in resource):
+            return GOOGLE_NON_ROUTINE
+    return None
 
 
 def _terminal_reason(role, command, home):
@@ -76,26 +95,24 @@ def _terminal_reason(role, command, home):
         return 'the command could not be parsed'
     words = [word.strip('\"\'') for word in words]
     if words and Path(words[0]).stem.lower() == 'canvas':
-        if role in {'cowsearcher', 'speedy'} and len(words) > 1 and words[1] in {'list_courses', 'list_assignments'}:
+        if role == 'cowsearcher' and len(words) > 1 and words[1] in {'list_courses', 'list_assignments'}:
             return None
     if role == 'cron':
+        if len(words) >= 3 and Path(words[0]).stem.lower().startswith('python'):
+            script = Path(words[1]).expanduser().resolve()
+            if script == (home / 'scripts' / 'workspace_api.py').resolve():
+                if words[2:] == ['--clock']:
+                    return None
+                if len(words) == 4 and words[2] == '--request-file':
+                    return _request_file_reason(words[3])
         if len(words) >= 4 and Path(words[0]).stem.lower().startswith('python'):
             script = Path(words[1]).expanduser().resolve()
             expected = home / 'skills' / 'productivity' / 'google-workspace' / 'scripts' / 'google_api.py'
             if script == expected.resolve():
                 service, operation = words[2:4]
-                routine = {
-                    'calendar': {'list', 'create', 'update'},
-                    'tasks': {'lists', 'list', 'get', 'create', 'update', 'complete'},
-                    'gmail': {'search', 'get', 'labels'},
-                    'drive': {'search', 'get', 'download', 'upload', 'create-folder'},
-                    'docs': {'get', 'create', 'append'},
-                    'sheets': {'get', 'create', 'update', 'append'},
-                    'contacts': {'list'},
-                }
-                if operation in routine.get(service, set()):
+                if operation in CRON_GOOGLE_ROUTINE.get(service, set()):
                     return None
-                return 'Google sharing, email sending, deletion, or authentication changes require main'
+                return GOOGLE_NON_ROUTINE
         if words and Path(words[0]).stem.lower() == 'hermes':
             if words[1:] in (['status'], ['doctor'], ['--version']):
                 return None
@@ -108,14 +125,17 @@ def _terminal_reason(role, command, home):
 
 def _queue_main_recovery(role, tool_name, session_id, message):
     """A scheduled/direct assignment has no worker card to notify its coordinator."""
+    if not session_id:
+        return None
     from tools.kanban_tools import _default_task_id
-    if not session_id or _default_task_id(None):
+    if _default_task_id(None):
         return None
     from hermes_cli import kanban_db as kb
     from hermes_cli import kanban_db_connect as kbc
     cron = re.match(r'^cron_([a-zA-Z0-9]+)_', session_id)
     source = 'cron:' + cron[1] if cron else 'session:' + session_id
-    fingerprint = hashlib.sha256((role + ':' + source + ':' + tool_name).encode()).hexdigest()[:24]
+    # One recovery owner per source; later blocked tools from it join the same card.
+    fingerprint = hashlib.sha256((role + ':' + source).encode()).hexdigest()[:24]
     body = (
         f'Administrative recovery requested by {role}. Source profile: {role}; '
         f'source session: {session_id}; source identifier: {source}; blocked tool: {tool_name}.\n'
@@ -129,6 +149,8 @@ def _queue_main_recovery(role, tool_name, session_id, message):
         'actions on other cards; native orchestrator-only model tools are unavailable in workers. '
         'verify the result, and report through the original configured route. If Google consent or '
         'another external boundary requires the user, stop once with the precise dependency. '
+        'This card has 300s for the prerequisite repair only; if full takeover is needed, create '
+        'or claim a separate takeover card with a longer runtime instead of doing it here. '
         'The blocked command, credentials, file content, and OAuth codes are intentionally not copied here.'
     )
     with kbc.connect_closing(board='default') as conn:
@@ -215,6 +237,15 @@ def make_guard(role, home):
     def guard(tool_name, args, **kwargs):
         result = decide(tool_name, args, **kwargs)
         if result and result.get('action') == 'block':
+            # Never log command text or args; they may hold secrets.
+            entry = {'ts': datetime.now(timezone.utc).isoformat(), 'role': role,
+                     'tool': tool_name, 'reason': result.pop('reason', '')}
+            try:
+                (home / 'state').mkdir(parents=True, exist_ok=True)
+                with open(home / 'state' / 'permission_blocks.jsonl', 'a', encoding='utf-8') as log:
+                    log.write(json.dumps(entry) + '\n')
+            except OSError:
+                pass
             try:
                 task_id = _queue_main_recovery(role, tool_name, kwargs.get('session_id', ''), result['message'])
                 if task_id:

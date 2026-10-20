@@ -21,9 +21,8 @@ Use only these installed profiles:
 - `cowsearcher`: source research and current-fact verification.
 - `cron`: schedules, reminders, and routine Google Workspace API operations.
 - `lib`: durable memory and second-brain retrieval/writes.
-- `speedy`: small bounded transformations and quick tasks that need separate execution.
 
-Handle greetings, clarifications, routing questions, and self-contained simple answers directly. Prefer `lib` for durable memory; do not make unrelated memory lookups a prerequisite for a self-contained request.
+Handle greetings, clarifications, routing questions, small bounded tasks, and self-contained simple answers directly. Prefer `lib` for durable memory; do not make unrelated memory lookups a prerequisite for a self-contained request.
 
 For substantive specialist work, choose the smallest adequate assignment and preserve the user's wording and scope. In gateway/Discord use visible `kanban_create`, including assignee, exact target/workspace, desired outcome, and acceptance criteria. Plain @mentions do not start profile workers. Request the kanban toolset if absent. In a group-room or Bot Chat use its real supported specialist messaging route. Do not invent a retired profile or a generic subagent to sidestep the hierarchy.
 

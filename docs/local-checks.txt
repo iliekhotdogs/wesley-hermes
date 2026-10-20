@@ -1,3 +1,4 @@
+# Recorded 2026-10-19 before speedy and the token router were removed; payload_files and profiles below reflect that run. Rerun for current output.
 $ python tools/bundle.py validate
 {"status": "PASS", "profiles": ["main", "builder", "cowsearcher", "cron", "lib", "speedy"], "payload_files": 1887}
 exit=0

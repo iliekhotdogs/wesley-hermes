@@ -1,20 +1,33 @@
 #!/usr/bin/env python
-"""Hermes Gateway Auto-Restart Watchdog
+"""Hermes gateway health check.
 
-Runs as a Hermes cron job every 5-10 minutes.
-Checks if the gateway process is running and restarts it if crashed.
+Runs as a Hermes cron job every 5-10 minutes. One check covers the gateway
+status command, the gateway heartbeat/state record (doctor result) including
+Discord connectivity, and host RAM. It never restarts anything: restarts are
+the OS service manager's job. Output is printed only when health changes;
+healthy unchanged checks are silent.
 """
 
 from __future__ import annotations
+import ctypes
 import datetime as dt
+import json
+import os
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-HOME = Path(r"C:\Users\YOUR_USER\AppData\Local\hermes")
+HOME = Path(os.environ.get("HERMES_HOME", Path.home() / "AppData" / "Local" / "hermes"))
 LOG = HOME / "logs" / "gateway_watchdog.log"
-HERMES_EXE = HOME / "hermes-agent" / "venv" / "Scripts" / "hermes.exe"
+STATE = HOME / "state" / "gateway_watchdog_state.json"
+HEARTBEAT = HOME / "state" / "gateway.heartbeat"
+GATEWAY_STATE = HOME / "gateway_state.json"
+HERMES_EXE = os.environ.get("HERMES_EXE", "hermes")
+GATEWAY_PROFILE = os.environ.get("GATEWAY_PROFILE", "main")
+HEARTBEAT_MAX_AGE_S = 120
+RAM_ALERT_PERCENT = float(os.environ.get("RAM_ALERT_PERCENT", "90"))
+RAM_ALERT_HOLD_MINUTES = float(os.environ.get("RAM_ALERT_HOLD_MINUTES", "10"))
 
 
 def record(message: str) -> None:
@@ -24,125 +37,108 @@ def record(message: str) -> None:
         handle.write(f"{timestamp} {message}\n")
 
 
-def find_gateway_process() -> dict | None:
-    """Find the Hermes gateway process."""
+def read_json(path: Path) -> dict | None:
     try:
-        # Check via hermes gateway status command
-        result = subprocess.run(
-            [str(HERMES_EXE), "gateway", "status"],
-            capture_output=True, text=True, timeout=15
-        )
-        output = result.stdout.lower()
-
-        if "gateway process running" in output:
-            # Extract PID if available
-            import re
-            pid_match = re.search(r"PID: (\d+)", output)
-            pid = int(pid_match.group(1)) if pid_match else None
-            return {
-                "pid": pid,
-                "status": "gateway_running",
-                "detail": f"Hermes gateway is running" + (f" (PID: {pid})" if pid else "")
-            }
-
-        # Also check tasklist for hermes.exe
-        task_result = subprocess.run(
-            ["tasklist", "/FI", "IMAGENAME eq hermes.exe", "/FO", "LIST", "/NH"],
-            capture_output=True, text=True, timeout=10
-        )
-        hermes_pids = []
-        for line in task_result.stdout.split("\n"):
-            if "Hermes.exe" in line:
-                hermes_pids.append(line.strip())
-
-        if hermes_pids:
-            return {
-                "pid": None,
-                "status": "gateway_running",
-                "detail": "Hermes gateway processes found via tasklist"
-            }
-
-        return {
-            "pid": None,
-            "status": "gateway_not_running",
-            "detail": "Hermes gateway process not found"
-        }
-    except (OSError, subprocess.SubprocessError) as exc:
-        record(f"ERROR finding gateway process: {type(exc).__name__}")
-        return {"pid": None, "status": "error", "detail": str(exc)}
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else None
+    except (OSError, ValueError, TypeError):
+        return None
 
 
-def restart_gateway() -> dict:
-    """Attempt to restart the Hermes gateway."""
-    record("Attempting Hermes gateway restart")
-
+def gateway_status() -> str | None:
+    """Return an issue string, or None when the status command reports running."""
     try:
-        # Kill any existing gateway processes first (clean restart)
-        record("Killing existing gateway processes")
-        try:
-            # Find and kill existing hermes.exe processes
-            task_kill_result = subprocess.run(
-                ["taskkill", "/F", "/IM", "hermes.exe"],
-                capture_output=True, text=True, timeout=10
-            )
-            record(f"Kill result: returncode={task_kill_result.returncode}")
-        except Exception as e:
-            record(f"Kill attempt note: {e}")
-
-        # Wait a moment for processes to terminate
-        time.sleep(2)
-
-        # Start a fresh gateway in the background
-        record("Starting fresh Hermes gateway process")
-        workdir = str(HOME)
-
-        # Start gateway run in background - use start command
         result = subprocess.run(
-            ["cmd.exe", "/c", f"start /B \"\" \"{HERMES_EXE}\" gateway run"],
-            capture_output=True, text=True, timeout=30,
-            cwd=workdir,
+            [HERMES_EXE, "-p", GATEWAY_PROFILE, "gateway", "status"],
+            capture_output=True, text=True, timeout=20, check=False,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-
-        record(f"Gateway start initiated, returncode={result.returncode}")
-        record(f"Gateway start stdout: {result.stdout[-200:] if len(result.stdout) > 200 else result.stdout}")
-        record(f"Gateway start stderr: {result.stderr[-200:] if len(result.stderr) > 200 else result.stderr}")
-
-        # Wait a moment and check if it's running
-        time.sleep(5)
-
-        # Check status again
-        status = find_gateway_process()
-        return status
-
     except (OSError, subprocess.SubprocessError) as exc:
-        record(f"CRITICAL Gateway restart failed: {type(exc).__name__}")
-        return {"status": "error", "detail": str(exc)}
+        return f"gateway status command failed: {type(exc).__name__}"
+    detail = (result.stdout or result.stderr or "").strip().replace("\n", " ")[:300]
+    lowered = detail.lower()
+    # The status command is authoritative; do not infer health from a random
+    # hermes.exe process, because that could be the CLI or desktop app.
+    running = result.returncode == 0 and (
+        "gateway process detected" in lowered
+        or "gateway process running" in lowered
+        or "gateway is running" in lowered
+    ) and "no gateway process" not in lowered
+    return None if running else f"gateway not running: {detail or 'status returned ' + str(result.returncode)}"
+
+
+def doctor_status() -> str | None:
+    """Heartbeat freshness, gateway_state and Discord connectivity from the gateway's own records."""
+    heartbeat = read_json(HEARTBEAT)
+    state = read_json(GATEWAY_STATE)
+    if not heartbeat or not state:
+        return "gateway heartbeat/state missing"
+    try:
+        age = (dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(heartbeat.get("updated_at"))).total_seconds()
+    except (TypeError, ValueError):
+        return "gateway heartbeat timestamp invalid"
+    if state.get("gateway_state") != "running":
+        return f"gateway state={state.get('gateway_state', 'unknown')}"
+    if age > HEARTBEAT_MAX_AGE_S:
+        return f"gateway heartbeat is {age:.0f}s old"
+    discord_state = str(state.get("platforms", {}).get("discord", {}).get("state", "")).lower()
+    if discord_state in {"fatal", "disconnected", "unavailable"}:
+        return f"Discord state={discord_state}"
+    return None
+
+
+def ram_percent() -> float | None:
+    """Used physical memory percent; None when the platform gives no stdlib reading."""
+    if sys.platform == "win32":
+        class MemoryStatus(ctypes.Structure):
+            _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong)] + [
+                (name, ctypes.c_ulonglong) for name in ("total", "avail", "pagetotal", "pageavail", "virttotal", "virtavail", "extavail")]
+        status = MemoryStatus()
+        status.dwLength = ctypes.sizeof(MemoryStatus)
+        return float(status.dwMemoryLoad) if ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(status)) else None
+    try:
+        info = dict(line.split(":", 1) for line in Path("/proc/meminfo").read_text().splitlines())
+        total, available = (int(info[key].split()[0]) for key in ("MemTotal", "MemAvailable"))
+        return 100.0 * (total - available) / total
+    except (OSError, KeyError, ValueError, ZeroDivisionError):
+        return None
+
+
+def ram_notice(state: dict, percent: float | None, now: float) -> str | None:
+    """Alert only after RAM stays high for the hold window; emit recovery once."""
+    if percent is not None and percent >= RAM_ALERT_PERCENT:
+        state.setdefault("ram_high_since", now)
+        if not state.get("ram_alerted") and now - state["ram_high_since"] >= RAM_ALERT_HOLD_MINUTES * 60:
+            state["ram_alerted"] = True
+            return f"RAM at {percent:.0f}% for {RAM_ALERT_HOLD_MINUTES:g}+ minutes"
+        return None
+    state.pop("ram_high_since", None)
+    if state.pop("ram_alerted", None):
+        return "RAM recovered" + (f" ({percent:.0f}%)" if percent is not None else "")
+    return None
 
 
 def main() -> int:
-    record("Starting Hermes gateway watchdog check")
-
-    status = find_gateway_process()
-    current_status = status.get("status", "unknown")
-
-    record(f"INFO Gateway check: {status.get('detail', 'unknown')}")
-
-    if current_status in ("gateway_running",):
-        record("INFO Gateway is running - no action needed")
-        return 0
-
-    record(f"WARNING Gateway not running - attempting restart")
-
-    # Attempt restart
-    result = restart_gateway()
-    new_status = result.get("status", "unknown")
-
-    if new_status == "gateway_running":
-        record("RECOVERY Gateway restart successful")
-        return 0
-
-    record(f"CRITICAL Gateway restart failed: {result.get('detail', 'unknown')}")
-    return 1
+    state = read_json(STATE) or {}
+    issues = [issue for issue in (gateway_status(), doctor_status()) if issue]
+    lines = []
+    if issues != state.get("issues", []):
+        lines.extend(f"Gateway health: {issue}" for issue in issues)
+        if not issues:
+            lines.append("Gateway health recovered.")
+    state["issues"] = issues
+    notice = ram_notice(state, ram_percent(), time.time())
+    if notice:
+        lines.append(notice)
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    temp = STATE.with_suffix(".tmp")
+    temp.write_text(json.dumps(state, indent=2), encoding="utf-8")
+    temp.replace(STATE)
+    for line in lines:
+        record(line)
+    if lines:
+        print("\n".join(lines))
+    return 1 if issues else 0
 
 
 if __name__ == "__main__":
