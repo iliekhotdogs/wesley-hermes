@@ -18,7 +18,7 @@ class SnapshotTests(unittest.TestCase):
                     self.assertEqual(config['approvals'][key], 'deny')
                 self.assertFalse(config['plugins']['enabled'])
                 self.assertEqual(config['command_allowlist'], [])
-                self.assertEqual(config['memory']['memory_enabled'], name == 'lib')
+                self.assertEqual(config['memory']['memory_enabled'], name in {'lib', 'main'})
                 actual = sorted(p.parent.relative_to(ROOT / 'profiles' / name / 'skills').as_posix() for p in (ROOT / 'profiles' / name / 'skills').rglob('SKILL.md'))
                 self.assertEqual(actual, sorted(observed['bundled_skill_directories']))
                 self.assertEqual(len(actual), observed['bundled_skill_count'])

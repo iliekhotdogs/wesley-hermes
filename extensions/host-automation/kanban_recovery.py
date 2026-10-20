@@ -6,7 +6,7 @@ from pathlib import Path
 HOME=Path(os.environ.get('HERMES_HOME',Path(__file__).resolve().parent.parent))
 ROOT=HOME.parent.parent if HOME.parent.name=='profiles' else HOME
 sys.path.insert(0,str(ROOT/'hermes-agent'))
-SPECIALISTS={'builder','cowsearcher','cron','lib','speedy'}
+SPECIALISTS={'builder','cowsearcher','cron','lib'}
 
 def settle_verified_takeover(conn,task_id,summary):
  from hermes_cli import kanban_db as kb

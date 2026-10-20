@@ -17,6 +17,9 @@ No public-history rewrite, force-push, credential rotation/revocation or account
 - The original administrative and Workspace authority grants are not granted to new readers by this repository. Reference SOUL prompts describe the original customized deployment, not permission to act on someone else's accounts.
 - Optional plugins are disabled and never copied or loaded by the installer. Read their compatibility and deployment requirements first.
 - No scheduler job, messaging account, gateway process, background service or outbound mutation is created by installation.
+- The optional `profile-permissions` hook is a policy layer, not a sandbox. It checks commands and requests; it does not isolate processes.
+- Builder's block on Google helpers and the Hermes home is best-effort, because builder can run code it writes.
+- Keep cron's Google credentials under a separate OS user (or container) if you need a real boundary between them and other profiles.
 
 ## Reporting a problem
 

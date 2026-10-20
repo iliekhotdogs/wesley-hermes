@@ -32,6 +32,17 @@ The source checkout also had **30 modified or untracked paths** at inspection. T
 
 A current official Hermes release may implement related capabilities differently. Prefer its documented setup and test the actual behavior on your machine. Do not downgrade or overwrite a working Hermes checkout just to imitate this snapshot.
 
+## Private deployment record
+
+This public repository cannot restore the owner's machine. Keep a separate **private** repository as the deployment record:
+
+- the reviewed core patches for the 30 modified or untracked Hermes paths listed in `inventory.json`, applied against the recorded upstream HEAD;
+- live `config.yaml`, `policy.json` and profile prompts as actually deployed;
+- scheduler job definitions (prompts, schedules, destinations) with credentials and tokens stripped;
+- rollback steps: the upstream commit to return to, how to revert each patch, and how to restore config and jobs from the last known-good copy.
+
+Never commit OAuth files, `.env`, `auth.json`, memory records or gateway state there either; store credentials in their provider or OS secret store.
+
 ## Private integrations do not transfer
 
 - No model, tool-provider, Discord, Google, Canvas or GitHub credentials are included.

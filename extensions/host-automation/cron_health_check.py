@@ -1,9 +1,11 @@
 """Report changed actionable failures; retain local metrics without model turns."""
-import json, sqlite3
+import json, os, sqlite3
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 def collect(root,now):
+ # Jobs known to fail by design (e.g. a paused integration) are ignored via env, not hardcoded ids.
+ ignore={i.strip() for i in os.environ.get('CRON_HEALTH_IGNORE_IDS','').split(',') if i.strip()}
  issues=[]; metrics={}; profiles=[root]+[p for p in sorted((root/'profiles').iterdir()) if not p.name.startswith('.') and (p/'config.yaml').exists()] if (root/'profiles').exists() else [root]
  for home in profiles:
   role=home.name if home!=root else 'default'
@@ -14,7 +16,7 @@ def collect(root,now):
    issues.append(role+': scheduled-job store could not be read');continue
   metrics[role]={'enabled_jobs':sum(j.get('enabled',True) for j in jobs),'paused_jobs':sum(not j.get('enabled',True) for j in jobs),'last_outcomes':{},'last_delivery_failures':0}
   for job in jobs:
-   if not job.get('enabled',True) or job.get('id')=='85d20664dc76':continue
+   if not job.get('enabled',True) or job.get('id') in ignore:continue
    label=role+'/'+job.get('name',job['id']);status=job.get('last_status')
    outcomes=metrics[role]['last_outcomes']; outcomes[str(status or 'not_run')]=outcomes.get(str(status or 'not_run'),0)+1
    if status and status not in ('ok','success','silent','completed','skipped'): issues.append(label+': last status '+str(status))

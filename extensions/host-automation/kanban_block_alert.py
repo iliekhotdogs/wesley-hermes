@@ -7,6 +7,8 @@ import os
 import subprocess
 from pathlib import Path
 
+FINISHED = {"done", "completed", "cancelled", "canceled", "archived"}
+
 
 def state_path() -> Path:
     override = os.environ.get("KANBAN_BLOCK_ALERT_STATE")
@@ -63,22 +65,35 @@ def main() -> int:
         for task in tasks if isinstance(tasks, list) and task.get("id")
     }
     changed = [(task_id, info) for task_id, info in current.items() if previous.get(task_id) != info]
-    path.write_text(json.dumps(current, sort_keys=True, indent=2), encoding="utf-8")
-    if not changed:
-        return 0
-
-    lines = [f"⚠️ Hermes Kanban: {len(current)} blocked task(s)."]
+    lines: list[str] = []
+    oauth: list[str] = []
     for task_id, info in changed:
         try:
             detail = command_json("kanban", "show", task_id)
-            reason, fix = reason_and_fix(detail if isinstance(detail, dict) else {})
+            detail = detail if isinstance(detail, dict) else {}
+            if str(detail.get("status") or "").lower() in FINISHED:
+                del current[task_id]  # Resolved since listing; neither alert nor record it as blocked.
+                continue
+            reason, fix = reason_and_fix(detail)
         except Exception as exc:
             reason, fix = f"Could not read task details: {exc}", "Run hermes kanban show " + task_id
+        if "invalid_grant" in reason.lower():
+            oauth.append(task_id)
+            continue
         lines.extend([
             f"\n• {task_id} — {info['title']} ({info['assignee']})",
             f"  Reason: {reason[:500]}",
             f"  Suggested fix: {fix}",
         ])
+    # Saved after filtering so finished tasks are not remembered (or counted) as blocked.
+    path.write_text(json.dumps(current, sort_keys=True, indent=2), encoding="utf-8")
+    if oauth:
+        # One expired Google grant blocks many tasks; report it as one incident.
+        lines.insert(0, f"\n• Google OAuth invalid_grant incident: {len(oauth)} task(s) ({', '.join(oauth)})\n"
+                        "  Suggested fix: re-authorize the Google account once, then unblock these tasks.")
+    if not lines:
+        return 0
+    lines.insert(0, f"⚠️ Hermes Kanban: {len(current)} blocked task(s).")
     lines.append("\nOpen Kanban or run: hermes kanban list --status blocked")
     print("\n".join(lines)[:1900])
     return 0

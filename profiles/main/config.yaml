@@ -15,7 +15,7 @@
     "kanban"
   ],
   "memory": {
-    "memory_enabled": false,
+    "memory_enabled": true,
     "user_profile_enabled": false
   },
   "approvals": {
@@ -30,7 +30,6 @@
     "enabled": [],
     "disabled": [
       "profile-permissions",
-      "hermes-token-router",
       "briefing-curation",
       "second-brain-retrieval"
     ]

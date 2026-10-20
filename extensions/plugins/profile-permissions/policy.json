@@ -1,0 +1,35 @@
+{
+  "role_toolsets": {
+    "builder": ["file", "skills", "kanban", "terminal", "vision", "connections", "todo", "github", "mcp-github", "firecrawl", "mcp-firecrawl"],
+    "cowsearcher": ["file", "skills", "kanban", "terminal", "web", "connections", "todo", "github", "mcp-github", "firecrawl", "mcp-firecrawl"],
+    "cron": ["file", "skills", "kanban", "terminal", "cronjob", "web", "session_search", "connections", "todo"],
+    "lib": ["file", "skills", "kanban", "memory", "session_search", "connections", "todo", "second_brain"]
+  },
+  "worker_kanban": [
+    "kanban_show", "kanban_list", "kanban_complete", "kanban_block", "kanban_comment",
+    "kanban_heartbeat", "kanban_attach", "kanban_attach_url", "kanban_attachments",
+    "kanban_request_review"
+  ],
+  "cron_google_routine": {
+    "calendar": ["list", "create", "update"],
+    "tasks": ["lists", "list", "get", "create", "update", "complete"],
+    "gmail": ["search", "get", "labels"],
+    "drive": ["search", "get", "download", "upload", "create-folder"],
+    "docs": ["get", "create", "append"],
+    "sheets": ["get", "create", "update", "append"],
+    "contacts": ["list"]
+  },
+  "cron_workspace_routine": {
+    "calendar": ["events.list", "events.get", "events.insert", "events.patch", "events.update", "calendarList.list", "colors.get", "settings.get"],
+    "tasks": ["tasklists.list", "tasks.list", "tasks.get", "tasks.insert", "tasks.patch", "tasks.update"],
+    "gmail": ["users.messages.list", "users.messages.get", "users.threads.list", "users.threads.get", "users.labels.list"],
+    "drive": ["files.list", "files.get", "files.create", "files.update"],
+    "docs": ["documents.get", "documents.create", "documents.batchUpdate"],
+    "sheets": ["spreadsheets.get", "spreadsheets.create", "spreadsheets.values.get", "spreadsheets.values.batchGet", "spreadsheets.values.update", "spreadsheets.values.append"],
+    "people": ["people.connections.list", "people.get"]
+  },
+  "docs_batch_update_requests": [
+    "insertText", "insertTable", "updateTextStyle", "updateParagraphStyle", "createParagraphBullets",
+    "insertPageBreak", "insertTableRow", "insertTableColumn", "createNamedRange", "updateDocumentStyle"
+  ]
+}

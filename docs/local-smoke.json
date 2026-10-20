@@ -1,4 +1,5 @@
 {
+  "note": "Recorded 2026-10-19 with six profiles; the since-retired speedy entry was removed. installed_file_count reflects that six-profile run. Rerun to refresh.",
   "status": "PASS_LOCAL",
   "installed_file_count": 1809,
   "profiles": [
@@ -38,14 +39,6 @@
       "profile": "lib",
       "model_readback": {
         "default": "gpt-6.1-sol",
-        "provider": "openai-codex"
-      },
-      "real_hermes_cli_exit": 0
-    },
-    {
-      "profile": "speedy",
-      "model_readback": {
-        "default": "gpt-6-luna",
         "provider": "openai-codex"
       },
       "real_hermes_cli_exit": 0

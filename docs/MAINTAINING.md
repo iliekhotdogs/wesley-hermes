@@ -1,10 +1,10 @@
 # Maintaining this public setup
 
-This is a shareable source/configuration collection, not a raw backup directory. Keep separate private backups for recovery. Do not publish a private export just because the destination is called a setup repository.
+This is a shareable source/configuration collection, not a raw backup directory. Keep separate private backups for recovery, and a private deployment record as described in [reproducibility](REPRODUCIBILITY.md#private-deployment-record). Do not publish a private export just because the destination is called a setup repository.
 
 ## Update procedure
 
-1. Inspect the six named profiles read-only. Record exact default model/provider values, role/skill/plugin inventories, schedule **counts only**, and the actual Hermes upstream commit plus dirty/untracked path list. Do not read or export credential files or user-profile memory.
+1. Inspect the named profiles (`main`, `builder`, `cowsearcher`, `cron`, `lib`) read-only. Record exact default model/provider values, role/skill/plugin inventories, schedule **counts only**, and the actual Hermes upstream commit plus dirty/untracked path list. Do not read or export credential files or user-profile memory.
 2. Decide what is installable and what is source reference. Keep adapted safe profile prompts/templates under `profiles/`, original sanitized prompt/allowlisted-setting references under `reference/`, optional extension code under `extensions/`, and inert automation descriptions under `examples/`. Never copy a whole live profile recursively.
 3. Explicitly allowlist source file types and paths. Exclude hidden skill-catalog caches/archives, binaries/build outputs, all plugin state, job records, personal reminder scripts and private finance/academic/project documents. An installed SKILL directory count is not a count of authenticated/runtime-available capabilities.
 4. Remove owner-bound filesystem paths and account/destination identifiers from copied reference text. Keep upstream authorship/license notices. Review changes rather than assuming a regex makes arbitrary data safe. Every required missing component or porting placeholder must be disclosed, not represented as a working clone of the original deployment.

@@ -29,9 +29,28 @@ def vancouver_now(instant=None):
         return instant.astimezone(timezone(timedelta(hours=-8), 'America/Vancouver'))
 
 
+def _home():
+    return Path(os.environ.get('HERMES_HOME') or Path(__file__).resolve().parent.parent)
+
+
+def policy_reason(payload):
+    """Re-check the profile-permissions policy at run time; missing policy or checker fails closed."""
+    home = _home()
+    install = home.parent.parent if home.parent.name == 'profiles' else home
+    candidates = [os.environ.get('HERMES_PERMISSION_POLICY')] + [
+        str(root / 'plugins' / 'profile-permissions' / 'policy.json') for root in (home, install)]
+    found = next((Path(c) for c in candidates if c and Path(c).is_file()), None)
+    if found is None:
+        return 'permission policy.json not found; refusing all requests'
+    spec = importlib.util.spec_from_file_location('workspace_policy', found.parent / 'workspace_policy.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.workspace_request_reason(payload, json.loads(found.read_text(encoding='utf-8')))
+
+
 def build_service(service, version):
     # Load only the established, profile-owned Google wrapper, never a path from JSON.
-    home = Path(os.environ.get('HERMES_HOME') or Path(__file__).resolve().parent.parent)
+    home = _home()
     wrapper = home / 'skills' / 'productivity' / 'google-workspace' / 'scripts' / 'google_api.py'
     spec = importlib.util.spec_from_file_location('workspace_google_api', wrapper)
     module = importlib.util.module_from_spec(spec)
@@ -80,6 +99,13 @@ def main(argv=None):
         return 1
     if not isinstance(payload, (dict, list)):
         print(json.dumps({'error': {'type': 'ValueError', 'message': 'expected request object or list'}}))
+        return 1
+    try:
+        reason = policy_reason(payload)
+    except Exception as exc:
+        reason = f'permission policy unavailable ({type(exc).__name__}); refusing all requests'
+    if reason:
+        print(json.dumps({'error': {'type': 'PermissionError', 'message': reason}}))
         return 1
     batch = isinstance(payload, list)
     results = []

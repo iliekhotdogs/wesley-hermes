@@ -1,3 +1,3 @@
 {
-  "description": "Durable memory, second-brain retrieval and provenance-aware memory maintenance."
+  "description": "Memory curation: deduplicate, reconcile and curate durable memory (merge, rewrite, flag stale entries; deletions proposed to main) on a schedule or on main's request."
 }
