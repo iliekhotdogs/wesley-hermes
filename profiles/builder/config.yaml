@@ -1,119 +1,71 @@
-model:
-  default: poolside/laguna-s-2.1:free
-  provider: nous
-fallback_providers:
-- provider: openai-codex
-  model: gpt-6-sol
-  base_url: https://chatgpt.com/backend-api/codex
-  api_mode: codex_responses
-agent:
-  max_turns: 60
-  bot_mode_protocol: false
-  verify_on_stop: false
-  verbose: false
-  reasoning_effort: medium
-memory:
-  memory_enabled: false
-  user_profile_enabled: false
-skills:
-  write_approval: true
-command_allowlist: []
-plugins:
-  enabled: []
-_config_version: 45
-platform_toolsets:
-  cli:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  telegram:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  discord:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  whatsapp:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  signal:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  homeassistant:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  qqbot:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  yuanbao:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  teams:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-  google_chat:
-  - code_execution
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - vision
-CANVAS_BASE_URL: https://canvas.sfu.ca
-onboarding:
-  seen:
-    tool_progress_prompt: true
-platforms:
-  discord:
-    enabled: false
-mcp_servers:
-  github:
-    command: npx
-    args:
-    - -y
-    - '@modelcontextprotocol/server-github'
-    env:
-      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}
+{
+  "model": {
+    "default": "gpt-6.1-sol",
+    "provider": "openai-codex"
+  },
+  "fallback_providers": [],
+  "agent": {
+    "max_turns": 60,
+    "reasoning_effort": "medium",
+    "verbose": false,
+    "disabled_toolsets": [
+      "delegation",
+      "code_execution",
+      "computer_use",
+      "discord_admin"
+    ]
+  },
+  "toolsets": [
+    "connections",
+    "file",
+    "skills",
+    "kanban",
+    "terminal",
+    "vision"
+  ],
+  "memory": {
+    "memory_enabled": false,
+    "user_profile_enabled": false
+  },
+  "approvals": {
+    "mode": "manual",
+    "cron_mode": "deny",
+    "single_query_mode": "deny",
+    "unattended_mode": "deny",
+    "destructive_slash_confirm": true
+  },
+  "command_allowlist": [],
+  "plugins": {
+    "enabled": [],
+    "disabled": [
+      "profile-permissions",
+      "hermes-token-router",
+      "briefing-curation",
+      "second-brain-retrieval"
+    ]
+  },
+  "delegation": {
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false,
+    "max_concurrent_children": 1
+  },
+  "tool_loop_guardrails": {
+    "warnings_enabled": true,
+    "hard_stop_enabled": true,
+    "warn_after": {
+      "exact_failure": 1,
+      "same_tool_failure": 2,
+      "idempotent_no_progress": 2
+    },
+    "hard_stop_after": {
+      "exact_failure": 2,
+      "same_tool_failure": 3,
+      "idempotent_no_progress": 5
+    }
+  },
+  "group_sessions_per_user": true,
+  "skills": {
+    "write_approval": true,
+    "disabled": []
+  }
+}

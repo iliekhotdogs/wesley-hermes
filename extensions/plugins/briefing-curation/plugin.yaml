@@ -1,0 +1,5 @@
+name: briefing-curation
+version: "1.0.0"
+description: "Owner-scoped persistent briefing buttons on the existing Discord gateway."
+author: "Local Main recovery"
+kind: standalone

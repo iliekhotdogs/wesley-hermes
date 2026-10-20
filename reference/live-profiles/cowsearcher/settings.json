@@ -1,0 +1,80 @@
+{
+  "agent": {
+    "bot_mode_protocol": false,
+    "max_turns": 15,
+    "verify_on_stop": false,
+    "verbose": false,
+    "reasoning_effort": "medium",
+    "disabled_toolsets": [
+      "delegation",
+      "code_execution",
+      "computer_use",
+      "discord_admin"
+    ]
+  },
+  "toolsets": [
+    "connections",
+    "file",
+    "skills",
+    "kanban",
+    "terminal",
+    "web"
+  ],
+  "approvals": {
+    "mode": "off",
+    "cron_mode": "approve",
+    "unattended_mode": "approve",
+    "single_query_mode": "approve",
+    "destructive_slash_confirm": true
+  },
+  "delegation": {
+    "subagent_auto_approve": false,
+    "orchestrator_enabled": false,
+    "max_concurrent_children": 1
+  },
+  "memory": {
+    "memory_enabled": false,
+    "user_profile_enabled": false
+  },
+  "skills": {
+    "write_approval": false,
+    "disabled": []
+  },
+  "plugins": {
+    "enabled": [
+      "profile-permissions"
+    ],
+    "disabled": [],
+    "entries": {
+      "profile-permissions": {
+        "allow_tool_override": false
+      }
+    }
+  },
+  "tool_loop_guardrails": {
+    "warnings_enabled": true,
+    "hard_stop_enabled": true,
+    "warn_after": {
+      "exact_failure": 1,
+      "same_tool_failure": 2,
+      "idempotent_no_progress": 2
+    },
+    "hard_stop_after": {
+      "exact_failure": 2,
+      "same_tool_failure": 3,
+      "idempotent_no_progress": 5
+    }
+  },
+  "model": {
+    "default": "meituan/longcat-2.5-preview:free",
+    "provider": "nous"
+  },
+  "fallback_providers": [
+    {
+      "model": "gpt-6.1-sol",
+      "provider": "openai-codex",
+      "base_url": "https://chatgpt.com/backend-api/codex",
+      "api_mode": "codex_responses"
+    }
+  ]
+}
