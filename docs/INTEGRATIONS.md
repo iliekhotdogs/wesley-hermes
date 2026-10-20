@@ -34,7 +34,25 @@ Read the package README and current Hermes plugin instructions, choose your own 
 
 ## Runtime permission hook
 
-`extensions/plugins/profile-permissions/` records the custom role-policy hook. The observed deployment loads it for every named profile. Role rules live in `policy.json`; each block is appended to `<home>/state/permission_blocks.jsonl`. Only cron may run the Google helpers; every other role, including builder (also through `cd ... && ...`), is blocked. Cron may run `scripts/workspace_api.py --request-file/--clock` with a bare `python`, `python3`, `py` or `pythonw` interpreter. Each `--request-file` request must match an allowlist of service plus `resource.method` in `policy.json`: reads, creates and updates for Calendar events, Tasks, Drive files, Docs and Sheets values, plus read-only Gmail and Contacts. A request carrying `trashed`, `addParents`, `removeParents`, `conferenceData`, `attendees`, Docs/Sheets delete requests (`deleteContentRange`, `deleteSheet`, `deleteDimension`, `deleteRange`) or Drive sharing-setting fields (`writersCanShare`, `copyRequiresWriterPermission`, `viewersCanCopyContent`), or a `sendUpdates`/`sendNotifications` value other than `none`, is rejected. The older `google_api.py` route also rejects `--attendees`. Sending, deleting, trashing, clearing, sharing, invites and webhooks are therefore unavailable to cron and return to main. Specialists are also blocked from delete-like memory actions (delete, clear, reset, remove, forget, purge, prune). It can return `MAIN_REQUIRED` for privileged operations even when shell approval prompts are off; approval mode and role policy are separate layers.
+`extensions/plugins/profile-permissions/` records the custom role-policy hook. The observed deployment loads it for every named profile. Role rules live in `policy.json`; each block is appended to `<home>/state/permission_blocks.jsonl`. Only cron may run the Google helpers; every other role, including builder (also through `cd ... && ...`), is blocked. Specialists are also blocked from delete-like memory actions (delete, clear, reset, remove, forget, purge, prune). The hook can return `MAIN_REQUIRED` for privileged operations even when shell approval prompts are off; approval mode and role policy are separate layers.
+
+**`workspace_api.py` (cron).** Cron may run `scripts/workspace_api.py --request-file/--clock` with a bare `python`, `python3`, `py` or `pythonw` interpreter. The hook rejects request paths containing shell expansion characters. Each request must match the `cron_workspace_routine` allowlist in `policy.json` (service plus `resource.method`; a method name that itself contains a dot is rejected):
+
+- Calendar: `events.list/get/insert/patch/update`, `calendarList.list`, `colors.get`, `settings.get`
+- Tasks: `tasklists.list`, `tasks.list/get/insert/patch/update`
+- Gmail (read-only): `users.messages.list/get`, `users.threads.list/get`, `users.labels.list`
+- Drive: `files.list/get/create/update`
+- Docs: `documents.get/create/batchUpdate`; `batchUpdate` is limited to an allowlist of insert/style request types, with no delete or replace requests
+- Sheets: `spreadsheets.get/create`, `values.get/batchGet/update/append`
+- People (read-only): `people.connections.list`, `people.get`
+
+A request carrying any of these keys anywhere in its params or body is rejected: `trashed`, `deleted`, `addParents`, `removeParents`, `parents`, `conferenceData`, `attendees`, `media_body`/`media_mime_type`/`media` (no local-file uploads), Drive sharing-setting fields, or a `sendUpdates`/`sendNotifications` value other than `none`. `workspace_api.py` enforces the same policy itself before any API call, so a request file changed between the hook check and the run is still checked. It fails closed if `policy.json` cannot be found; `HERMES_PERMISSION_POLICY` overrides the path.
+
+**`google_api.py` (older route).** Argparse abbreviations are disabled. The hook blocks `--att*` flags, `--output` into the Hermes install or to code/config suffixes, and uploads of secret-named or install-dir files. `drive download` must name an absolute `--output` path. Arguments may not contain shell-expansion characters (`$`, `%`, backtick; unquoted also `* ? [ ] { } ~`), so text like "50%" cannot go in a quoted `google_api.py` argument; use `workspace_api.py` for that.
+
+Sending, deleting, trashing, moving, clearing, invites, webhooks, and sharing actions and sharing settings are therefore unavailable to cron and return to main. Files cron creates land in My Drive root. Accepted residual risks: cron has full Gmail and Drive read access; it can blank Sheets values or rewrite Docs text (recoverable from revision history); and it can create events on any calendar it can write to.
+
+**Builder.** Builder's block on Google helpers and the Hermes home is lexical and best-effort. Builder can run arbitrary Python it writes, so this is not a sandbox. Real isolation needs a separate OS user or container.
 
 This is source reference, **not an OS sandbox**, and it is not enabled in the installable templates. Its trusted script paths/hashes and role assumptions must be reconciled with a new installation before use. Do not disable the whole hook to bypass a denial or assume copying it recreates an administrative authority grant.
 
@@ -79,6 +97,12 @@ The old `discord_bot_watchdog.py` also restarted a separate Next.js app ("poopyc
 | `COMPLETION_LOG_PATH` | `completion_log.py` | `<HERMES_HOME>/profiles/lib/completion_log/completions.jsonl` | Where completion entries are written. |
 | `DISCORD_GUILD_ID` | `thread_cleanup.py` | none (required) | Discord server whose threads are cleaned up. |
 | `THREAD_DELETE_AFTER_DAYS` | `thread_cleanup.py` | unset (never delete) | Delete threads this many days after they were archived. |
+| `DISCORD_BOT_TOKEN` | `thread_cleanup.py`, `plugins/briefing-curation/discord_curation_service.py` | none (required) | Discord bot token. Never print or commit it. |
+| `GATEWAY_PROFILE` | `gateway_watchdog.py` | `main` | Profile passed to `hermes -p <profile> gateway status`. |
+| `KANBAN_BLOCK_ALERT_STATE` | `kanban_block_alert.py` | `<HERMES_HOME>/kanban_block_alert_state.json` | State file for blocked-card alerts. |
+| `OBSIDIAN_VAULT_PATH` | `obsidian_briefing_archiver.py`, `obsidian_second_brain_health.py`, `second_brain_index_refresh.py`, `second-brain` package | `/opt/data/vault` (Windows: `C:\Users\YOUR_USER\OneDrive\Desktop\thesleyfiles`); required by the `second-brain` package (or pass `--vault`) | Obsidian vault root. |
+| `SECOND_BRAIN_PROJECT` | `obsidian_second_brain_health.py`, `second_brain_index_refresh.py` | `/projects/second-brain` (Windows: `C:\Users\YOUR_USER\hermes-projects\second-brain`) | Second-brain project folder. |
+| `HERMES_PERMISSION_POLICY` | `scripts/workspace_api.py` | unset (uses the profile-permissions `policy.json`; fails closed if not found) | Path to the permission `policy.json`. |
 
 Use the official [native Windows service guide](https://hermes-agent.nousresearch.com/docs/user-guide/windows-native) or your platform's documented service mechanism for a fresh system. Import no old supervisor XML, private backup archive or live process ledger. Personal contact, finance and journal reminder scripts are intentionally not exported.
 

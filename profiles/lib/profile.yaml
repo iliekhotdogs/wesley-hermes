@@ -1,3 +1,3 @@
 {
-  "description": "Memory curation: deduplicate, reconcile and prune durable memory on a schedule or on main's request."
+  "description": "Memory curation: deduplicate, reconcile and curate durable memory (merge, rewrite, flag stale entries; deletions proposed to main) on a schedule or on main's request."
 }

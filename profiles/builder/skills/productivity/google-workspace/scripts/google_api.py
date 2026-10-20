@@ -25,6 +25,8 @@ Usage:
   python google_api.py tasks delete TASK_ID
 """
 
+from __future__ import annotations
+
 import argparse
 import base64
 import json
@@ -1176,8 +1178,17 @@ def tasks_delete(args):
 # =========================================================================
 
 
+class _ExactArgumentParser(argparse.ArgumentParser):
+    """No option prefixes (--att, --out): the cron permission hook matches whole flag names.
+    add_subparsers reuses type(self), so every nested parser inherits this."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs["allow_abbrev"] = False
+        super().__init__(*args, **kwargs)
+
+
 def main():
-    parser = argparse.ArgumentParser(description="Google Workspace API for Hermes Agent")
+    parser = _ExactArgumentParser(description="Google Workspace API for Hermes Agent")
     sub = parser.add_subparsers(dest="service", required=True)
 
     # --- Gmail ---

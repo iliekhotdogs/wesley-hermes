@@ -27,5 +27,9 @@
     "docs": ["documents.get", "documents.create", "documents.batchUpdate"],
     "sheets": ["spreadsheets.get", "spreadsheets.create", "spreadsheets.values.get", "spreadsheets.values.batchGet", "spreadsheets.values.update", "spreadsheets.values.append"],
     "people": ["people.connections.list", "people.get"]
-  }
+  },
+  "docs_batch_update_requests": [
+    "insertText", "insertTable", "updateTextStyle", "updateParagraphStyle", "createParagraphBullets",
+    "insertPageBreak", "insertTableRow", "insertTableColumn", "createNamedRange", "updateDocumentStyle"
+  ]
 }

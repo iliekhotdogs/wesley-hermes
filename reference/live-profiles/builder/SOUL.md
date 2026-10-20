@@ -2,7 +2,7 @@
 
 This records a customized deployment. Owner grants, absolute placeholders and local-only helpers do not transfer to a new installation. The installer uses the adapted prompt instead.
 
-Repository note: this repository's `profile-permissions` plugin lets only cron run the Google helpers. Builder cannot run `workspace_api.py` or the Google wrapper at all (including through `cd ... &&`), so its Workspace work returns to main or cron even though the live grant below lists it.
+Repository note: this repository's `profile-permissions` plugin lets only cron run the Google helpers. Builder cannot run `workspace_api.py` or the Google wrapper (including through `cd ... &&`), so its Workspace work returns to main or cron even though the live grant below lists it. This block is lexical and best-effort, not a sandbox: builder can run Python it writes. Real isolation needs a separate OS user or container.
 
 ---
 

@@ -2,27 +2,27 @@
 import re
 import shlex
 import hashlib
+import importlib.util
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-_POLICY = json.loads((Path(__file__).resolve().parent / 'policy.json').read_text(encoding='utf-8'))
+_DIR = Path(__file__).resolve().parent
+_POLICY = json.loads((_DIR / 'policy.json').read_text(encoding='utf-8'))
+_spec = importlib.util.spec_from_file_location('profile_permissions_workspace_policy', _DIR / 'workspace_policy.py')
+workspace_policy = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(workspace_policy)
 ROLE_TOOLSETS = {role: set(names) for role, names in _POLICY['role_toolsets'].items()}
 WORKER_KANBAN = set(_POLICY['worker_kanban'])
 CRON_GOOGLE_ROUTINE = {service: set(ops) for service, ops in _POLICY['cron_google_routine'].items()}
-CRON_WORKSPACE_ROUTINE = {service: set(ops) for service, ops in _POLICY['cron_workspace_routine'].items()}
-# Sharing, invitations, moves, and trash ride inside otherwise routine methods.
-WORKSPACE_DENIED_KEYS = {'trashed', 'addparents', 'removeparents', 'conferencedata', 'attendees',
-                         'deletecontentrange', 'deletesheet', 'deletedimension', 'deleterange', 'writerscanshare',
-                         'copyrequireswriterpermission', 'viewerscancopycontent'}
-WORKSPACE_NOTIFY_KEYS = {'sendupdates', 'sendnotifications'}
 PYTHON_EXE = re.compile(r'(?i)^(?:python(?:3(?:\.\d+)?)?|pythonw|py)(?:\.exe)?$')
 GOOGLE_HELPER = re.compile(r'(?i)workspace_api|google_api')
 HERMES_HOME_REF = re.compile(
-    r'(?:^|[\s"\'/~])\.hermes(?:/|$|[\s"\'])|appdata/local/hermes(?:/|$|[\s"\'])'
-    r'|%localappdata%/hermes|\$\{?(?:env:)?hermes_home'
+    r'(?:^|[\s"\'/~])\.hermes(?:/|$|[\s"\'])|(?:appdata/local|localappdata[%}]?)/hermes(?:/|$|[\s"\'])'
+    r'|\$\{?(?:env:)?hermes_home'
 )
-GOOGLE_NON_ROUTINE = 'Google sharing, email sending, deletion, or authentication changes require main'
+HERMES_GLOB = re.compile(r'(?i)[^\s"\'/\\]*[*?\[][^\s"\'/\\]*')
+GOOGLE_NON_ROUTINE = workspace_policy.DENIED
 PRIVILEGED_COMMAND = re.compile(
     r'(?i)\b(?:sudo|runas|icacls|takeown|reg|schtasks|set-acl|remove-item|rm|rmdir|del|taskkill|stop-process)\b'
     r'|\b(?:pip|pip3|uv|npm|pnpm|yarn|winget|choco)\s+(?:install|add|remove|uninstall|upgrade|update|sync|exec)\b'
@@ -34,9 +34,16 @@ PRIVILEGED_COMMAND = re.compile(
     r'|\bcurl\s+.*(?:--request|-X)\s+(?:POST|PUT|PATCH|DELETE)\b'
     r'|(?:^|\s)(?:python\S*|node|powershell|pwsh|bash|sh)\s+(?:-c|-e|-command|-encodedcommand)\b'
 )
-SECRET_NAMES = re.compile(r'(?i)(?:^|[\\/])(?:\.env(?:\..*)?|auth\.json|google_(?:token|client_secret|oauth_pending)\.json)$')
+# A token anywhere (path component or command word), not only the final path segment.
+SECRET_NAMES = re.compile(
+    r'(?i)(?:^|[\s"\'\\/=])(?:\.env(?:\.[^\s"\'\\/]*)?|auth\.json|google_(?:token|client_secret|oauth_pending)\.json)'
+    r'(?=$|[\s"\'\\/])')
 MEMORY_NAMES = re.compile(r'(?i)(?:^|[\\/])(?:MEMORY\.md|USER\.md)$')
 SHELL_CONTROL = re.compile(r'[;&|<>`\n\r]|\$\(')
+# The hook sees literal text; the shell may expand these into different paths or values.
+SHELL_EXPANSION = re.compile(r'[$%*?\[\]{}~`]')
+ENV_EXPANSION = re.compile(r'[$%`]')
+WRITABLE_CODE = {'.py', '.pth', '.json', '.yaml', '.yml', '.toml', '.ps1', '.psm1', '.bat', '.cmd', '.sh', '.exe', '.dll'}
 
 
 def _blocked(role, reason):
@@ -57,43 +64,67 @@ def _paths(args):
     return [Path(value).expanduser().resolve() for value in values if isinstance(value, str) and value]
 
 
+def _install_of(home):
+    return home.parent.parent if home.parent.name == 'profiles' else home
+
+
+def _protected(path, role, home):
+    """Inside the Hermes install but outside the task-local write exceptions."""
+    install = _install_of(home)
+    if not path.is_relative_to(install):
+        return False
+    exceptions = [home / 'sessions', install / 'kanban' / 'workspaces']
+    if role == 'lib':
+        exceptions.extend([home / 'memories', install / 'profiles' / 'main' / 'memories'])
+    return not any(path.is_relative_to(root) for root in exceptions)
+
+
+def _local_file_reason(value, home, writing):
+    if not value or value.startswith('-') or SHELL_EXPANSION.search(value) or not Path(value).is_absolute():
+        return 'Drive transfers need an explicit absolute local path without shell expansion'
+    path = Path(value).resolve()
+    if SECRET_NAMES.search(str(path)):
+        return 'direct access to credential files is reserved for main; use the installed API wrapper'
+    if _protected(path, 'cron', home) or (writing and path.suffix.lower() in WRITABLE_CODE):
+        return 'Hermes configuration, plugins, and installed scripts are maintained by main'
+    return None
+
+
+def _download_reason(args, home):
+    outputs = []
+    for index, word in enumerate(args):
+        lowered = word.lower()
+        if lowered.startswith('--output='):
+            outputs.append(word.split('=', 1)[1])
+        elif lowered == '--output':
+            outputs.append(args[index + 1] if index + 1 < len(args) else '')
+        elif lowered.startswith(('--o', '-o')):
+            return 'spell out --output; abbreviated output flags are not accepted'
+    if not outputs:
+        return 'drive download needs an explicit absolute --output path'
+    for value in outputs:
+        reason = _local_file_reason(value, home, writing=True)
+        if reason:
+            return reason
+    return None
+
+
 def _request_file_reason(value):
-    # shortcut: checks the file at hook time only; the caller can rewrite it before execution.
-    path = Path(value).expanduser()
-    if not path.is_absolute() or SECRET_NAMES.search(str(path)):
-        return 'workspace requests need an absolute task-local JSON file'
+    # workspace_api.py re-checks the same policy at run time, so rewriting the file after this check fails closed.
+    path = Path(value)
+    if SHELL_EXPANSION.search(value) or not path.is_absolute() or SECRET_NAMES.search(str(path)):
+        return 'workspace requests need an absolute task-local JSON file path without shell expansion'
     try:
         payload = json.loads(path.read_text(encoding='utf-8'))
     except (OSError, ValueError):
         return 'the workspace request file is missing or not readable JSON'
-    for item in payload if isinstance(payload, list) else [payload]:
-        if not isinstance(item, dict):
-            return GOOGLE_NON_ROUTINE
-        service, method, resource = item.get('service'), item.get('method'), item.get('resource')
-        if not isinstance(service, str) or not isinstance(method, str) or not isinstance(resource, list) \
-                or not all(isinstance(s, str) for s in resource):
-            return GOOGLE_NON_ROUTINE
-        if '.'.join(resource + [method]) not in CRON_WORKSPACE_ROUTINE.get(service, set()):
-            return GOOGLE_NON_ROUTINE
-        if _denied_workspace_field([item.get('params'), item.get('body')]):
-            return GOOGLE_NON_ROUTINE
-    return None
+    return workspace_policy.workspace_request_reason(payload, _POLICY)
 
 
-def _denied_workspace_field(value):
-    if isinstance(value, list):
-        return any(_denied_workspace_field(v) for v in value)
-    if not isinstance(value, dict):
-        return False
-    for key, inner in value.items():
-        lowered = str(key).lower()
-        if lowered in WORKSPACE_DENIED_KEYS:
-            return True
-        if lowered in WORKSPACE_NOTIFY_KEYS and inner not in ('none', False):
-            return True
-        if _denied_workspace_field(inner):
-            return True
-    return False
+def _expands(raw):
+    """Quotes stop globbing, braces and tilde, but not $VAR or %VAR%."""
+    quoted = len(raw) > 1 and raw[0] == raw[-1] and raw[0] in '"\''
+    return (ENV_EXPANSION if quoted else SHELL_EXPANSION).search(raw)
 
 
 def _terminal_reason(role, command, home):
@@ -114,40 +145,42 @@ def _terminal_reason(role, command, home):
     if PRIVILEGED_COMMAND.search(command):
         return 'system administration, installation, deployment, deletion, or permission changes belong to main'
     if role == 'builder':
+        # Best-effort and lexical: builder can still run Python it writes, so this is not a sandbox.
         text = command.replace('\\', '/').lower()
-        if '/.hermes/' in text or '/appdata/local/hermes/' in text or SECRET_NAMES.search(command):
-            return 'Hermes configuration and credentials are administered by main'
-        install = home.parent.parent if home.parent.name == 'profiles' else home
-        if re.match(r'(?i)\s*(?:cd|chdir|pushd|set-location|sl)\b', command) and (
-                HERMES_HOME_REF.search(text) or str(install).replace('\\', '/').lower() in text):
+        if SECRET_NAMES.search(command) or HERMES_HOME_REF.search(text) \
+                or str(_install_of(home)).replace('\\', '/').lower() in text \
+                or any('herm' in g or '_api' in g for g in HERMES_GLOB.findall(text)):
             return 'Hermes configuration and credentials are administered by main'
         return None
     try:
-        words = shlex.split(command, posix=False)
+        raw = shlex.split(command, posix=False)
     except ValueError:
         return 'the command could not be parsed'
-    words = [word.strip('\"\'') for word in words]
+    words = [word.strip('\"\'') for word in raw]
     if words and Path(words[0]).stem.lower() == 'canvas':
         if role == 'cowsearcher' and len(words) > 1 and words[1] in {'list_courses', 'list_assignments'}:
             return None
     if role == 'cron':
         python = bool(words) and PYTHON_EXE.match(words[0]) is not None
-        if len(words) >= 3 and python:
-            script = Path(words[1]).expanduser().resolve()
+        if len(words) >= 3 and python and not SHELL_EXPANSION.search(words[1]):
+            script = Path(words[1]).resolve()
             if script == (home / 'scripts' / 'workspace_api.py').resolve():
                 if words[2:] == ['--clock']:
                     return None
                 if len(words) == 4 and words[2] == '--request-file':
                     return _request_file_reason(words[3])
-        if len(words) >= 4 and python:
-            script = Path(words[1]).expanduser().resolve()
             expected = home / 'skills' / 'productivity' / 'google-workspace' / 'scripts' / 'google_api.py'
-            if script == expected.resolve():
-                service, operation = words[2:4]
-                # Invites email third parties, so they stay main-owned like workspace_api attendees.
-                if operation in CRON_GOOGLE_ROUTINE.get(service, set()) and not any(w.lower().startswith('--attendee') for w in words[4:]):
-                    return None
-                return GOOGLE_NON_ROUTINE
+            if len(words) >= 4 and script == expected.resolve():
+                service, operation, args = words[2], words[3], words[4:]
+                # Invites email third parties (any --att* prefix of --attendees), so they stay main-owned.
+                if operation not in CRON_GOOGLE_ROUTINE.get(service, set()) or any(_expands(w) for w in raw[2:]) \
+                        or any(w.lower().startswith('--att') for w in args):
+                    return GOOGLE_NON_ROUTINE
+                if (service, operation) == ('drive', 'upload'):
+                    return _local_file_reason(args[0] if args else '', home, writing=False)
+                if (service, operation) == ('drive', 'download'):
+                    return _download_reason(args, home)
+                return None
         if words and Path(words[0]).stem.lower() == 'hermes':
             if words[1:] in (['status'], ['doctor'], ['--version']):
                 return None
@@ -189,17 +222,22 @@ def _queue_main_recovery(role, tool_name, session_id, message):
     )
     with kbc.connect_closing(board='default') as conn:
         # One open recovery owner per source; later blocks join it, but never a closed card.
-        # Same lookup kanban_recovery.py uses; hex fingerprint holds no LIKE wildcards.
+        # Prefix match on the role+source key over any open status; hex fingerprint holds no LIKE wildcards.
         existing = conn.execute(
             "SELECT id FROM tasks WHERE idempotency_key LIKE ? AND status NOT IN ('done','archived','cancelled')",
             (prefix + '%',)).fetchone()
         if existing:
             return existing['id']
+        now = datetime.now(timezone.utc)
+        key = _recovery_key(role, source, now)
+        # Any card still holding this minute key is closed; a finer suffix keeps the new card distinct.
+        if conn.execute('SELECT 1 FROM tasks WHERE idempotency_key = ?', (key,)).fetchone():
+            key += now.strftime('%S%f')
         return kb.create_task(
             conn, title=f'Main recovery: {role} needs permission for {tool_name}',
             body=body, assignee='main', created_by=f'{role}:profile-permissions',
             board='default', workspace_kind='scratch', session_id=session_id,
-            idempotency_key=_recovery_key(role, source, datetime.now(timezone.utc)),
+            idempotency_key=key,
             max_retries=1, max_runtime_seconds=300,
         )
 
@@ -212,7 +250,6 @@ def _recovery_key(role, source, now=None):
 
 def make_guard(role, home):
     home = Path(home).resolve()
-    install = home.parent.parent if home.parent.name == 'profiles' else home
 
     def decide(tool_name, args, **kwargs):
         if role == 'main':
@@ -250,12 +287,8 @@ def make_guard(role, home):
                     return _blocked(role, 'direct access to credential files is reserved for main; use the installed API wrapper')
                 if role != 'lib' and MEMORY_NAMES.search(str(path)):
                     return _blocked(role, 'durable memory is owned by lib through main')
-                if writing and path.is_relative_to(install):
-                    exceptions = [home / 'sessions', install / 'kanban' / 'workspaces']
-                    if role == 'lib':
-                        exceptions.extend([home / 'memories', install / 'profiles' / 'main' / 'memories'])
-                    if not any(path.is_relative_to(root) for root in exceptions):
-                        return _blocked(role, 'Hermes configuration, plugins, and installed scripts are maintained by main')
+                if writing and _protected(path, role, home):
+                    return _blocked(role, 'Hermes configuration, plugins, and installed scripts are maintained by main')
                 if writing and re.match(r'(?i)^[A-Z]:[\\/]Windows(?:[\\/]|$)|^[A-Z]:[\\/]Program Files', str(path)):
                     return _blocked(role, 'system files are maintained by main')
             return None
