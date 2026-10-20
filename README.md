@@ -1,288 +1,149 @@
-# Wesley's Hermes Setup
+# Wesley's Hermes personal assistant
 
-This is a backup of my personal [Hermes Agent](https://github.com/NousResearch/hermes-agent) configuration. If you clone this repo and set it up on your own machine, you will get the same Hermes setup I use -- same model, same personality, same skills, same scheduled jobs, same Discord behavior.
+**This is the setup behind my assistant—not a new AI model or a copy of my accounts.**
 
-## What is Hermes?
+It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configurable agent framework, with a primary assistant, five specialist profiles, skills, and optional custom integrations. I talk to `main` through Discord; it can research, write files/code, coordinate work, and use services I have authorized.
 
-Hermes is an AI agent that runs in your terminal (or as a desktop app, or connected to Discord/Slack/Telegram/etc.). You talk to it, and it can:
+**Verified snapshot: 2026-10-19.** The primary profile is configured for **`gpt-6.1-sol` through `openai-codex`**. Model access depends on your own account; you can choose another available model. This repository does **not** provide model weights, a subscription, or credentials.
 
-- Answer questions using any AI model you choose (OpenAI, Anthropic, local models, etc.)
-- Run commands on your computer
-- Read and write files
-- Search the web
-- Do scheduled tasks (like daily reminders, automated checks)
-- Remember things across conversations (memory)
+> **Start here, not with the old backup instructions.** This is now a sanitized, shareable setup with safer installation defaults. It is not a byte-for-byte restore of my running machine. Local core patches and private integrations mean cloning it does not reproduce every behavior. [Exactly what is included and what differs →](docs/REPRODUCIBILITY.md)
 
-Think of it like a super-configurable AI assistant that lives on your machine and can do real work, not just chat.
+## The team
 
-## What is in this repo
+| Profile | Responsibility | Observed configured model | Provider |
+| --- | --- | --- | --- |
+| `main` | Primary assistant, coordination, recovery, final answers | `gpt-6.1-sol` | `openai-codex` |
+| `builder` | Implementation, files, code, debugging and tests | `gpt-6.1-sol` | `openai-codex` |
+| `cowsearcher` | Research and current-fact verification | `meituan/longcat-2.5-preview:free` | `nous` |
+| `cron` | Schedules, reminders and authorized Workspace operations | `gpt-6.1-sol` | `openai-codex` |
+| `lib` | Durable memory and second-brain retrieval/writes | `gpt-6.1-sol` | `openai-codex` |
+| `speedy` | Small, bounded transformations and quick tasks | `gpt-6-luna` | `openai-codex` |
 
-This repo contains my personal configuration for Hermes -- not the Hermes app itself. Specifically:
+These are **profile defaults**, not proof that every past conversation or scheduled job used those models. Fallback choices and per-job snapshots can differ. The separate `default` profile is not `main` and is not exported as the current assistant.
 
-- config.yaml -- the main settings: which AI model I use, how it behaves, Discord settings, approvals, etc.
-- SOUL.md -- my personality prompt that tells Hermes how to act
-- profiles/ -- configs and personalities for different Hermes profiles (main, builder, speedy, etc.)
-- skills/ -- the skills I have installed
-- plugins/ -- custom plugins I use
-- cron-main/jobs.json -- my scheduled jobs
-- assets/avatar.png -- my Hermes avatar
-- .env.placeholder-note / auth.placeholder-note -- notes for what secrets to add
+```mermaid
+flowchart TD
+    You[You: Discord or CLI] --> Main[main: coordinator]
+    Main --> Board[Durable Hermes Kanban tasks]
+    Board --> Builder[builder: implement and test]
+    Board --> Research[cowsearcher: verify sources]
+    Board --> Cron[cron: schedules and Workspace]
+    Board --> Lib[lib: memory and second brain]
+    Board --> Speedy[speedy: bounded quick tasks]
+    Builder --> Main
+    Research --> Main
+    Cron --> Main
+    Lib --> Main
+    Speedy --> Main
+```
 
-## Requirements
+Profiles are separate assistant homes with their own prompts and settings. The coordinator delegates real tasks through Hermes' board, reads the results, and handles recovery. Mentioning an agent name in Discord is not itself a worker launch. Role prompts describe intended behavior; they are not an OS security boundary.
 
-1. Hermes Agent installed -- see https://hermes-agent.nousresearch.com
-2. A GitHub account (for the gh CLI)
-3. API keys for your AI model provider (OpenAI, Anthropic, OpenRouter, etc.)
-4. Discord bot token (optional, if you want Hermes on Discord)
-5. Any other service credentials for skills you want to use
+## What you get
 
-You do NOT need: the Hermes source code (Hermes installs itself).
+- Six **adapted, portable profile templates**, retaining the observed model choices and core roles.
+- Sanitized **live prompt and allowlisted settings references**, clearly separated from what the installer uses.
+- Profile-scoped skill snapshots: coding, GitHub, research, documents, Google Workspace, Canvas, memory and more. Skills are opt-in when installing; optional tools still need their own dependencies and accounts.
+- Optional source for the permissions hook, tool router, briefing curation, second-brain retrieval/package, Workspace request helper and host-automation scripts. These are **reference extensions, not automatically installed or enabled**.
+- An exact payload hash manifest, a non-clobbering installer, tests and GitHub validation workflow.
+- A machine-readable [inventory](inventory.json) showing observed versus bundled skills, enabled plugin names and schedule counts, without private job contents.
 
-## Setup on a new machine
+No tokens, OAuth credentials, private notes, conversation stores, live job prompts, personal finance records, Discord routing state, account identifiers, or caches are intentionally included in the new snapshot. **That statement does not certify old Git history**—see [Security](SECURITY.md).
 
-### For Mac / Linux
+## Try it on your own machine
 
-#### Step 1: Install Hermes
+### 1. Install Hermes
+
+Follow the [official installation guide](https://hermes-agent.nousresearch.com/docs/getting-started/installation). Its current CLI source-install commands are:
+
+**Windows native — PowerShell, as your normal user:**
+
+```powershell
+iex (irm https://hermes-agent.nousresearch.com/install.ps1)
+```
+
+**Linux, Apple Silicon macOS, or WSL2 — your POSIX terminal:**
 
 ```bash
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-hermes setup   # first time only -- picks model, connects accounts
 ```
 
-#### Step 2: Clone this repo
+The official site also offers desktop packages. Read installer scripts before executing downloaded code. Open a new terminal after installation. Native Windows data normally lives under **`%LOCALAPPDATA%\hermes`**, not `%APPDATA%`; Linux/macOS/WSL normally use **`~/.hermes`**. WSL and native Windows are distinct installations. [Native Windows guide](https://hermes-agent.nousresearch.com/docs/user-guide/windows-native).
+
+### 2. Clone and validate this setup
+
+You need Git and a Python interpreter for the small standard-library-only bundle tool. On systems where the interpreter is named `python3`, use it instead of `python` below. You **do not need a GitHub account or the `gh` CLI** just to clone a public repository.
 
 ```bash
 git clone https://github.com/iliekhotdogs/wesley-hermes.git
 cd wesley-hermes
+python tools/bundle.py validate
+python -m unittest discover -s tests -v
 ```
 
-#### Step 3: Copy files into your Hermes home (~/.hermes)
+Inspect the prompts, configuration and optional skill scripts before installing them. `config.yaml` and `profile.yaml` in the templates are JSON-formatted YAML, so validation and installation require no extra Python packages.
 
-```bash
-# Main config + personality
-cp config.yaml SOUL.md ~/.hermes/
+### 3. Install fresh profiles — never over an existing setup
 
-# Profiles (optional -- copy the ones you want)
-mkdir -p ~/.hermes/profiles/{main,builder,speedy,cowsearcher,cron,lib}
-cp -r profiles/* ~/.hermes/profiles/
-
-# Skills
-cp -r skills-main ~/.hermes/profiles/main/skills/
-cp -r skills-builder ~/.hermes/profiles/builder/skills/
-# ... etc for other skill dirs
-
-# Plugins
-cp -r plugins/* ~/.hermes/plugins/
-cp -r plugins-main ~/.hermes/profiles/main/plugins/
-cp -r plugins-lib ~/.hermes/profiles/lib/plugins/
-
-# Cron jobs
-cp cron-main/jobs.json ~/.hermes/cron/
-cp cron-cron/jobs.json ~/.hermes/cron/
-
-# Optional extras
-cp assets/avatar.png ~/.hermes/assets/
-cp channel_directory.json discord_threads.json gateway_state.json ~/.hermes/
-```
-
-#### Step 4: Add your secrets
-
-This repo has NO secrets. Create two files in ~/.hermes:
-
-```bash
-# .env -- your API keys
-echo "OPENAI_API_KEY=sk-..." >> ~/.hermes/.env
-echo "ANTHROPIC_API_KEY=sk-..." >> ~/.hermes/.env
-# ... whatever your provider needs
-```
-
-```bash
-# auth.json -- OAuth tokens ({} is fine to start)
-echo '{}' > ~/.hermes/auth.json
-```
-
-See .env.placeholder-note and auth.placeholder-note in this repo for details.
-
-#### Step 5: Discord (if you use it)
-
-Replace discord_threads.json and channel_directory.json with your own channel IDs, or set up Discord from scratch with `hermes setup`.
-
-#### Step 6: Start Hermes
-
-```bash
-hermes
-# or: hermes chat -q "What can you do?"
-```
-
-### For Windows
-
-#### Step 1: Install Hermes
-
-Run PowerShell as Administrator and run:
+**Native Windows — PowerShell:**
 
 ```powershell
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh -o install.sh
-bash install.sh
-hermes setup   # first time only -- picks model, connects accounts
+python tools/bundle.py install --target "$env:LOCALAPPDATA\hermes" --profiles main builder cowsearcher cron lib speedy
 ```
 
-Or use Git Bash / WSL terminal:
+**Linux/macOS/WSL:**
 
 ```bash
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-hermes setup   # first time only -- picks model, connects accounts
+python tools/bundle.py install --target "$HOME/.hermes" --profiles main builder cowsearcher cron lib speedy
 ```
 
-#### Step 2: Clone this repo
+`--target` is the **Hermes data root**, not `profiles/main` and not an already-active profile's `HERMES_HOME`. If you deliberately installed Hermes with a custom data root, use that root rather than these defaults. The installer refuses to overwrite **any selected existing profile**; it does not merge, delete, back up or reset your current setup. Use a separate test installation or review individual files manually if names collide.
 
-In Git Bash, PowerShell, or WSL:
+To opt in to the included skill snapshots, add `--with-skills` to the same command **on the first install**. Without that flag, only `config.yaml`, `SOUL.md`, and profile description metadata are copied. No aliases, credentials, plugins, schedules, gateway services or external resources are created. Do not rerun with an overwrite workaround just to add skills.
+
+### 4. Connect your own model account
 
 ```bash
-git clone https://github.com/iliekhotdogs/wesley-hermes.git
-cd wesley-hermes
+hermes profile list
+hermes -p main setup
+hermes -p main model
+hermes -p main chat
 ```
 
-#### Step 3: Copy files into your Hermes home
+Choose a provider/model your own account supports. Configured model names do not grant account access. Run the corresponding setup/model commands for the other profiles you intend to use; follow Hermes' supported credential-sharing behavior rather than copying OAuth files. Do not manually create or overwrite `auth.json`.
 
-On Windows, your Hermes home is at:
-`C:\Users\<your-username>\AppData\Local\hermes`
+For optional services, authorize **your own** Google account, Canvas instance, research/tool providers and vault as needed. See the [integration checklist](docs/INTEGRATIONS.md). Your friends cannot and should not connect through my accounts.
 
-Replace `<your-username>` with your actual Windows username (e.g. wesle).
+### 5. Optional: talk through Discord
 
-**In Git Bash:**
-```bash
-# Main config + personality
-cp config.yaml SOUL.md /c/Users/<your-username>/AppData/Local/hermes/
-
-# Profiles (optional -- copy the ones you want)
-mkdir -p /c/Users/<your-username>/AppData/Local/hermes/profiles/{main,builder,speedy,cowsearcher,cron,lib}
-cp -r profiles/* /c/Users/<your-username>/AppData/Local/hermes/profiles/
-
-# Skills
-cp -r skills-main /c/Users/<your-username>/AppData/Local/hermes/profiles/main/skills/
-cp -r skills-builder /c/Users/<your-username>/AppData/Local/hermes/profiles/builder/skills/
-# ... etc for other skill dirs
-
-# Plugins
-cp -r plugins/* /c/Users/<your-username>/AppData/Local/hermes/plugins/
-cp -r plugins-main /c/Users/<your-username>/AppData/Local/hermes/profiles/main/plugins/
-cp -r plugins-lib /c/Users/<your-username>/AppData/Local/hermes/profiles/lib/plugins/
-
-# Cron jobs
-cp cron-main/jobs.json /c/Users/<your-username>/AppData/Local/hermes/cron/
-cp cron-cron/jobs.json /c/Users/<your-username>/AppData/Local/hermes/cron/
-
-# Optional extras
-cp assets/avatar.png /c/Users/<your-username>/AppData/Local/hermes/assets/
-cp channel_directory.json discord_threads.json gateway_state.json /c/Users/<your-username>/AppData/Local/hermes/
-```
-
-**In PowerShell (run as your normal user, not admin):**
-```powershell
-# Main config + personality
-cp config.yaml, SOUL.md -Destination "$env:APPDATA\hermes\"
-
-# Profiles
-$mHermes = "$env:APPDATA\hermes"
-foreach ($p in @("main","builder","speedy","cowsearcher","cron","lib")) {
-    if (!(Test-Path "$mHermes\profiles\$p")) { New-Item -ItemType Directory -Path "$mHermes\profiles\$p" | Out-Null }
-}
-Copy-Item -Path "profiles\*" -Destination "$mHermes\profiles\" -Recurse -Force
-
-# Skills
-Copy-Item -Path "skills-main" -Destination "$mHermes\profiles\main\skills\" -Recurse -Force
-Copy-Item -Path "skills-builder" -Destination "$mHermes\profiles\builder\skills\" -Recurse -Force
-# ... etc for other skill dirs
-
-# Plugins
-Copy-Item -Path "plugins\*" -Destination "$mHermes\plugins\" -Recurse -Force
-Copy-Item -Path "plugins-main" -Destination "$mHermes\profiles\main\plugins\" -Recurse -Force
-Copy-Item -Path "plugins-lib" -Destination "$mHermes\profiles\lib\plugins\" -Recurse -Force
-
-# Cron jobs
-Copy-Item "cron-main/jobs.json" -Destination "$mHermes\cron\"
-Copy-Item "cron-cron/jobs.json" -Destination "$mHermes\cron\"
-
-# Optional extras
-Copy-Item "assets/avatar.png" -Destination "$mHermes\assets\"
-Copy-Item "channel_directory.json","discord_threads.json","gateway_state.json" -Destination "$mHermes\"
-```
-
-#### Step 4: Add your secrets
-
-This repo has NO secrets. Create two files in your Hermes home:
-
-**In Git Bash:**
-```bash
-# .env -- your API keys
-echo "OPENAI_API_KEY=sk-..." >> /c/Users/<your-username>/AppData/Local/hermes/.env
-echo "ANTHROPIC_API_KEY=sk-..." >> /c/Users/<your-username>/AppData/Local/hermes/.env
-# ... whatever your provider needs
-```
+Follow the [official Discord guide](https://hermes-agent.nousresearch.com/docs/user-guide/messaging/discord): create your own application and bot, configure the required intents, invite it to your server with appropriate permissions, and allowlist only trusted people.
 
 ```bash
-# auth.json -- OAuth tokens ({} is fine to start)
-echo '{}' > /c/Users/<your-username>/AppData/Local/hermes/auth.json
+hermes -p main gateway setup
+hermes -p main gateway run
 ```
 
-**In PowerShell:**
-```powershell
-# .env
-@"OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-...
-"@ | Out-File -FilePath "$env:APPDATA\hermes\.env" -Encoding UTF8
+Configure **your own** token and destinations through setup; never reuse my old IDs or gateway state. The foreground command keeps running. Use the official OS-specific service guide if you want automatic startup—this bundle does not create a service. Check gateway status, send a harmless message and confirm delivery before relying on it. Confirm your installed version's Kanban dispatcher behavior before relying on specialist handoffs; `hermes kanban dispatch --help` describes its one-pass dispatcher and `--dry-run` inspection mode. No existing board or tasks are imported.
 
-# auth.json
-"{}" | Out-File -FilePath "$env:APPDATA\hermes\auth.json" -Encoding UTF8
-```
+## Safety differences from my machine
 
-See .env.placeholder-note and auth.placeholder-note in this repo for details.
+My observed deployment uses `approvals.mode: off` with custom role restrictions. **The installable templates deliberately use `manual` for dangerous-command approval and `deny` for dangerous unattended/cron/one-shot commands**, retain destructive-session confirmations, and start with an empty command allowlist. These are approval settings, not a filesystem/network sandbox or a guarantee that every file write prompts. Prefer a disposable environment or suitably configured sandbox when experimenting.
 
-#### Step 5: Discord (if you use it)
+The prompts do not grant my administrative or Google API authority to you. Optional plugins are disabled and not copied by the installer. No personal reminders are imported: the snapshot observed **4 jobs in `main` (3 enabled) and 21 in `cron` (12 enabled)**, but the only shipped automation examples are inert descriptions. Schedule new jobs yourself with your own times, timezone, scope and destinations.
 
-Replace discord_threads.json and channel_directory.json with your own channel IDs, or set up Discord from scratch with `hermes setup`.
+## Details, verification and updating
 
-#### Step 6: Start Hermes
+- [Reproducibility and exact differences](docs/REPRODUCIBILITY.md)
+- [Optional integrations and custom code](docs/INTEGRATIONS.md)
+- [Security and old-history caveat](SECURITY.md)
+- [Snapshot inventory](inventory.json)
+- [Validation evidence](docs/VERIFICATION.md)
+- [Maintenance procedure](docs/MAINTAINING.md)
 
-In Git Bash, PowerShell, or WSL:
+Do not run `git add -A` against a raw Hermes home and assume `.gitignore` makes it safe. Export explicit allowlisted assets, review the staged tree, regenerate hashes, scan for secrets/private state and test against an isolated home before publishing.
 
-```bash
-hermes
-# or: hermes chat -q "What can you do?"
-```
+This repository's validation verifies the shipped files and installer behavior; it does not prove every optional integration, provider login, model request, scheduler, local patch or Discord service works on a fresh machine. Those require the reader's own authorization and environment-specific checks.
 
-## What this setup does (simple terms)
+## Attribution
 
-- Uses stepfun/step-3.7-flash:free model via the nous provider (changeable in config.yaml)
-- Technical personality by default (others available: helpful, concise, creative, teacher, kawaii, catgirl, pirate, shakespeare, surfer, noir, uwu, philosopher, hype)
-- 6 Hermes profiles: main, builder, speedy, cowsearcher, cron, lib
-- Many skills installed: GitHub, PDF editing, productivity, creative tools, research, web search, and more
-- 2 scheduled cron jobs (see cron-main/jobs.json, cron-cron/jobs.json)
-- second-brain-retrieval plugin for memory
-- Custom hermes-token-router plugin for API token routing
-
-## Customizing
-
-- Model: change model.default in config.yaml
-- Personality: change display.personality
-- Discord: update the discord section with your bot token + channel IDs
-- Skills: toggle in skills.disabled list or install new ones
-- Cron: edit cron/jobs.json
-
-## Keeping in sync
-
-```bash
-cd wesley-hermes
-cp ~/.hermes/config.yaml .       # Mac/Linux
-# or: cp /c/Users/<you>/AppData/Local/hermes/config.yaml .   # Windows (Git Bash)
-
-git add -A
-git commit -m "Update: what changed"
-git push
-```
-
-The .gitignore blocks secrets (.env, auth.json) and conversation history (state.db), so git add -A is safe.
-
-## Questions
-
-This is my personal setup. If something does not work for you, check config.yaml and add any missing credentials. For general help: https://hermes-agent.nousresearch.com/docs
+Hermes Agent is developed by [Nous Research and contributors](https://github.com/NousResearch/hermes-agent). Bundled skills and extension files retain their existing authorship/license metadata; inclusion here does not relicense third-party content. This repository is a personal configuration and source-reference collection, not an official Hermes distribution or a model release.

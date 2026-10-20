@@ -1,138 +1,71 @@
-model:
-  default: upstage/solar-pro4:free
-  provider: nous
-agent:
-  bot_mode_protocol: false
-  max_turns: 15
-  verify_on_stop: false
-  verbose: false
-  reasoning_effort: medium
-memory:
-  memory_enabled: false
-  user_profile_enabled: false
-tts:
-  provider: openai
-  use_gateway: true
-stt:
-  enabled: false
-  provider: openai
-  use_gateway: true
-skills:
-  write_approval: true
-  disabled: []
-plugins:
-  enabled: []
-_config_version: 45
-platform_toolsets:
-  cli:
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  - web
-  telegram:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  discord:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  whatsapp:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  signal:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  homeassistant:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  qqbot:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  yuanbao:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  teams:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-  google_chat:
-  - connections
-  - file
-  - skills
-  - kanban
-  - web
-known_plugin_toolsets:
-  cli:
-  - a2a
-  - spotify
-known_builtin_toolsets:
-  cli:
-  - browser
-  - clarify
-  - code_execution
-  - computer_use
-  - connections
-  - context_engine
-  - cronjob
-  - delegation
-  - discord
-  - discord_admin
-  - file
-  - homeassistant
-  - image_gen
-  - session_search
-  - skills
-  - spotify
-  - stt
-  - terminal
-  - todo
-  - tts
-  - video
-  - video_gen
-  - vision
-  - web
-  - x_search
-  - yuanbao
-onboarding:
-  seen:
-    tool_progress_prompt: true
-fallback_providers:
-- provider: openai-codex
-  model: gpt-6-sol
-  base_url: https://chatgpt.com/backend-api/codex
-  api_mode: codex_responses
-platforms:
-  discord:
-    enabled: false
-mcp_servers:
-  github:
-    command: npx
-    args:
-    - -y
-    - '@modelcontextprotocol/server-github'
-    env:
-      GITHUB_PERSONAL_ACCESS_TOKEN: ${GITHUB_TOKEN}
+{
+  "model": {
+    "default": "meituan/longcat-2.5-preview:free",
+    "provider": "nous"
+  },
+  "fallback_providers": [],
+  "agent": {
+    "max_turns": 15,
+    "reasoning_effort": "medium",
+    "verbose": false,
+    "disabled_toolsets": [
+      "delegation",
+      "code_execution",
+      "computer_use",
+      "discord_admin"
+    ]
+  },
+  "toolsets": [
+    "connections",
+    "file",
+    "skills",
+    "kanban",
+    "terminal",
+    "web"
+  ],
+  "memory": {
+    "memory_enabled": false,
+    "user_profile_enabled": false
+  },
+  "approvals": {
+    "mode": "manual",
+    "cron_mode": "deny",
+    "single_query_mode": "deny",
+    "unattended_mode": "deny",
+    "destructive_slash_confirm": true
+  },
+  "command_allowlist": [],
+  "plugins": {
+    "enabled": [],
+    "disabled": [
+      "profile-permissions",
+      "hermes-token-router",
+      "briefing-curation",
+      "second-brain-retrieval"
+    ]
+  },
+  "delegation": {
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false,
+    "max_concurrent_children": 1
+  },
+  "tool_loop_guardrails": {
+    "warnings_enabled": true,
+    "hard_stop_enabled": true,
+    "warn_after": {
+      "exact_failure": 1,
+      "same_tool_failure": 2,
+      "idempotent_no_progress": 2
+    },
+    "hard_stop_after": {
+      "exact_failure": 2,
+      "same_tool_failure": 3,
+      "idempotent_no_progress": 5
+    }
+  },
+  "group_sessions_per_user": true,
+  "skills": {
+    "write_approval": true,
+    "disabled": []
+  }
+}

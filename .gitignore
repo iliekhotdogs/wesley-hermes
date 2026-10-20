@@ -1,63 +1,22 @@
-# Secrets — never commit real values
+# Runtime/secret data must never be exported from a live Hermes home.
 .env
+.env.*
 auth.json
-!/auth.placeholder-note
-!/ .env.placeholder-note
-
-# Databases — conversation & session history, not config
+credentials.json
+token.json
 *.db
-*.db-wal
-*.db-shm
-*.db.auto-maintenance.lock
-state.db*
-projects.db
-notepad.db
-executions.db
-jobs.db
-
-# Logs
-logs/
-gateway-starts.log
-gateway-service/
-
-# Caches
-cache/
-.pytest_cache/
+*.db-*
+*.sqlite
+*.sqlite3
+*.jsonl
 __pycache__/
-*.pyc
-
-# Curator backups (blobs, internal)
-.curator_backups/
-
-# Node modules & LSP runtime deps (upstream, not personal)
+*.py[cod]
+.venv/
+venv/
 node_modules/
-lsp/
-lsp/bin/
-lsp/node_modules/
-
-# Worktrees — upstream Hermes source, not personal config
-worktrees/
-
-# Backups & snapshots (local history, not config)
-backups/
-profile-exports/
-
-# Temp / lock / scratch files
-*.lock
-*.tmp
-*.tmp1*
-.backup.lock
-.clean_shutdown
-.update_exit_code
-.codex_gpt55_autoraise_notice
-.scratch_tip_shown
-.models_dev_cache_*
-.npm_lock_hash_*
-.spawn_lock*
-.auth.lock
-.mcp-discovery.lock
-.skills_prompt_snapshot.json
-.no-bundled-skills
-.update_check
-.trigger_cmd_running
-dependency-recovery-status.txt
+.DS_Store
+Thumbs.db
+*.zip
+*.tar.gz
+.gitleaks-report*
+# Do not add broad ignores that conceal unreviewed exported source.

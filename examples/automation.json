@@ -1,0 +1,31 @@
+{
+  "active_jobs": [],
+  "templates": [
+    {
+      "category": "daily briefing",
+      "enabled": false,
+      "requires": [
+        "your source accounts",
+        "your chosen schedule and timezone",
+        "your own delivery destination"
+      ]
+    },
+    {
+      "category": "weekly review",
+      "enabled": false,
+      "requires": [
+        "your task/calendar account",
+        "your chosen schedule and timezone",
+        "your own delivery destination"
+      ]
+    },
+    {
+      "category": "system health check",
+      "enabled": false,
+      "requires": [
+        "your host-specific check script",
+        "your chosen schedule and timezone"
+      ]
+    }
+  ]
+}

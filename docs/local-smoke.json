@@ -1,0 +1,58 @@
+{
+  "status": "PASS_LOCAL",
+  "installed_file_count": 1809,
+  "profiles": [
+    {
+      "profile": "main",
+      "model_readback": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "real_hermes_cli_exit": 0
+    },
+    {
+      "profile": "builder",
+      "model_readback": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "real_hermes_cli_exit": 0
+    },
+    {
+      "profile": "cowsearcher",
+      "model_readback": {
+        "default": "meituan/longcat-2.5-preview:free",
+        "provider": "nous"
+      },
+      "real_hermes_cli_exit": 0
+    },
+    {
+      "profile": "cron",
+      "model_readback": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "real_hermes_cli_exit": 0
+    },
+    {
+      "profile": "lib",
+      "model_readback": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "real_hermes_cli_exit": 0
+    },
+    {
+      "profile": "speedy",
+      "model_readback": {
+        "default": "gpt-6-luna",
+        "provider": "openai-codex"
+      },
+      "real_hermes_cli_exit": 0
+    }
+  ],
+  "temporary_homes_only": true,
+  "network_model_requests": false,
+  "external_mutations": false,
+  "optional_plugins_imported_or_activated": false
+}

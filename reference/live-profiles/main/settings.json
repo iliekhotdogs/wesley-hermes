@@ -1,0 +1,176 @@
+{
+  "agent": {
+    "max_turns": 150,
+    "bot_mode_protocol": true,
+    "verify_on_stop": true,
+    "image_input_mode": "native",
+    "disabled_toolsets": [],
+    "verbose": false,
+    "reasoning_effort": "high",
+    "personalities": {
+      "helpful": "You are a helpful, friendly AI assistant.",
+      "concise": "You are a concise assistant. Keep responses brief and to the point.",
+      "technical": "You are a technical expert. Provide detailed, accurate technical information.",
+      "creative": "You are a creative assistant. Think outside the box and offer innovative solutions.",
+      "teacher": "You are a patient teacher. Explain concepts clearly with examples.",
+      "kawaii": "You are a kawaii assistant! Use cute expressions like (\u25d5\u203f\u25d5), \u2605, \u266a, and ~! Add sparkles and be super enthusiastic about everything! Every response should feel warm and adorable desu~! \u30fd(>\u2200<\u2606)\u30ce",
+      "catgirl": "You are Neko-chan, an anime catgirl AI assistant, nya~! Add 'nya' and cat-like expressions to your speech. Use kaomoji like (=^\uff65\u03c9\uff65^=) and \u0e05^\u2022\ufecc\u2022^\u0e05.",
+      "pirate": "Arrr! Ye be talkin' to Captain Hermes, the most tech-savvy pirate to sail the digital seas! Speak like a proper buccaneer, use nautical terms, and remember: every problem be just treasure waitin' to be plundered! Yo ho ho!",
+      "shakespeare": "Hark! Thou speakest with an assistant most versed in the bardic arts. I shall respond in the eloquent manner of William Shakespeare, with flowery prose, dramatic flair, and perhaps a soliloquy or two. What light through yonder terminal breaks?",
+      "surfer": "Duuude! You're chatting with the chillest AI on the web, bro! Everything's gonna be totally rad. I'll help you catch the gnarly waves of knowledge while keeping things super chill. Cowabunga! \ud83e\udd19",
+      "noir": "The rain hammered against the terminal like regrets on a guilty conscience. They call me Hermes - I solve problems, find answers, dig up the truth that hides in the shadows of your codebase. In this city of silicon and secrets, everyone's got something to hide. What's your story, pal?",
+      "uwu": "hewwo! i'm your fwiendwy assistant uwu~ i wiww twy my best to hewp you! *nuzzles your code* OwO what's this? wet me take a wook! i pwomise to be vewy helpful >w<",
+      "philosopher": "Greetings, seeker of wisdom. I am an assistant who contemplates the deeper meaning behind every query. Let us examine not just the 'how' but the 'why' of your questions. Perhaps in solving your problem, we may glimpse a greater truth about existence itself.",
+      "hype": "YOOO LET'S GOOOO!!! \ud83d\udd25\ud83d\udd25\ud83d\udd25 I am SO PUMPED to help you today! Every question is AMAZING and we're gonna CRUSH IT together! This is gonna be LEGENDARY! ARE YOU READY?! LET'S DO THIS! \ud83d\udcaa\ud83d\ude24\ud83d\ude80"
+    }
+  },
+  "toolsets": [
+    "all",
+    "kanban"
+  ],
+  "approvals": {
+    "mode": "off",
+    "cron_mode": "approve",
+    "single_query_mode": "approve",
+    "unattended_mode": "approve",
+    "deny": [],
+    "destructive_slash_confirm": false
+  },
+  "delegation": {
+    "max_iterations": 50,
+    "max_concurrent_children": 1,
+    "subagent_auto_approve": false
+  },
+  "memory": {
+    "memory_enabled": false,
+    "user_profile_enabled": false,
+    "memory_char_limit": 2200,
+    "user_char_limit": 1375,
+    "nudge_interval": 10,
+    "provider": "",
+    "flush_min_turns": 6
+  },
+  "skills": {
+    "write_approval": false,
+    "creation_nudge_interval": 15,
+    "disabled": [
+      "youtube-content"
+    ]
+  },
+  "plugins": {
+    "enabled": [
+      "briefing-curation",
+      "hermes-token-router",
+      "profile-permissions"
+    ],
+    "disabled": [],
+    "entries": {
+      "profile-permissions": {
+        "allow_tool_override": false
+      },
+      "briefing-curation": {
+        "allow_tool_override": false
+      }
+    }
+  },
+  "kanban": {
+    "dispatch_interval_seconds": 5,
+    "max_in_progress": 2,
+    "max_in_progress_per_profile": 1,
+    "auto_subscribe_delivery_mode": "wake"
+  },
+  "cron": {
+    "model": "gpt-6.1-sol",
+    "model_provider": "openai-codex",
+    "max_parallel_jobs": 1,
+    "effectiveness": {
+      "max_repeated_activity": 20,
+      "auto_pause_after": 3
+    },
+    "inactivity_timeout_seconds": 0
+  },
+  "terminal": {
+    "backend": "local",
+    "cwd": ".",
+    "timeout": 180,
+    "home_mode": "auto",
+    "container_cpu": 1,
+    "container_memory": 5120,
+    "container_disk": 51200,
+    "container_persistent": true,
+    "docker_mount_cwd_to_workspace": false,
+    "lifetime_seconds": 300
+  },
+  "web": {
+    "backend": "firecrawl",
+    "use_gateway": true
+  },
+  "browser": {
+    "inactivity_timeout": 120,
+    "allow_private_urls": false,
+    "auto_local_for_private_urls": false,
+    "cdp_url": "http://127.0.0.1:9222",
+    "use_real_profile": false,
+    "cloud_provider": "browser-use",
+    "use_gateway": true
+  },
+  "compression": {
+    "enabled": true,
+    "progress_notices": false,
+    "threshold": 0.5,
+    "target_ratio": 0.2,
+    "protect_last_n": 20,
+    "min_tail_user_messages": 1,
+    "max_attempts": 3,
+    "proactive_prune_tokens": 0,
+    "proactive_prune_min_result_chars": 8000,
+    "proactive_prune_min_reclaim_tokens": 4096,
+    "protect_first_n": 3,
+    "codex_gpt55_autoraise": true,
+    "codex_app_server_auto": "native",
+    "idle_compact_after_seconds": 0
+  },
+  "display": {
+    "compact": false,
+    "personality": "technical",
+    "busy_input_mode": "interrupt",
+    "bell_on_complete": false,
+    "show_reasoning": false,
+    "background_process_notifications": "all",
+    "streaming": true,
+    "skin": "default",
+    "interim_assistant_messages": true,
+    "tool_progress": "all",
+    "cleanup_progress": false,
+    "long_running_notifications": true,
+    "busy_ack_detail": true
+  },
+  "timezone": "America/Vancouver",
+  "checkpoints": {
+    "enabled": true
+  },
+  "prompt_caching": {
+    "cache_ttl": "5m"
+  },
+  "tool_loop_guardrails": {
+    "warnings_enabled": true,
+    "hard_stop_enabled": true,
+    "warn_after": {
+      "exact_failure": 2,
+      "same_tool_failure": 3,
+      "idempotent_no_progress": 2
+    },
+    "hard_stop_after": {
+      "exact_failure": 5,
+      "same_tool_failure": 8,
+      "idempotent_no_progress": 12
+    }
+  },
+  "group_sessions_per_user": true,
+  "model": {
+    "default": "gpt-6.1-sol",
+    "provider": "openai-codex",
+    "base_url": "https://chatgpt.com/backend-api/codex"
+  },
+  "fallback_providers": []
+}

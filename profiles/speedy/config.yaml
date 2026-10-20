@@ -1,116 +1,70 @@
-model:
-  default: gpt-6-luna
-  provider: openai-codex
-agent:
-  bot_mode_protocol: false
-  max_turns: 16
-  verify_on_stop: false
-  verbose: false
-  reasoning_effort: low
-memory:
-  memory_enabled: false
-  user_profile_enabled: false
-skills:
-  write_approval: true
-tts:
-  provider: openai
-  use_gateway: true
-stt:
-  enabled: false
-  provider: openai
-  use_gateway: true
-plugins:
-  enabled: []
-_config_version: 45
-platform_toolsets:
-  cli:
-  - connections
-  - file
-  - skills
-  - kanban
-  - terminal
-  telegram:
-  - connections
-  - file
-  - skills
-  - kanban
-  discord:
-  - connections
-  - file
-  - skills
-  - kanban
-  whatsapp:
-  - connections
-  - file
-  - skills
-  - kanban
-  signal:
-  - connections
-  - file
-  - skills
-  - kanban
-  homeassistant:
-  - connections
-  - file
-  - skills
-  - kanban
-  qqbot:
-  - connections
-  - file
-  - skills
-  - kanban
-  yuanbao:
-  - connections
-  - file
-  - skills
-  - kanban
-  teams:
-  - connections
-  - file
-  - skills
-  - kanban
-  google_chat:
-  - connections
-  - file
-  - skills
-  - kanban
-known_plugin_toolsets:
-  cli:
-  - a2a
-  - spotify
-known_builtin_toolsets:
-  cli:
-  - browser
-  - clarify
-  - code_execution
-  - computer_use
-  - connections
-  - context_engine
-  - cronjob
-  - delegation
-  - discord
-  - discord_admin
-  - file
-  - homeassistant
-  - image_gen
-  - session_search
-  - skills
-  - spotify
-  - stt
-  - terminal
-  - todo
-  - tts
-  - video
-  - video_gen
-  - vision
-  - web
-  - x_search
-  - yuanbao
-fallback_providers:
-- provider: opencode-free
-  model: space-bunny-free
-  base_url: https://opencode.ai/zen/v1
-  api_mode: chat_completions
-platforms:
-  discord:
-    enabled: false
+{
+  "model": {
+    "default": "gpt-6-luna",
+    "provider": "openai-codex"
+  },
+  "fallback_providers": [],
+  "agent": {
+    "max_turns": 16,
+    "reasoning_effort": "low",
+    "verbose": false,
+    "disabled_toolsets": [
+      "delegation",
+      "code_execution",
+      "computer_use",
+      "discord_admin"
+    ]
+  },
+  "toolsets": [
+    "connections",
+    "file",
+    "skills",
+    "kanban",
+    "terminal"
+  ],
+  "memory": {
+    "memory_enabled": false,
+    "user_profile_enabled": false
+  },
+  "approvals": {
+    "mode": "manual",
+    "cron_mode": "deny",
+    "single_query_mode": "deny",
+    "unattended_mode": "deny",
+    "destructive_slash_confirm": true
+  },
+  "command_allowlist": [],
+  "plugins": {
+    "enabled": [],
+    "disabled": [
+      "profile-permissions",
+      "hermes-token-router",
+      "briefing-curation",
+      "second-brain-retrieval"
+    ]
+  },
+  "delegation": {
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false,
+    "max_concurrent_children": 1
+  },
+  "tool_loop_guardrails": {
+    "warnings_enabled": true,
+    "hard_stop_enabled": true,
+    "warn_after": {
+      "exact_failure": 1,
+      "same_tool_failure": 2,
+      "idempotent_no_progress": 2
+    },
+    "hard_stop_after": {
+      "exact_failure": 2,
+      "same_tool_failure": 3,
+      "idempotent_no_progress": 5
+    }
+  },
+  "group_sessions_per_user": true,
+  "skills": {
+    "write_approval": true,
+    "disabled": []
+  }
+}

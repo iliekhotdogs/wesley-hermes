@@ -1,0 +1,367 @@
+---
+name: google-workspace
+description: "Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python."
+version: 1.2.0
+author: Nous Research
+license: MIT
+platforms: [linux, macos, windows]
+required_credential_files:
+  - path: google_token.json
+    description: Google OAuth2 token (created by setup script)
+  - path: google_client_secret.json
+    description: Google OAuth2 client credentials (downloaded from Google Cloud Console)
+metadata:
+  hermes:
+    tags: [Google, Gmail, Calendar, Drive, Sheets, Docs, Contacts, Email, OAuth]
+    homepage: https://github.com/NousResearch/hermes-agent
+    related_skills: [himalaya]
+---
+
+# Google Workspace
+
+Gmail, Calendar, Drive, Contacts, Sheets, and Docs — through Hermes-managed OAuth and a thin CLI wrapper. When `gws` is installed, the skill uses it as the execution backend for broader Google Workspace coverage; otherwise it falls back to the bundled Python client implementation.
+
+## References
+
+- `references/gmail-search-syntax.md` — Gmail search operators (is:unread, from:, newer_than:, etc.)
+- `references/daily-brief.md` — daily/morning brief procedure: schedule + conflicts + meeting prep + urgent mail from Gmail and Calendar. Load it when the user asks for a morning brief, meeting preparation, or "what's on my calendar and what email needs attention."
+
+## Scripts
+
+- `scripts/setup.py` — OAuth2 setup (run once to authorize)
+- `scripts/google_api.py` — compatibility wrapper CLI. It prefers `gws` for operations when available, while preserving Hermes' existing JSON output contract.
+
+## First-Time Setup
+
+The setup is fully non-interactive — you drive it step by step so it works
+on CLI, Telegram, Discord, or any platform.
+
+Define a shorthand first:
+
+```bash
+GSETUP="python ${HERMES_HOME:-$HOME/.hermes}/skills/productivity/google-workspace/scripts/setup.py"
+```
+
+### Step 0: Check if already set up
+
+```bash
+$GSETUP --check
+```
+
+If it prints `AUTHENTICATED`, skip to Usage — setup is already done.
+
+### Step 1: Triage — ask the user what they need
+
+Before starting OAuth setup, ask the user TWO questions:
+
+**Question 1: "What Google services do you need? Just email, or also
+Calendar/Drive/Sheets/Docs?"**
+
+- **Email only** → They don't need this skill at all. Use the `himalaya` skill
+  instead — it works with a Gmail App Password (Settings → Security → App
+  Passwords) and takes 2 minutes to set up. No Google Cloud project needed.
+  Load the himalaya skill and follow its setup instructions.
+
+- **Email + Calendar** → Continue with this skill, but use
+  `--services email,calendar` during auth so the consent screen only asks for
+  the scopes they actually need.
+
+- **Calendar/Drive/Sheets/Docs only** → Continue with this skill and use a
+  narrower `--services` set like `calendar,drive,sheets,docs`.
+
+- **Full Workspace access** → Continue with this skill and use the default
+  `all` service set.
+
+**Question 2: "Does your Google account use Advanced Protection (hardware
+security keys required to sign in)? If you're not sure, you probably don't
+— it's something you would have explicitly enrolled in."**
+
+- **No / Not sure** → Normal setup. Continue below.
+- **Yes** → Their Workspace admin must add the OAuth client ID to the org's
+  allowed apps list before Step 4 will work. Let them know upfront.
+
+### Step 2: Create OAuth credentials (one-time, ~5 minutes)
+
+Tell the user:
+
+> You need a Google Cloud OAuth client. This is a one-time setup:
+>
+> 1. Create or select a project:
+>    https://console.cloud.google.com/projectselector2/home/dashboard
+> 2. Enable the required APIs from the API Library:
+>    https://console.cloud.google.com/apis/library
+>    Enable: Gmail API, Google Calendar API, Google Drive API,
+>    Google Sheets API, Google Docs API, People API
+> 3. Create the OAuth client here:
+>    https://console.cloud.google.com/apis/credentials
+>    Credentials → Create Credentials → OAuth 2.0 Client ID
+> 4. Application type: "Desktop app" → Create
+> 5. If the app is still in Testing, add the user's Google account as a test user here:
+>    https://console.cloud.google.com/auth/audience
+>    Audience → Test users → Add users
+> 6. Download the JSON file and tell me the file path
+>
+> Important Hermes CLI note: if the file path starts with `/`, do NOT send only the bare path as its own message in the CLI, because it can be mistaken for a slash command. Send it in a sentence instead, like:
+> `The JSON file path is: ~/Downloads/client_secret_....json`
+
+Once they provide the path:
+
+```bash
+$GSETUP --client-secret /path/to/client_secret.json
+```
+
+If they paste the raw client ID / client secret values instead of a file path,
+write a valid Desktop OAuth JSON file for them yourself, save it somewhere
+explicit (for example `~/Downloads/hermes-google-client-secret.json`), then run
+`--client-secret` against that file.
+
+### Step 3: Get authorization URL
+
+First verify the installed setup script actually exposes `--services` with `$GSETUP --help`. Some released copies still use a fixed broad `SCOPES` list and do **not** implement service selection. Never claim least-privilege authorization or pass `--services` to those copies. If `--services` is available, use the chosen service set, for example:
+
+```bash
+$GSETUP --auth-url --services email,calendar --format json
+$GSETUP --auth-url --services calendar,drive,sheets,docs --format json
+$GSETUP --auth-url --services all --format json
+```
+
+If `--services` is unavailable, explicitly show the fixed scopes from `setup.py` and obtain the user's approval before using that broad flow, or implement a task-specific OAuth flow with only the required read-only scopes. Google Tasks is not supported by the bundled `google_api.py`; a task-specific integration must request `https://www.googleapis.com/auth/tasks.readonly` and call the Tasks API directly.
+
+The supported setup flow returns JSON with an `auth_url` field and also saves the exact URL to `~/.hermes/google_oauth_last_url.txt`.
+
+Agent rules for this step:
+- Extract the `auth_url` field and send that exact URL to the user as a single line.
+- Tell the user that the browser will likely fail on `http://localhost:1` after approval, and that this is expected.
+- Tell them to copy the ENTIRE redirected URL from the browser address bar.
+- If the user gets `Error 403: access_denied`, send them directly to `https://console.cloud.google.com/auth/audience` to add themselves as a test user.
+
+### Step 4: Exchange the code
+
+The user will paste back either a URL like `http://localhost:1/?code=4/0A...&scope=...`
+or just the code string. Either works. The `--auth-url` step stores a temporary
+pending OAuth session locally so `--auth-code` can complete the PKCE exchange
+later, even on headless systems:
+
+```bash
+$GSETUP --auth-code "THE_URL_OR_CODE_THE_USER_PASTED" --format json
+```
+
+If `--auth-code` fails because the code expired, was already used, or came from
+an older browser tab, it now returns a fresh `fresh_auth_url`. In that case,
+immediately send the new URL to the user and have them retry with the newest
+browser redirect only.
+
+### Step 5: Verify
+
+```bash
+$GSETUP --check
+```
+
+Should print `AUTHENTICATED`. Setup is complete — token refreshes automatically from now on.
+
+### Notes
+
+- Token is stored at `~/.hermes/google_token.json` and auto-refreshes.
+- Pending OAuth session state/verifier are stored temporarily at `~/.hermes/google_oauth_pending.json` until exchange completes.
+- If `gws` is installed, `google_api.py` points it at the same `~/.hermes/google_token.json` credentials file. Users do not need to run a separate `gws auth login` flow.
+- To revoke: `$GSETUP --revoke`
+
+## Usage
+
+All commands go through the API script. Set `GAPI` as a shorthand:
+
+```bash
+GAPI="python ${HERMES_HOME:-$HOME/.hermes}/skills/productivity/google-workspace/scripts/google_api.py"
+```
+
+### Gmail
+
+```bash
+# Search (returns JSON array with id, from, subject, date, snippet)
+$GAPI gmail search "is:unread" --max 10
+$GAPI gmail search "from:user@example.invalid newer_than:1d"
+$GAPI gmail search "has:attachment filename:pdf newer_than:7d"
+
+# Read full message (returns JSON with body text)
+$GAPI gmail get MESSAGE_ID
+
+# Send
+$GAPI gmail send --to user@example.invalid --subject "Hello" --body "Message text"
+$GAPI gmail send --to user@example.invalid --subject "Report" --body "<h1>Q4</h1><p>Details...</p>" --html
+$GAPI gmail send --to user@example.invalid --subject "Hello" --from '"Research Agent" <user@example.invalid>' --body "Message text"
+
+# Reply (automatically threads and sets In-Reply-To)
+$GAPI gmail reply MESSAGE_ID --body "Thanks, that works for me."
+$GAPI gmail reply MESSAGE_ID --from '"Support Bot" <user@example.invalid>' --body "Thanks"
+
+# Labels
+$GAPI gmail labels
+$GAPI gmail modify MESSAGE_ID --add-labels LABEL_ID
+$GAPI gmail modify MESSAGE_ID --remove-labels UNREAD
+```
+
+### Calendar
+
+```bash
+# List events (defaults to next 7 days)
+$GAPI calendar list
+$GAPI calendar list --start 2026-03-01T00:00:00Z --end 2026-03-07T23:59:59Z
+
+# Create event (ISO 8601 with timezone required)
+$GAPI calendar create --summary "Team Standup" --start 2026-03-01T10:00:00-06:00 --end 2026-03-01T10:30:00-06:00
+$GAPI calendar create --summary "Lunch" --start 2026-03-01T12:00:00Z --end 2026-03-01T13:00:00Z --location "Cafe"
+$GAPI calendar create --summary "Review" --start 2026-03-01T14:00:00Z --end 2026-03-01T15:00:00Z --attendees "user@example.invalid,user@example.invalid"
+
+# Update an existing event (only supplied fields are changed)
+$GAPI calendar update EVENT_ID --summary "Updated title"
+$GAPI calendar update EVENT_ID --start 2026-03-01T11:00:00-06:00 --end 2026-03-01T11:30:00-06:00
+$GAPI calendar update EVENT_ID --location "Room 204" --description "Bring the revised draft"
+
+# Delete event
+$GAPI calendar delete EVENT_ID
+```
+
+### Drive
+
+```bash
+# Search existing files
+$GAPI drive search "quarterly report" --max 10
+$GAPI drive search "mimeType='application/pdf'" --raw-query --max 5
+
+# Get metadata for a single file
+$GAPI drive get FILE_ID
+
+# Upload a local file (auto-detects MIME type)
+$GAPI drive upload /path/to/report.pdf
+$GAPI drive upload /path/to/image.png --name "Logo.png" --parent FOLDER_ID
+
+# Download (binary files download as-is; Google-native files export to a
+# sensible default — Docs→pdf, Sheets→csv, Slides→pdf, Drawings→png)
+$GAPI drive download FILE_ID
+$GAPI drive download DOC_ID --output ~/doc.pdf
+$GAPI drive download DOC_ID --export-mime text/plain --output ~/doc.txt
+
+# Create a folder
+$GAPI drive create-folder "Reports"
+$GAPI drive create-folder "Q4" --parent FOLDER_ID
+
+# Share
+$GAPI drive share FILE_ID --email user@example.invalid --role reader
+$GAPI drive share FILE_ID --email user@example.invalid --role writer --notify
+$GAPI drive share FILE_ID --type anyone --role reader        # anyone with link
+$GAPI drive share FILE_ID --type domain --domain example.com --role reader
+
+# Delete — defaults to trash (reversible). Use --permanent to skip the trash.
+$GAPI drive delete FILE_ID
+$GAPI drive delete FILE_ID --permanent
+```
+
+### Contacts
+
+```bash
+$GAPI contacts list --max 20
+```
+
+### Sheets
+
+```bash
+# Create a new spreadsheet
+$GAPI sheets create --title "Q4 Budget"
+$GAPI sheets create --title "Inventory" --sheet-name "Stock"
+
+# Read
+$GAPI sheets get SHEET_ID "Sheet1!A1:D10"
+
+# Write
+$GAPI sheets update SHEET_ID "Sheet1!A1:B2" --values '[["Name","Score"],["Alice","95"]]'
+
+# Append rows
+$GAPI sheets append SHEET_ID "Sheet1!A:C" --values '[["new","row","data"]]'
+```
+
+### Docs
+
+```bash
+# Read
+$GAPI docs get DOC_ID
+
+# Create a new Doc (optionally seeded with body text)
+$GAPI docs create --title "Meeting Notes"
+$GAPI docs create --title "Draft" --body "First paragraph..."
+
+# Append text to the end of an existing Doc
+$GAPI docs append DOC_ID --text "Additional content to append"
+```
+
+## Output Format
+
+All commands return JSON. Parse with `jq` or read directly. Key fields:
+
+- **Gmail search**: `[{id, threadId, from, to, subject, date, snippet, labels}]`
+- **Gmail get**: `{id, threadId, from, to, subject, date, labels, body}`
+- **Gmail send/reply**: `{status: "sent", id, threadId}`
+- **Calendar list**: `[{id, summary, start, end, location, description, htmlLink}]`
+- **Calendar create**: `{status: "created", id, summary, htmlLink}`
+- **Drive search**: `[{id, name, mimeType, modifiedTime, webViewLink}]`
+- **Drive get**: `{id, name, mimeType, modifiedTime, size, webViewLink, parents, owners}`
+- **Drive upload**: `{status: "uploaded", id, name, mimeType, webViewLink}`
+- **Drive download**: `{status: "downloaded", id, name, path, mimeType}`
+- **Drive create-folder**: `{status: "created", id, name, webViewLink}`
+- **Drive share**: `{status: "shared", permissionId, fileId, role, type}`
+- **Drive delete**: `{status: "trashed" | "deleted", fileId, permanent}`
+- **Contacts list**: `[{name, emails: [...], phones: [...]}]`
+- **Sheets get**: `[[cell, cell, ...], ...]`
+- **Sheets create**: `{status: "created", spreadsheetId, title, spreadsheetUrl}`
+- **Docs create**: `{status: "created", documentId, title, url}`
+- **Docs append**: `{status: "appended", documentId, inserted_at, characters}`
+
+## Rules
+
+1. **Never send email, create/update/delete calendar events, delete Drive files, share files, or modify Docs/Sheets without confirming with the user first.** Show what will be done (recipients, event/file IDs, changed fields, content, share role) and ask for approval. For `drive delete`, prefer the default trash (reversible) over `--permanent`.
+2. **Check auth before first use** — run `setup.py --check`. If it fails, guide the user through setup.
+3. **Use the Gmail search syntax reference** for complex queries — load it with `skill_view("google-workspace", file_path="references/gmail-search-syntax.md")`.
+4. **Calendar times must include timezone** — always use ISO 8601 with offset (e.g., `2026-03-01T10:00:00-06:00`) or UTC (`Z`).
+5. **Respect rate limits** — avoid rapid-fire sequential API calls. Batch reads when possible.
+
+## Troubleshooting
+
+| Problem | Fix |
+|---------|-----|
+| `NOT_AUTHENTICATED` | Run setup Steps 2-5 above |
+| `REFRESH_FAILED` | Token revoked or expired — redo Steps 3-5 |
+| `HttpError 403: Insufficient Permission` | Missing API scope — `$GSETUP --revoke` then redo Steps 3-5 |
+| `AUTHENTICATED (partial)` or "Token missing scopes" | New write capabilities (Drive write/delete, Docs create/edit) require re-authorization. `$GSETUP --revoke` then redo Steps 3-5 to grant the upgraded scopes. |
+| `HttpError 403: Access Not Configured` | API not enabled — user needs to enable it in Google Cloud Console |
+| `ModuleNotFoundError` | Run `$GSETUP --install-deps` |
+| Advanced Protection blocks auth | Workspace admin must allowlist the OAuth client ID |
+
+## Safe reauthorization from Discord
+
+- Treat `invalid_grant` as an external authorization boundary once confirmed; do not repeatedly refresh unchanged credentials or restart consent on every blocked task. Resume an existing task only after a concrete verified credential change.
+- Check the OAuth project's Audience publishing status with the user before repeated reauthorization. External apps in Testing receive seven-day refresh tokens for Workspace scopes; publishing In production removes that specific expiry, but does not prevent revocation or other Google security expirations. Obtain fresh consent after publishing. Personal-use verification exceptions are documented at https://support.google.com/cloud/answer/13464323 and expiry rules at https://developers.google.com/identity/protocols/oauth2#expiration.
+- Prefer the installed `google_auth_oauthlib.flow.InstalledAppFlow` loopback flow on the user's Windows PC over asking for callback URLs in Discord. Use `from_client_secrets_file(..., scopes=<previously granted scopes>, autogenerate_code_verifier=True)` and `run_local_server(host='127.0.0.1', port=0, open_browser=True, authorization_prompt_message=None, timeout_seconds=600, access_type='offline', prompt='consent')`. Do not silently broaden permissions. Preserve any existing pending flow and avoid competing listeners.
+- Disable OAuth HTTP request logging and suppress authorization URL output so callback codes do not enter transcripts. Record only sanitized waiting/verified/failed status. Verify the process is listening with local process socket metadata, not an HTTP probe that could consume the single callback request.
+- Verify renewable access and the intended account with a known existing resource GET before replacing the failed stored credential. Read back that same resource with the saved credential before reporting recovery; a browser callback alone is not success.
+- Check `os.path.samefile()` before updating credentials shared across profiles. Preserve a pre-existing token hardlink when saving; an atomic path replacement breaks the link and can leave a specialist on stale credentials. Do not copy credentials into unrelated profiles.
+- On `WSGITimeoutError`, report that no callback arrived and no refreshed credential was saved. Start a fresh flow only when the user is ready; do not auto-regenerate sessions.
+- Pin relative-date appointment requests to their originally resolved absolute date while consent is pending. After verified recovery, duplicate-check and resume each original card once, without recreating tasks or events.
+
+## Revoking Access
+
+```bash
+$GSETUP --revoke
+```
+
+
+## Calendar fields missing from the CLI
+
+- When authorized Calendar work requires colorId, calendar timezone, or exact event GET missing from the installed CLI, import the installed `google_api` module and use `build_service("calendar", "v3")` through `terminal`. Keep HERMES_HOME pinned to the working profile; never print credentials or repeat OAuth for a CLI feature gap.
+- Read `calendars().get(calendarId="primary")`, `calendarList().get(...)`, `colors().get()`, and paginated `events().list(...)` before selecting a new contrasting event color. Set one explicit event `colorId` on all requested shifts; calendar color IDs use a different palette.
+- Check timezone-rule freshness when local ZoneInfo disagrees with provider readback. America/Vancouver uses permanent UTC-7 from March 8, 2026; it does not fall back on November 1, 2026 (official source: https://news.gov.bc.ca/releases/2026AG0013-000209). Python tzdata 2025.3 predates this change and yields the wrong winter offset. Use verified current rules and the named calendar timezone, not a stale computed offset.
+- Preserve retry safety for direct inserts: use stable Google-compatible deterministic event IDs (SHA-256 hex of the logical request key), GET before insert, and reuse exact matching existing events. After writes, GET every exact ID and check summary, local start/end, named timezone, and explicit colorId; final paginated listing must confirm one matching event per requested shift.
+
+## Retry-safe creation
+
+Calendar and Tasks creation use the Python API client to keep retry decisions structured. Pass a stable `--idempotency-key` for each logical request and reuse it unchanged on retries; for a recurring task, include its intended occurrence date. With no explicit key, identical creation payloads reuse the same operation. Use a new key only for an intentionally separate user request. Calendar creation requires a timezone offset.
+
+Creation may return `status: existing`; this means the earlier action is already present, not a failure. Calendar events have a stable remote ID. Tasks carry a small operation marker in their notes; preserve it when updating notes. Task lookups include completed/hidden items and all pages. If task creation has an uncertain outcome and its marker cannot be found, stop and escalate to main instead of retrying with a different key. These checks do not deduplicate older events/tasks that were created before this protection. Do not rerun mutations solely because delivery of a completion message failed. When recovering an old blocked creation request, list all existing tasks (paginate and include completed/hidden items) before creating anything. If every requested title already exists with the intended status and due-date settings, verify each exact remote ID with Tasks API GET and report the existing result; do not create duplicates merely because the old card's failure summary says nothing was created.

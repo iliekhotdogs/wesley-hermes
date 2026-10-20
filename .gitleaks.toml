@@ -1,0 +1,6 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Only generated SHA-256 payload hashes; tools/bundle.py recomputes every digest"
+paths = ['''(^|[/\\])bundle-manifest\.json$''']
