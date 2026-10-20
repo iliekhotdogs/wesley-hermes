@@ -19,9 +19,9 @@ It reads `cron/jobs.json` at the root and `profiles/*/cron/jobs.json`, then prin
   - `AI/Tech Digest` + `research-monitor`
 - **Replace** the Daily Journal job with the completion log (`extensions/host-automation/completion_log.py`). It writes one record per finished task and posts to #completed.
 - **Output contract**: every job declares exactly one of these:
-  - `report`: a human-facing summary for a report channel.
-  - `dependency notice`: posts only when something you depend on needs action (an expired OAuth grant, a failed job).
-  - `silent when nothing changed`: prints nothing (or `[SILENT]`) on a healthy, unchanged run.
+  - `report`: post the useful result to its report channel.
+  - `dependency`: post only when a named dependency needs the owner's action (for example an expired OAuth grant).
+  - `silent-unless-changed`: post only when something changed; print nothing (or `[SILENT]`) otherwise.
 - **Diagnostics never go to report channels.** Health checks, watchdog output and stack traces go to an ops or diagnostics channel, or stay in local logs.
 
 ## After deciding

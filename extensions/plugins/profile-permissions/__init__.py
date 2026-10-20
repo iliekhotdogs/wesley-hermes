@@ -10,6 +10,18 @@ _POLICY = json.loads((Path(__file__).resolve().parent / 'policy.json').read_text
 ROLE_TOOLSETS = {role: set(names) for role, names in _POLICY['role_toolsets'].items()}
 WORKER_KANBAN = set(_POLICY['worker_kanban'])
 CRON_GOOGLE_ROUTINE = {service: set(ops) for service, ops in _POLICY['cron_google_routine'].items()}
+CRON_WORKSPACE_ROUTINE = {service: set(ops) for service, ops in _POLICY['cron_workspace_routine'].items()}
+# Sharing, invitations, moves, and trash ride inside otherwise routine methods.
+WORKSPACE_DENIED_KEYS = {'trashed', 'addparents', 'removeparents', 'conferencedata', 'attendees',
+                         'deletecontentrange', 'deletesheet', 'deletedimension', 'deleterange', 'writerscanshare',
+                         'copyrequireswriterpermission', 'viewerscancopycontent'}
+WORKSPACE_NOTIFY_KEYS = {'sendupdates', 'sendnotifications'}
+PYTHON_EXE = re.compile(r'(?i)^(?:python(?:3(?:\.\d+)?)?|pythonw|py)(?:\.exe)?$')
+GOOGLE_HELPER = re.compile(r'(?i)workspace_api|google_api')
+HERMES_HOME_REF = re.compile(
+    r'(?:^|[\s"\'/~])\.hermes(?:/|$|[\s"\'])|appdata/local/hermes(?:/|$|[\s"\'])'
+    r'|%localappdata%/hermes|\$\{?(?:env:)?hermes_home'
+)
 GOOGLE_NON_ROUTINE = 'Google sharing, email sending, deletion, or authentication changes require main'
 PRIVILEGED_COMMAND = re.compile(
     r'(?i)\b(?:sudo|runas|icacls|takeown|reg|schtasks|set-acl|remove-item|rm|rmdir|del|taskkill|stop-process)\b'
@@ -57,21 +69,38 @@ def _request_file_reason(value):
     for item in payload if isinstance(payload, list) else [payload]:
         if not isinstance(item, dict):
             return GOOGLE_NON_ROUTINE
-        method, resource = item.get('method'), item.get('resource')
-        if not isinstance(method, str) or not isinstance(resource, list) or not all(isinstance(s, str) for s in resource):
+        service, method, resource = item.get('service'), item.get('method'), item.get('resource')
+        if not isinstance(service, str) or not isinstance(method, str) or not isinstance(resource, list) \
+                or not all(isinstance(s, str) for s in resource):
             return GOOGLE_NON_ROUTINE
-        lowered = method.lower()
-        if lowered == 'send' or 'delete' in lowered or 'trash' in lowered:
+        if '.'.join(resource + [method]) not in CRON_WORKSPACE_ROUTINE.get(service, set()):
             return GOOGLE_NON_ROUTINE
-        # Drive permissions and Calendar acl share data; Gmail settings hold forwarding and delegates.
-        if any(segment in {'permissions', 'acl', 'settings'} for segment in resource):
+        if _denied_workspace_field([item.get('params'), item.get('body')]):
             return GOOGLE_NON_ROUTINE
     return None
+
+
+def _denied_workspace_field(value):
+    if isinstance(value, list):
+        return any(_denied_workspace_field(v) for v in value)
+    if not isinstance(value, dict):
+        return False
+    for key, inner in value.items():
+        lowered = str(key).lower()
+        if lowered in WORKSPACE_DENIED_KEYS:
+            return True
+        if lowered in WORKSPACE_NOTIFY_KEYS and inner not in ('none', False):
+            return True
+        if _denied_workspace_field(inner):
+            return True
+    return False
 
 
 def _terminal_reason(role, command, home):
     if not isinstance(command, str) or not command.strip():
         return 'a concrete command is required'
+    if role != 'cron' and GOOGLE_HELPER.search(command):
+        return 'Google Workspace helpers run only in cron or through main'
     if role == 'builder' and (';' in command or '&&' in command or '||' in command):
         parts = re.split(r';|&&|\|\|', command)
         for part in parts:
@@ -88,6 +117,10 @@ def _terminal_reason(role, command, home):
         text = command.replace('\\', '/').lower()
         if '/.hermes/' in text or '/appdata/local/hermes/' in text or SECRET_NAMES.search(command):
             return 'Hermes configuration and credentials are administered by main'
+        install = home.parent.parent if home.parent.name == 'profiles' else home
+        if re.match(r'(?i)\s*(?:cd|chdir|pushd|set-location|sl)\b', command) and (
+                HERMES_HOME_REF.search(text) or str(install).replace('\\', '/').lower() in text):
+            return 'Hermes configuration and credentials are administered by main'
         return None
     try:
         words = shlex.split(command, posix=False)
@@ -98,19 +131,21 @@ def _terminal_reason(role, command, home):
         if role == 'cowsearcher' and len(words) > 1 and words[1] in {'list_courses', 'list_assignments'}:
             return None
     if role == 'cron':
-        if len(words) >= 3 and Path(words[0]).stem.lower().startswith('python'):
+        python = bool(words) and PYTHON_EXE.match(words[0]) is not None
+        if len(words) >= 3 and python:
             script = Path(words[1]).expanduser().resolve()
             if script == (home / 'scripts' / 'workspace_api.py').resolve():
                 if words[2:] == ['--clock']:
                     return None
                 if len(words) == 4 and words[2] == '--request-file':
                     return _request_file_reason(words[3])
-        if len(words) >= 4 and Path(words[0]).stem.lower().startswith('python'):
+        if len(words) >= 4 and python:
             script = Path(words[1]).expanduser().resolve()
             expected = home / 'skills' / 'productivity' / 'google-workspace' / 'scripts' / 'google_api.py'
             if script == expected.resolve():
                 service, operation = words[2:4]
-                if operation in CRON_GOOGLE_ROUTINE.get(service, set()):
+                # Invites email third parties, so they stay main-owned like workspace_api attendees.
+                if operation in CRON_GOOGLE_ROUTINE.get(service, set()) and not any(w.lower().startswith('--attendee') for w in words[4:]):
                     return None
                 return GOOGLE_NON_ROUTINE
         if words and Path(words[0]).stem.lower() == 'hermes':
@@ -134,8 +169,7 @@ def _queue_main_recovery(role, tool_name, session_id, message):
     from hermes_cli import kanban_db_connect as kbc
     cron = re.match(r'^cron_([a-zA-Z0-9]+)_', session_id)
     source = 'cron:' + cron[1] if cron else 'session:' + session_id
-    # One recovery owner per source; later blocked tools from it join the same card.
-    fingerprint = hashlib.sha256((role + ':' + source).encode()).hexdigest()[:24]
+    prefix = _recovery_key(role, source)
     body = (
         f'Administrative recovery requested by {role}. Source profile: {role}; '
         f'source session: {session_id}; source identifier: {source}; blocked tool: {tool_name}.\n'
@@ -154,13 +188,26 @@ def _queue_main_recovery(role, tool_name, session_id, message):
         'The blocked command, credentials, file content, and OAuth codes are intentionally not copied here.'
     )
     with kbc.connect_closing(board='default') as conn:
+        # One open recovery owner per source; later blocks join it, but never a closed card.
+        # Same lookup kanban_recovery.py uses; hex fingerprint holds no LIKE wildcards.
+        existing = conn.execute(
+            "SELECT id FROM tasks WHERE idempotency_key LIKE ? AND status NOT IN ('done','archived','cancelled')",
+            (prefix + '%',)).fetchone()
+        if existing:
+            return existing['id']
         return kb.create_task(
             conn, title=f'Main recovery: {role} needs permission for {tool_name}',
             body=body, assignee='main', created_by=f'{role}:profile-permissions',
             board='default', workspace_kind='scratch', session_id=session_id,
-            idempotency_key='profile-permission:' + fingerprint,
+            idempotency_key=_recovery_key(role, source, datetime.now(timezone.utc)),
             max_retries=1, max_runtime_seconds=300,
         )
+
+
+def _recovery_key(role, source, now=None):
+    """Prefix per role+source; a minute suffix makes each new card distinct from closed ones."""
+    key = 'profile-permission:' + hashlib.sha256((role + ':' + source).encode()).hexdigest()[:24]
+    return key + now.strftime(':%Y%m%dT%H%MZ') if now else key
 
 
 def make_guard(role, home):
@@ -214,7 +261,8 @@ def make_guard(role, home):
             return None
         if tool_name == 'skill_manage' and args.get('action') not in {'list', 'view', 'read'}:
             return _blocked(role, 'main reviews and applies persistent skill changes')
-        if tool_name == 'memory' and args.get('action') in {'delete', 'clear', 'reset'}:
+        if tool_name == 'memory' and str(args.get('action') or '').lower() in {
+                'delete', 'clear', 'reset', 'remove', 'forget', 'purge', 'prune'}:
             return _blocked(role, 'destructive memory changes require main')
         if tool_name == 'second_brain_search' and role == 'lib':
             return None

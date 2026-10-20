@@ -2,7 +2,7 @@
 
 This records a customized deployment. Owner grants, absolute placeholders and local-only helpers do not transfer to a new installation. The installer uses the adapted prompt instead.
 
-Repository note: this repository's `profile-permissions` plugin blocks Workspace send, delete and sharing requests through `workspace_api.py`; those steps return to main even though the live grant below lists them.
+Repository note: this repository's `profile-permissions` plugin lets only cron run the Google helpers. Builder cannot run `workspace_api.py` or the Google wrapper at all (including through `cd ... &&`), so its Workspace work returns to main or cron even though the live grant below lists it.
 
 ---
 

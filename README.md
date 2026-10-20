@@ -16,7 +16,7 @@ It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configur
 | `builder` | Implementation, files, code, debugging and tests | `gpt-6.1-sol` | `openai-codex` |
 | `cowsearcher` | Research and current-fact verification | `meituan/longcat-2.5-preview:free` | `nous` |
 | `cron` | Schedules, reminders and authorized Workspace operations | `gpt-6.1-sol` | `openai-codex` |
-| `lib` | Memory curation only: dedupe, reconcile, prune | `gpt-6.1-sol` | `openai-codex` |
+| `lib` | Memory curation only: dedupe, reconcile, flag stale entries | `gpt-6.1-sol` | `openai-codex` |
 
 These are **profile defaults**, not proof that every past conversation or scheduled job used those models. Fallback choices and per-job snapshots can differ. The separate `default` profile is not `main` and is not exported as the current assistant.
 

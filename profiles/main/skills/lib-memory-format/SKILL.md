@@ -57,7 +57,7 @@ What something fundamentally is or how it works. Stable, revisited often, worth 
   ```
   [topic: memory-routing] [layer: principle] How durable memory routing works
   The Obsidian vault plus its second-brain index is the one source of truth. main records and looks up
-  routine facts itself with the memory and second_brain_search tools; lib curates (dedupe, merge, prune,
+  routine facts itself with the memory and second_brain_search tools; lib curates (dedupe, merge, flag stale,
   reconcile) on a schedule or on main's request. MEMORY.md stays compact; completion logs never go there.
   ```
 

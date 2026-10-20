@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Append completed Kanban tasks to a JSONL log and print Discord-ready lines for new ones.
 
-Silent when nothing is new. `--metrics` prints per-profile counts for the last 7 days.
+Silent when nothing is new. The first run (log absent) seeds the log with every current done task
+silently instead of posting history; later runs print at most 10 lines plus "+N more". `--metrics` prints per-profile counts for the last 7 days.
 `--fixture FILE` reads a JSON task list instead of calling the CLI (each task doubles as
 its own `show` detail); `--dry-run` prints without writing the log.
 
@@ -11,12 +12,16 @@ Assumed `hermes kanban ... --json` fields (read defensively; any may be absent):
          changed_resource, verification|evidence, follow_up,
          events: [{kind, created_at, payload: {...same optional keys...}}]}
 Timestamps may be epoch seconds or ISO-8601.
+
+The log is appended before the printed lines are delivered: Hermes posts stdout after this
+process exits, so a failed post cannot be detected here and those tasks will not be re-posted.
 """
 from __future__ import annotations
 
 import argparse
 import json
 import os
+import re
 import statistics
 import subprocess
 import time
@@ -25,6 +30,7 @@ from pathlib import Path
 
 COMPLETED_STATUS = "done"
 WEEK = 7 * 86400
+MAX_LINES = 10
 
 
 def log_path() -> Path:
@@ -104,6 +110,13 @@ def is_takeover(item: dict) -> bool:
     return "profile-permissions" in str(item.get("created_by") or "") or str(item.get("title") or "").startswith("Main recovery")
 
 
+def helped_role(item: dict, fallback: object) -> str:
+    """The specialist a takeover helped: `<role>:profile-permissions` or `Main recovery: <role> needs ...`."""
+    match = re.match(r"([\w-]+):profile-permissions", str(item.get("created_by") or "")) \
+        or re.match(r"Main recovery: ([\w-]+) needs\b", str(item.get("title") or ""))
+    return match.group(1) if match else str(fallback or "unassigned")
+
+
 def metrics(entries: list[dict], blocked: list[dict], now: float) -> str:
     rows: dict = {}
     def row(profile: str) -> dict:
@@ -114,14 +127,15 @@ def metrics(entries: list[dict], blocked: list[dict], now: float) -> str:
             continue
         stats = row(item.get("profile"))
         stats["completed"] += 1
-        stats["takeovers"] += is_takeover(item)
+        if is_takeover(item):
+            row(helped_role(item, item.get("profile")))["takeovers"] += 1
         start = timestamp(item.get("created_at"))
         if start is not None and done >= start:
             stats["elapsed"].append(done - start)
     for task in blocked:
-        stats = row(task.get("assignee"))
-        stats["blocked"] += 1
-        stats["takeovers"] += is_takeover(task)
+        row(task.get("assignee"))["blocked"] += 1
+        if is_takeover(task):
+            row(helped_role(task, task.get("assignee")))["takeovers"] += 1
     lines = ["| profile | completed | blocked | main takeovers | median elapsed |", "|---|---|---|---|---|"]
     for profile, stats in sorted(rows.items()):
         median = f"{statistics.median(stats['elapsed']) / 3600:.1f}h" if stats["elapsed"] else "n/a"
@@ -144,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
         return [t for t in found if isinstance(t, dict) and t.get("id")] if isinstance(found, list) else []
 
     path = log_path()
+    seeding = not path.exists() and not args.dry_run
     entries = read_log(path)
     if args.metrics:
         print(metrics(entries, tasks("blocked"), time.time()))
@@ -163,14 +178,24 @@ def main(argv: list[str] | None = None) -> int:
                 detail = {}  # Log what the listing has; the task is still complete.
         new.append(entry(task, detail if isinstance(detail, dict) else {}))
         seen.add(str(task["id"]))
-    if not new:
+    if not new and not seeding:
         return 0
     if not args.dry_run:
+        # shortcut: logged before stdout is delivered (after exit), so a failed post is not retried; needs a delivery ack to fix.
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as handle:
             handle.writelines(json.dumps(item, sort_keys=True) + "\n" for item in new)
-    lines = [f"✅ {item['task_id']} — {item['title']} ({item['profile']}): {str(item['result'] or 'no summary')[:200]}" for item in new]
-    print("\n".join(lines)[:1900])
+    if seeding or not new:
+        return 0  # First run records history silently instead of posting it all.
+    lines: list[str] = []
+    for item in new[:MAX_LINES]:
+        line = f"✅ {item['task_id']} — {str(item['title'])[:120]} ({item['profile']}): {str(item['result'] or 'no summary')[:200]}"
+        if sum(len(x) + 1 for x in lines) + len(line) > 1850:
+            break  # Whole lines only, leaving room for the "+N more" footer under Discord's limit.
+        lines.append(line)
+    if len(new) > len(lines):
+        lines.append(f"+{len(new) - len(lines)} more")
+    print("\n".join(lines))
     return 0
 
 

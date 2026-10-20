@@ -2,7 +2,7 @@
 
 This records a customized deployment. Owner grants, absolute placeholders and local-only helpers do not transfer to a new installation. The installer uses the adapted prompt instead.
 
-Repository note: this repository's `profile-permissions` plugin blocks Workspace send, delete and sharing requests through `workspace_api.py`; those steps return to main even though the live grant below lists them.
+Repository note: this repository's `profile-permissions` plugin limits cron's `workspace_api.py --request-file` calls to an allowlist in `policy.json`: reads, creates and updates for Calendar events, Tasks, Drive files, Docs and Sheets values, plus read-only Gmail and Contacts. Requests with `trashed`, `addParents`, `removeParents`, `conferenceData`, `attendees`, Docs/Sheets delete requests, Drive sharing-setting fields or non-`none` `sendUpdates`/`sendNotifications` are rejected. Sending, deleting, trashing, clearing, sharing, invites and webhooks return to main even though the live grant below lists them.
 
 ---
 

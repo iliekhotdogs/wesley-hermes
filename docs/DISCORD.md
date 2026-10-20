@@ -13,7 +13,7 @@ Rules: one purpose per channel, one thread per task, and only actionable output 
 | Reports | #weekly-review | Accomplishments plus weekly metrics (`completion_log.py --metrics`). |
 | Reports | #journal | Retire in favor of #completed, or keep for manual notes. |
 | Automation | #completed | Completion log: one line per finished Kanban task. |
-| Automation | #system-alerts | Actionable failures only. |
+| Automation | #system-alerts | Actionable failures only. Receives the standalone `gateway_watchdog.py` webhook (`WATCHDOG_WEBHOOK_URL`). |
 | Automation | #cron-health | One daily health line. |
 | Workspace | #ideas | Ideas and backlog. |
 | Workspace | #council | Define a purpose or archive it. |
