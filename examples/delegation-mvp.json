@@ -1,0 +1,26 @@
+{
+  "description": "Optional configuration deltas from the faster named-profile delegation MVP. Review and merge selected keys; this is not a complete Hermes config or an automatically applied installer payload.",
+  "default_overrides": {
+    "main": {
+      "agent": {"reasoning_effort": "low"},
+      "kanban": {
+        "dispatch_interval_seconds": 1,
+        "max_in_progress": 2,
+        "max_in_progress_per_profile": 1
+      }
+    }
+  },
+  "small_catalog_overrides": {
+    "main": {"tools": {"tool_search": {"enabled": "off"}}},
+    "lib": {"tools": {"tool_search": {"enabled": "off"}}},
+    "speedy": {"tools": {"tool_search": {"enabled": "off"}}},
+    "cowsearcher": {"tools": {"tool_search": {"enabled": "off"}}}
+  },
+  "conditions": [
+    "Apply a small-catalog override only after inspecting that deployment's actual enabled tools. Tool catalogs and connector availability can vary by session.",
+    "Main and Lib already used direct schemas in the measured Docker deployment; the MVP newly enabled them for Speedy and Cowsearcher.",
+    "Speedy is optional and is not part of this repository's five-profile installer. Do not create it merely to apply these settings.",
+    "Preserve models, credentials, memory ownership, approvals, execution checkpoints, and specialist reasoning settings.",
+    "Back up changed config and prompt files, then restart the gateway to reload dispatcher settings."
+  ]
+}

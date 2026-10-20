@@ -140,6 +140,7 @@ The prompts do not grant my administrative or Google API authority to you. Optio
 - [Snapshot inventory](inventory.json)
 - [Validation evidence](docs/VERIFICATION.md)
 - [Maintenance procedure](docs/MAINTAINING.md)
+- [Faster delegation MVP, optional tuning and measured limits](docs/DELEGATION-MVP.md)
 
 Do not run `git add -A` against a raw Hermes home and assume `.gitignore` makes it safe. Export explicit allowlisted assets, review the staged tree, regenerate hashes, scan for secrets/private state and test against an isolated home before publishing.
 

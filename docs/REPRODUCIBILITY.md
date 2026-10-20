@@ -20,6 +20,8 @@ Snapshot date: **2026-10-19**. The machine-readable source inventory is [`invent
 
 The snapshot excludes archives/hidden skill metadata, binary example PDFs, owner-specific application/migration skill trees, caches, logs, build outputs and private data. Some advanced skill docs still refer to upstream assets or local deployment-only helpers. Obtain public example binaries from their upstream source if needed. The inventory explicitly distinguishes observed from bundled skill directories.
 
+The later [delegation latency MVP](DELEGATION-MVP.md) adjusts Main's portable dispatch/reasoning defaults and adds routine-result guidance. Its optional tool-discovery examples are inert and are not installed as complete configurations. The documented Docker measurements used a different six-profile runtime; they do not refresh or replace the source inventory above.
+
 ## The local core is not stock upstream
 
 Observed source repository: `https://github.com/NousResearch/hermes-agent.git`.

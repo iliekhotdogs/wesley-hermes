@@ -6,7 +6,7 @@
   "fallback_providers": [],
   "agent": {
     "max_turns": 150,
-    "reasoning_effort": "high",
+    "reasoning_effort": "low",
     "verbose": false,
     "disabled_toolsets": []
   },
@@ -74,6 +74,6 @@
   "kanban": {
     "max_in_progress": 2,
     "max_in_progress_per_profile": 1,
-    "dispatch_interval_seconds": 5
+    "dispatch_interval_seconds": 1
   }
 }
