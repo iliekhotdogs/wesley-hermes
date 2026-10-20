@@ -8,6 +8,7 @@
   ],
   "files": {
     "examples/automation.json": "b60f0f8af186be47b10a1aea1cf2df74e4fdab4f601bbf95440f47ad442d7ac7",
+    "examples/delegation-mvp.json": "353c24cb71300e3c27b1aefe60e205ef8251af1a8efd1f0dcd3a10c1e799c60b",
     "extensions/host-automation/completion_log.py": "22500fd397cefb3bfb66d5ff956235fc22698a4d011a7142c16bc11fe135d379",
     "extensions/host-automation/cron_health_check.py": "e6e9180c76265e8db78b397428eed7857ad1b993de7daa0ab3554e04fe45d127",
     "extensions/host-automation/gateway_watchdog.py": "ba5b76671050c0e14dc69ca1ba902ef14d4d73f1e3015343cc03be42c5b6b135",
@@ -242,8 +243,8 @@
     "profiles/lib/skills/note-taking/obsidian/references/thesleyfiles-vault.md": "a750022ceb0b26eac09646a56203112ffaea31c90ec40e1533fd8c13c11d26ea",
     "profiles/lib/skills/productivity/session-librarian/SKILL.md": "9da2d0ba82b771ae83560965ffaa910db01e76bba8c1d914133a0d8c6957f2ba",
     "profiles/lib/skills/research/llm-wiki/SKILL.md": "0229e37c1783fcac5b77cfb3242703666cf4aa472d2ae85b6bd5279756b515b6",
-    "profiles/main/SOUL.md": "75f568a7a4d6046f0d976c3cc03fdf24e19c159425979b9c4a948bfa9b4e1639",
-    "profiles/main/config.yaml": "8ff20c8f4e63f40d42ab92a1385c47b4daefb03c1851f087fd735d810122eef3",
+    "profiles/main/SOUL.md": "a20a0d9cfcb901e69d54bb8910a8ff98bc86ee29a85bf525a74d009a4d15999f",
+    "profiles/main/config.yaml": "d56943315e727bd4b099f5315d4be429e5157f051adf582544e8578e34705abe",
     "profiles/main/profile.yaml": "175888767afc49986a45e7d0e0d1b2ff7b1b86c2fb8cd2a235121c5ca1bf0750",
     "profiles/main/skills/autonomous-ai-agents/hermes-agent/SKILL.md": "9cc14b0ed31de7afb8b93ea96ba25400a9291774f7ec5baf9d2c53a233aec572",
     "profiles/main/skills/autonomous-ai-agents/hermes-agent/references/background-systems.md": "0e3ea2bd1095233abb5164b5bfbfc343f95911753ef5b65872b230077886d95c",
