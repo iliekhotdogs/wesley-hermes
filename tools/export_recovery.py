@@ -30,19 +30,22 @@ def main():
     spec = importlib.util.spec_from_file_location('recovery_backup', root / 'extensions/operations/recovery_backup.py')
     backup = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(backup)
-    image = json.loads(run('inspect', 'hermes'))[0]['Image']
-    # SQLite's read-only connection may initialize WAL shared-memory sidecars.
-    # Inherit data volume write access for that purpose; connections use mode=ro
-    # and backup() rather than immutable=1, which could silently omit live WAL.
-    # Main must be last: the Builder image also declares an anonymous /opt/data.
-    command = ['run', '--name', name, '--network', 'none', '--cpus', '1', '--memory', '768m', '--volumes-from', 'hermes-builder', '--volumes-from', 'hermes', '--entrypoint', '/opt/hermes/.venv/bin/python', image, '/opt/data/profiles/cron/scripts/recovery_backup.py', '--root', 'data=/opt/data', '--root', 'projects=/projects', '--root', 'builder=/builder-home', '--root', 'workspaces=/workspaces', '--root', 'isolation=/opt/isolation', '--archive', '/tmp/recovery.zip']
-    # A fixed helper name prevents concurrent exports; never remove a helper
-    # we did not create. A failed prior helper requires explicit inspection.
-    existing = run('ps', '-a', '--format', '{{.Names}}').splitlines()
-    if name in existing:
-        raise RuntimeError('Existing export helper requires inspection')
+    helper_owned = False
     try:
+        image = json.loads(run('inspect', 'hermes'))[0]['Image']
+        # SQLite's read-only connection may initialize WAL shared-memory sidecars.
+        # Inherit data volume write access for that purpose; connections use mode=ro
+        # and backup() rather than immutable=1, which could silently omit live WAL.
+        # Main must be last: the Builder image also declares an anonymous /opt/data.
+        command = ['create', '--name', name, '--network', 'none', '--cpus', '1', '--memory', '768m', '--volumes-from', 'hermes-builder', '--volumes-from', 'hermes', '--entrypoint', '/opt/hermes/.venv/bin/python', image, '/opt/data/profiles/cron/scripts/recovery_backup.py', '--root', 'data=/opt/data', '--root', 'projects=/projects', '--root', 'builder=/builder-home', '--root', 'workspaces=/workspaces', '--root', 'isolation=/opt/isolation', '--root', 'policy=/opt/policy', '--archive', '/tmp/recovery.zip']
+        # A fixed helper name prevents concurrent exports; never remove a helper
+        # we did not create. A failed prior helper requires explicit inspection.
+        existing = run('ps', '-a', '--format', '{{.Names}}').splitlines()
+        if name in existing:
+            raise RuntimeError('Existing export helper requires inspection')
         run(*command)
+        helper_owned = True
+        run('start', '-a', name)
         run('cp', name + ':/tmp/recovery.zip', str(destination))
         checked = backup.verify(destination)
         # Deployment files may include secrets. Keep them ONLY in the private
@@ -53,6 +56,7 @@ def main():
         record = {'ok': True, 'archive': destination.name, 'sha256': backup.digest(destination), 'verified_at_epoch': __import__('time').time(), 'restore_test': checked, 'deployment': config.name}
         backup.write_json(args.output / 'export-status.json', record)
         run('cp', str(args.output / 'export-status.json'), 'hermes:/opt/data/state/host_backup_verification.json')
+        run('exec', 'hermes', 'chown', '10000:10000', '/opt/data/state/host_backup_verification.json')
         # Retain seven verified export generations. Never prune before a new
         # successful restore test. Deployment definitions remain for rollback.
         for old in sorted(args.output.glob('recovery-*.zip'), reverse=True)[7:]:
@@ -69,7 +73,8 @@ def main():
         raise
     finally:
         # Helper is stopped after its foreground producer exits.
-        run('rm', name)
+        if helper_owned:
+            run('rm', name)
 
 
 if __name__ == '__main__':
