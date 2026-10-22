@@ -24,3 +24,28 @@ fires with the installed scheduler's timezone and cron implementation.
 Rollback requires stopping Docker scheduling before restoring native scheduling;
 never start both registries concurrently. Preserve new execution history and
 reconcile external effects before any replay.
+
+## 2. Verified private recovery
+
+`extensions/operations/recovery_backup.py` replaces the failed backup producer.
+It snapshots SQLite using its backup API (including committed WAL content),
+extracts the resulting archive, checks every SHA-256, and integrity-checks each
+restored SQLite database. Failures replace stale success status; success expires
+after 36 hours. The backup directory now belongs to the runtime account. Only
+seven newest recovery archives are retained after a successful new restore test.
+
+`tools/export_recovery.py` creates a separate private host export covering main
+data, projects/vault, isolated Builder home/workspaces, isolation code, and a
+separate copy of deployment configuration. A limited owner Windows task runs it
+daily at 03:15 with StartWhenAvailable. It requires a logged-in owner and Docker
+Desktop; this is not an off-machine disaster-recovery service. An independent
+off-machine copy remains advisable for host/disk loss. The first export was
+extracted and hash-checked: 4,321 files and 37 SQLite databases.
+
+These archives **include credentials and private state** and must remain in
+owner-restricted local storage. No backup producer uploads to GitHub. Historical
+backups, caches, logs, package caches, and node_modules are excluded; symlinks and
+original file modes are recorded in the manifest. Restore symlinks only after
+reviewing targets and remapping roots, then restore ownership/modes explicitly.
+The verification is an extraction/hash/SQLite restore check, not an automated
+gateway startup or a cross-database atomic checkpoint.
