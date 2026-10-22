@@ -12,6 +12,8 @@ use `gpt-5.6-terra`; the tables/templates below retain the historical native
 snapshot choices. [Repair implementation, verification, and limits](docs/AUDIT-REPAIRS.md)
 describe backups, enforced Discord approval, readiness, and task triage. Private
 runtime registries, credentials, and recovery archives are never shipped here.
+[Builder isolation source and deployment notes](docs/BUILDER-ISOLATION.md) describe
+the separate worker, inference proxy, verified boundaries and remaining limits.
 
 > **Start here, not with the old backup instructions.** This is now a sanitized, shareable setup with safer installation defaults. It is not a byte-for-byte restore of my running machine. Local core patches and private integrations mean cloning it does not reproduce every behavior. [Exactly what is included and what differs →](docs/REPRODUCIBILITY.md)
 

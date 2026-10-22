@@ -510,6 +510,12 @@
     "reference/live-profiles/lib/settings.json": "fb8de93dd255e70e037e8518d1410c29563bc5c7a97f729213513f162ae81ded",
     "reference/live-profiles/lib/SOUL.md": "a8f4edb5626fad7bbf3a8e701578bfc2e14311729c44c760db468b4fa4bb7a40",
     "reference/live-profiles/main/settings.json": "215f989e8f31275cc47c42fe3fa2d545a9fd2b36e2482c59464f05684bacdddf",
-    "reference/live-profiles/main/SOUL.md": "53cca2c4b931b7ff22235306d3cbefa3ad92f38744d29cd25f574f6a1ce06993"
+    "reference/live-profiles/main/SOUL.md": "53cca2c4b931b7ff22235306d3cbefa3ad92f38744d29cd25f574f6a1ce06993",
+    "extensions/builder-isolation/agent_runner.py": "eda1507af0d369f46526995d3946f1d5b516ca7576c8781f9ce4a5dfe2817b03",
+    "extensions/builder-isolation/builder_service.py": "20f772a510df50005eee22df65bfdf067426c4f3ec7e50f53eea34be221c8ba7",
+    "extensions/builder-isolation/common.py": "3bbb563eb36347d3ecd54fdefed0ecdfebe0a1dbfb3e9b5822c375985bffc4a8",
+    "extensions/builder-isolation/inference_proxy.py": "426ccf9ec5e83da868cd7130b8e2a81f6cc1fb0410dcca0dfd7f63cae87972b5",
+    "extensions/builder-isolation/test_isolation.py": "42f93b9356bc019c6df06eca88c5f86afd2d7d31dedbf596a1a9505552cee50c",
+    "extensions/builder-isolation/worker-shim": "357866c56c5d77c6bd02b70c5519da4512014a3333c35004ce7e2f925120edb7"
   }
 }

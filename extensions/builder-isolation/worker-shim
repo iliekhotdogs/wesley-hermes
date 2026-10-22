@@ -1,0 +1,121 @@
+#!/opt/hermes/.venv/bin/python
+"""HERMES_BIN: only Kanban Builder assignments cross the isolation boundary."""
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import subprocess
+import sys
+import time
+
+sys.path.insert(0, '/opt/isolation')
+from common import files, pack, unpack, apply_result, modes
+import httpx
+
+REAL = '/opt/hermes/.venv/bin/hermes'
+args = sys.argv[1:]
+profile = os.environ.get('HERMES_PROFILE', '')
+for flag in ('-p', '--profile'):
+    if flag in args:
+        profile = args[args.index(flag) + 1]
+if profile != 'builder':
+    os.execv(REAL, [REAL, *args])
+if not os.environ.get('HERMES_KANBAN_TASK'):
+    print('Builder is isolated: execution requires a named Kanban assignment; local fallback is disabled.', flush=True)
+    sys.exit(126)
+
+task_id = os.environ['HERMES_KANBAN_TASK']
+job_id = None
+client = None
+
+
+def cli(*parts):
+    return subprocess.run([REAL, '-p', 'builder', 'kanban', *parts], capture_output=True,
+                          text=True, check=True, timeout=30).stdout
+
+
+def interrupted(*_):
+    raise InterruptedError('Dispatcher cancelled the isolated task')
+
+
+signal.signal(signal.SIGTERM, interrupted)
+signal.signal(signal.SIGINT, interrupted)
+
+try:
+    if not re.fullmatch(r't_[a-f0-9]{8,32}', task_id):
+        raise ValueError('Invalid task identifier')
+    task = json.loads(cli('show', task_id, '--json'))['task']
+    if task.get('assignee') != 'builder' or task.get('status') != 'running':
+        raise ValueError('Builder isolation requires an active assigned Builder task')
+    workspace = Path(os.environ['HERMES_KANBAN_WORKSPACE']).resolve()
+    roots = [Path('/opt/data/kanban/workspaces'), Path('/projects')]
+    if not workspace.is_dir() or not any(workspace != r and workspace.is_relative_to(r) for r in roots):
+        raise ValueError('Task workspace must be a selected scratch workspace or project, never the private data root')
+    expected = task.get('workspace_path')
+    if expected and Path(expected).resolve() != workspace:
+        raise ValueError('Assigned workspace does not match dispatcher grant')
+    before = files(workspace)
+    before_modes = modes(workspace, before)
+    context = cli('context', task_id)
+    # No raw parent environment is sent to the worker service.
+    client = httpx.Client(base_url='http://hermes-builder:8765', timeout=45,
+                          headers={'Authorization': 'Bearer ' + os.environ['BUILDER_CONTROL_TOKEN']},
+                          trust_env=False)
+    response = client.post('/jobs', json={'task_id': task_id, 'snapshot': pack(before, before_modes),
+                                         'context': context, 'timeout': task.get('max_runtime_seconds') or 600})
+    response.raise_for_status()
+    job_id = response.json()['job_id']
+    deadline, last_heartbeat = time.monotonic() + 1850, 0
+    while time.monotonic() < deadline:
+        response = client.get('/jobs/' + job_id)
+        response.raise_for_status()
+        result = response.json()
+        if result['done']:
+            break
+        if time.monotonic() - last_heartbeat >= 20:
+            cli('heartbeat', task_id, '--note', 'Builder running in isolated container')
+            last_heartbeat = time.monotonic()
+        time.sleep(1)
+    else:
+        raise TimeoutError('Isolated job did not return before its deadline')
+    run = str(os.environ.get('HERMES_KANBAN_RUN_ID', '0'))
+    if not run.isdecimal():
+        raise ValueError('Invalid run identity')
+    recovery = Path('/opt/data/kanban/isolated-results')
+    recovery.mkdir(parents=True, exist_ok=True)
+    (recovery / f'{task_id}-{run}.json').write_text(json.dumps(result))
+    outcome = result.get('outcome') or {}
+    if outcome.get('status') != 'done' or not result.get('snapshot'):
+        reason = str(outcome.get('summary') or 'No isolated completion result')[:5000]
+        cli('block', task_id, '--kind', 'capability', reason)
+        print('ISOLATED BUILDER BLOCKED:', reason, flush=True)
+    else:
+        after_modes = {}
+        after = unpack(result['snapshot'], after_modes)
+        backup = Path('/opt/data/kanban/isolated-backups') / f'{task_id}-{run}'
+        metadata = apply_result(workspace, before, after, backup, before_modes, after_modes)
+        metadata.update(isolated_container='hermes-builder', workspace=str(workspace),
+                        tests=outcome.get('tests', []), backup=str(backup))
+        # Keep argv bounded even for large selected workspaces.
+        metadata['changed_files'] = metadata['changed_files'][:200]
+        metadata['deleted_files'] = metadata['deleted_files'][:200]
+        cli('complete', task_id, '--summary', str(outcome.get('summary', ''))[:10000],
+            '--metadata', json.dumps(metadata))
+        print('ISOLATED BUILDER COMPLETE:', outcome.get('summary'), flush=True)
+except BaseException as exc:
+    if client and job_id:
+        try:
+            client.post('/jobs/' + job_id + '/cancel')
+        except Exception:
+            pass
+    message = 'Builder isolation failed closed: ' + type(exc).__name__ + ': ' + str(exc)[:500]
+    print(message, flush=True)
+    try:
+        cli('block', task_id, '--kind', 'capability', message)
+    except Exception:
+        pass
+    sys.exit(1)
+finally:
+    if client:
+        client.close()
