@@ -42,6 +42,13 @@ Desktop; this is not an off-machine disaster-recovery service. An independent
 off-machine copy remains advisable for host/disk loss. The first export was
 extracted and hash-checked: 4,321 files and 37 SQLite databases.
 
+The final exporter also includes the read-only policy volume. Its task tooling
+and exports live in owner-restricted `Documents/Codex/hermes-private-operations`
+and `Documents/Codex/hermes-private-recovery` directories, avoiding AppData paths
+that were not visible to a task launched outside the desktop app. The task uses
+a console-free launcher, keeps private diagnostic logs, and permits battery
+operation. Failed Docker preflight/export attempts invalidate prior success.
+
 These archives **include credentials and private state** and must remain in
 owner-restricted local storage. No backup producer uploads to GitHub. Historical
 backups, caches, logs, package caches, and node_modules are excluded; symlinks and
@@ -77,3 +84,64 @@ and restores destructive slash confirmation. Its guild ID stays in private
 environment configuration. Tests mock approval and HTTP for denial, exact-action
 approval, unique rule keys, timeout, and policy-off cases. No actual channel was
 deleted and no end-to-end human approval interaction was performed.
+
+## 5. Readiness and maintenance
+
+`extensions/operations/runtime_health.py` checks the gateway PID **and start
+identity**, the owning profile's dedicated heartbeat, scheduler ticks, both
+backup verification records, enabled job failures/overdue fires, delivery
+errors, missing scripts, and stalled running tasks. It reports input-blocked
+cards as warnings. Docker now uses this readiness check instead of connection
+presence alone. Last failed production runs remain visible until real later
+runs supersede them; changing a setting does not manufacture a successful run.
+
+The existing changed-only health lane includes readiness findings; no new
+notification job was added. Consolidated maintenance routing is configuration,
+not hardcoded account IDs. Its lock uses OS locking with no `filelock` package
+dependency. Curation now uses Linux vault/project paths and the current Lib
+memory contract. Production thread maintenance loads its profile environment,
+archives idle threads, counts API failures accurately, and disables unattended
+deletion. Irreversible deletion must use the scoped human-approved tool.
+
+Read-only checks confirmed Cron's bot lacks guild-wide Manage Channels and Manage
+Threads permissions. Maintenance now fails before mutation with this explicit
+prerequisite and waits six hours between retries. It does not borrow Main's
+administrator token. This capability blocker remains unresolved; do not interpret
+the code repair as a successful maintenance execution. The readiness check also
+fails if the authoritative registry disappears or contains no enabled jobs.
+
+Main's custom plugins and the readiness checker are copied to a dedicated Docker
+volume mounted read-only. Main's plugin mount uses the `main/plugins` volume
+subdirectory. Operator updates use an explicit deployment helper; workers cannot
+overwrite the mounted plugin files. This is not full separation of the other
+trusted profiles: config, prompts, and much runtime state still share one UID.
+Existing isolated Builder execution, restricted mounts, and inference proxy
+remain in place. A failed optional host-file prompt mount was removed; it is
+not part of the final deployment.
+
+## 6. Failed-work triage and bounded execution
+
+Fourteen currently unresolved cards were reviewed. Six inactive cards received
+typed classifications, the two old todo cards were held blocked, and each card
+received a prerequisite/reconciliation note. No card was falsely completed and
+no calendar mutation was replayed. The pre-triage database is preserved. Because
+the native block transition accepts only ready/running, inactive metadata was
+repaired in a transaction with an `audit_triage` event; cards were never briefly
+promoted to ready.
+
+`extensions/operations/kanban_triage.py` replaces the obsolete automatic recovery
+script that referenced retired profiles. It reports changed prerequisites,
+stays silent when unchanged, and does not reassign/unblock/execute tasks. Full
+task titles and triage output remain private. Prompt contracts reserve the final
+two worker turns for verification and a terminal completion/block call; this
+is guidance, not proof that future model runs cannot exhaust their budget.
+
+Main now answers tool-free arithmetic, stable definitions, and short user-text
+transformations directly. Substantive research, implementation, account changes,
+and memory work retain the named-profile boundaries. Historical latency samples
+are not claimed as a measured before/after speedup.
+
+Setup reporting now calls journal entries recorded assertions and distinguishes
+configuration on disk from loaded runtime state. Shared memory context identifies
+its registration-time source timestamp and clipping limit. It does not silently
+turn a journal statement into verified evidence.

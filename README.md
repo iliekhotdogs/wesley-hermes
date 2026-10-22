@@ -6,6 +6,13 @@ It uses [Hermes Agent](https://github.com/NousResearch/hermes-agent), a configur
 
 **Verified snapshot: 2026-10-19.** The primary profile is configured for **`gpt-6.1-sol` through `openai-codex`**. Model access depends on your own account; you can choose another available model. This repository does **not** provide model weights, a subscription, or credentials.
 
+**Production repairs, 2026-10-21:** the current assistant runs in Docker, with an
+isolated Builder and a single reconciled scheduler. Production Main/Cron currently
+use `gpt-5.6-terra`; the tables/templates below retain the historical native
+snapshot choices. [Repair implementation, verification, and limits](docs/AUDIT-REPAIRS.md)
+describe backups, enforced Discord approval, readiness, and task triage. Private
+runtime registries, credentials, and recovery archives are never shipped here.
+
 > **Start here, not with the old backup instructions.** This is now a sanitized, shareable setup with safer installation defaults. It is not a byte-for-byte restore of my running machine. Local core patches and private integrations mean cloning it does not reproduce every behavior. [Exactly what is included and what differs →](docs/REPRODUCIBILITY.md)
 
 ## The team

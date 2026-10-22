@@ -216,6 +216,7 @@ class PermissionTests(unittest.TestCase):
         import sys
         import types
         conn = sqlite3.connect(':memory:')
+        self.addCleanup(conn.close)
         conn.row_factory = sqlite3.Row
         conn.execute('CREATE TABLE tasks (id INTEGER PRIMARY KEY, idempotency_key TEXT, status TEXT)')
         created = []
