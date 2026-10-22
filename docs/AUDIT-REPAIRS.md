@@ -49,3 +49,16 @@ original file modes are recorded in the manifest. Restore symlinks only after
 reviewing targets and remapping roots, then restore ownership/modes explicitly.
 The verification is an extraction/hash/SQLite restore check, not an automated
 gateway startup or a cross-database atomic checkpoint.
+
+## 3. Scheduled inference and portable wrapper paths
+
+Five enabled agent-driven jobs now clear obsolete per-job model/provider pins
+through Hermes' native job API and refresh their inference snapshots to the
+configured cron profile. The diagnostic successfully used that provider/model
+and returned the requested marker without tools or Discord delivery. Existing
+failure history is retained; it is not relabeled successful. Full task semantics
+and scheduled delivery must still be assessed from their next real executions.
+
+Docker Cron's instructions now point to its actual installed Linux wrapper,
+recognize its Tasks support, and allow bounded recovery for missing-file or
+unsupported-command errors. The portable template uses a profile-relative path.

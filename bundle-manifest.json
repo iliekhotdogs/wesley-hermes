@@ -192,7 +192,7 @@
     "profiles/cowsearcher/skills/research/research-paper-writing/templates/neurips2025/neurips.sty": "826653bc31e412bb5caf576d3ab079e9a5e643bcd6c43c5b8fafedc7ac34207f",
     "profiles/cowsearcher/skills/web/blocked-page-recovery/SKILL.md": "7f7d321f177399ca928e11ab38942cfa76d6e931a82d887671c50661fb411d51",
     "profiles/cowsearcher/skills/web/blocked-page-recovery/scripts/recover_page.py": "22b996996ae2bf252b31cfd2636231f08936729a381dce7ba8bfa4afb8ffe8c6",
-    "profiles/cron/SOUL.md": "820100f8b4a07aca9d2b9a8cb8e035b83c5d319e7b539614bc9b2f96a43570ea",
+    "profiles/cron/SOUL.md": "6990aa36cc478685e3c2b101953397948704ca7fe78f5fb527814c4de82114fa",
     "profiles/cron/config.yaml": "1f570d6033ecfc88c35b005a86dfb52d99fc288600ecd538a5e26241a6cdb07d",
     "profiles/cron/profile.yaml": "9ee25fc4afdbee96e9180c9d01c08b2e13d4d4cd5a90e1732c9c9714835bea9f",
     "profiles/cron/skills/autonomous-ai-agents/hermes-agent/SKILL.md": "a111466ce81ccdad8bccc7f670c7946df9d9f8b639399f28bd2958f5bce92c56",
