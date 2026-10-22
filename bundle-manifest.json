@@ -500,6 +500,8 @@
     "reference/live-profiles/lib/settings.json": "fb8de93dd255e70e037e8518d1410c29563bc5c7a97f729213513f162ae81ded",
     "reference/live-profiles/main/SOUL.md": "53cca2c4b931b7ff22235306d3cbefa3ad92f38744d29cd25f574f6a1ce06993",
     "reference/live-profiles/main/settings.json": "215f989e8f31275cc47c42fe3fa2d545a9fd2b36e2482c59464f05684bacdddf",
-    "extensions/operations/recovery_backup.py": "d1c6b582ca139c2d7c2cdd9dd4bf248e7bc7c1e131c71a0ffb9c16c3c7bdae13"
+    "extensions/operations/recovery_backup.py": "d1c6b582ca139c2d7c2cdd9dd4bf248e7bc7c1e131c71a0ffb9c16c3c7bdae13",
+    "extensions/discord-channel-management/plugin.yaml": "aab2b51e2a97247ea0873b23b432cfdc7fabefda6571a9095ece99239ce8932b",
+    "extensions/discord-channel-management/__init__.py": "edcd99a9494c45554e12c6e8d64467892adecb0446d6ffa5b347a2ad1a729532"
   }
 }

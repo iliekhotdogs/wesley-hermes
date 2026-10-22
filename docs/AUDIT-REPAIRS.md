@@ -62,3 +62,18 @@ and scheduled delivery must still be assessed from their next real executions.
 Docker Cron's instructions now point to its actual installed Linux wrapper,
 recognize its Tasks support, and allow bounded recovery for missing-file or
 unsupported-command errors. The portable template uses a profile-relative path.
+
+## 4. Enforced Discord consent
+
+The optional `extensions/discord-channel-management` plugin now calls Hermes'
+trusted human-approval gate inside its handler before channel deletion or a
+category change. The approval describes the exact guild, channel, action, and
+changed fields, and uses a fresh rule key for every invocation. Repeating a
+model-supplied channel ID grants no authority. Errors, denial, missing approval
+surfaces, and non-manual approval mode fail closed before Discord HTTP calls.
+
+Main now uses manual approval, denies dangerous unattended/cron/one-shot actions,
+and restores destructive slash confirmation. Its guild ID stays in private
+environment configuration. Tests mock approval and HTTP for denial, exact-action
+approval, unique rule keys, timeout, and policy-off cases. No actual channel was
+deleted and no end-to-end human approval interaction was performed.
