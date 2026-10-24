@@ -8,7 +8,7 @@ libraries if `gws` is not installed.
 Usage:
   python google_api.py gmail search "is:unread" [--max 10]
   python google_api.py gmail get MESSAGE_ID
-  python google_api.py gmail send --to user@example.invalid --subject "Hi" --body "Hello"
+  python google_api.py gmail send --to user@example.com --subject "Hi" --body "Hello"
   python google_api.py gmail reply MESSAGE_ID --body "Thanks"
   python google_api.py calendar list [--from DATE] [--to DATE] [--calendar primary]
   python google_api.py calendar create --summary "Meeting" --start DATETIME --end DATETIME
@@ -24,8 +24,6 @@ Usage:
   python google_api.py tasks complete TASK_ID
   python google_api.py tasks delete TASK_ID
 """
-
-from __future__ import annotations
 
 import argparse
 import base64
@@ -1178,17 +1176,8 @@ def tasks_delete(args):
 # =========================================================================
 
 
-class _ExactArgumentParser(argparse.ArgumentParser):
-    """No option prefixes (--att, --out): the cron permission hook matches whole flag names.
-    add_subparsers reuses type(self), so every nested parser inherits this."""
-
-    def __init__(self, *args, **kwargs):
-        kwargs["allow_abbrev"] = False
-        super().__init__(*args, **kwargs)
-
-
 def main():
-    parser = _ExactArgumentParser(description="Google Workspace API for Hermes Agent")
+    parser = argparse.ArgumentParser(description="Google Workspace API for Hermes Agent")
     sub = parser.add_subparsers(dest="service", required=True)
 
     # --- Gmail ---
@@ -1209,7 +1198,7 @@ def main():
     p.add_argument("--subject", required=True)
     p.add_argument("--body", required=True)
     p.add_argument("--cc", default="")
-    p.add_argument("--from", dest="from_header", default="", help="Custom From header (e.g. '\"Agent Name\" <user@example.invalid>')")
+    p.add_argument("--from", dest="from_header", default="", help="Custom From header (e.g. '\"Agent Name\" <user@example.com>')")
     p.add_argument("--html", action="store_true", help="Send body as HTML")
     p.add_argument("--thread-id", default="", help="Thread ID for threading")
     p.set_defaults(func=gmail_send)
@@ -1217,7 +1206,7 @@ def main():
     p = gmail_sub.add_parser("reply")
     p.add_argument("message_id", help="Message ID to reply to")
     p.add_argument("--body", required=True)
-    p.add_argument("--from", dest="from_header", default="", help="Custom From header (e.g. '\"Agent Name\" <user@example.invalid>')")
+    p.add_argument("--from", dest="from_header", default="", help="Custom From header (e.g. '\"Agent Name\" <user@example.com>')")
     p.set_defaults(func=gmail_reply)
 
     p = gmail_sub.add_parser("labels")

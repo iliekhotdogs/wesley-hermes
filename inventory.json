@@ -1,5 +1,5 @@
 {
-  "captured_at": "2026-10-20T00:34:45.507465+00:00",
+  "captured_at": "2026-10-23T00:00:00+00:00",
   "source": "Read-only inspection of the installed six named profiles (speedy since retired from this repository); no credentials or user records exported.",
   "previous_repository_head": "df5f3988fa29ddc2ac747235e0f787c311d2cc60",
   "profiles": {
@@ -523,5 +523,6 @@
       "auto_installed": false,
       "status": "Sanitized source reference; owner paths, schedules, destinations and deployment-specific dependencies must be adapted and tested."
     }
-  }
+  },
+  "refresh_note": "2026-10-23: synced drifted skills and profile-permissions plugin from live; files containing owner-bound paths were left at their sanitized versions."
 }

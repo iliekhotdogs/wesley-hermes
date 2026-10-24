@@ -160,6 +160,19 @@ def _terminal_reason(role, command, home):
     if words and Path(words[0]).stem.lower() == 'canvas':
         if role == 'cowsearcher' and len(words) > 1 and words[1] in {'list_courses', 'list_assignments'}:
             return None
+    if role == 'lib' and len(words) >= 2 and PYTHON_EXE.match(words[0]) and not SHELL_EXPANSION.search(words[1]):
+        # Narrow allowance: the vault wiki manifest helper (read-only scan, or --commit of the reported batch).
+        if Path(words[1]).resolve() == (home / 'scripts' / 'wiki_manifest.py').resolve():
+            rest = words[2:]
+            while rest:
+                if rest[0] == '--commit' or rest[0] == '.':
+                    rest = rest[1:]
+                elif rest[0] == '--limit' and len(rest) > 1 and rest[1].isdigit():
+                    rest = rest[2:]
+                else:
+                    break
+            if not rest:
+                return None
     if role == 'cron':
         python = bool(words) and PYTHON_EXE.match(words[0]) is not None
         if len(words) >= 3 and python and not SHELL_EXPANSION.search(words[1]):
