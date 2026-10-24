@@ -81,7 +81,7 @@ git remote set-url origin https://<username>:<token>@github.com/<owner>/<repo>.g
 ```bash
 # Required for commits — set name and email
 git config --global user.name "Their Name"
-git config --global user.email "user@example.invalid"
+git config --global user.email "their-email@example.com"
 ```
 
 **Step 4: Verify**
@@ -109,7 +109,7 @@ ls -la ~/.ssh/id_*.pub 2>/dev/null || echo "No SSH keys found"
 
 ```bash
 # Generate an ed25519 key (modern, secure, fast)
-ssh-keygen -t ed25519 -C "user@example.invalid" -f ~/.ssh/id_ed25519 -N ""
+ssh-keygen -t ed25519 -C "their-email@example.com" -f ~/.ssh/id_ed25519 -N ""
 
 # Display the public key for them to add to GitHub
 cat ~/.ssh/id_ed25519.pub
@@ -123,7 +123,7 @@ Tell the user to add the public key at: **https://github.com/settings/keys**
 **Step 3: Test the connection**
 
 ```bash
-ssh -T user@example.invalid
+ssh -T git@github.com
 # Expected: "Hi <username>! You've successfully authenticated..."
 ```
 
@@ -131,14 +131,14 @@ ssh -T user@example.invalid
 
 ```bash
 # Rewrite HTTPS GitHub URLs to SSH automatically
-git config --global url."user@example.invalid:".insteadOf "https://github.com/"
+git config --global url."git@github.com:".insteadOf "https://github.com/"
 ```
 
 **Step 5: Configure git identity**
 
 ```bash
 git config --global user.name "Their Name"
-git config --global user.email "user@example.invalid"
+git config --global user.email "their-email@example.com"
 ```
 
 ---

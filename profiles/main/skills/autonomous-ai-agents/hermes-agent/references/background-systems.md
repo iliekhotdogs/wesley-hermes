@@ -141,6 +141,15 @@ sessions still have zero `kanban_*` schema footprint unless configured.
 - If the CLI's delegated-child guard denies main recovery administration, use a fixed-source, main-home/workspace-guarded native helper with an override confined to that process, matching the installed main-only recovery helper. Never widen profile permissions. Terminal may omit HERMES_KANBAN_TASK; validate the pinned recovery workspace and main home instead.
 - Append exact read_file paths and concrete passing results to the source before resuming once. Keep source remediation incomplete when unresolved issues remain; close only the prerequisite recovery task.
 
+## Recovering Docker worker input boundaries
+
+1. Read the source card's latest attempt/comments and inspect the current deployed artifact before staging. Prefer current implementation over an old prototype attachment; label historical blueprints explicitly so a resumed worker does not rebuild a feature already deployed.
+2. Inspect only the owning profile's nonsecret terminal settings: backend, cwd, image, and volume mappings. Derive both the host staging path and container-visible path from the actual mount; a Kanban host workspace path does not establish Docker accessibility.
+3. Stage an explicit allowlist of task source, tests, and documentation into a task subdirectory of the existing dedicated mount. Exclude live state, preferences, logs, profile homes, credentials and credential-reading helpers; do not copy a whole deployment tree or broaden mounts to make a path work.
+4. Verify accessibility using the configured image and exact mount, read-only and with networking disabled when the probe only needs files. For example: `docker run --rm --network none --mount type=bind,source=<host-workspace>,target=/workspace,readonly <configured-image> python -c "from pathlib import Path; import ast; p=Path('/workspace/<task>/current'); files=list(p.rglob('*.py')); [ast.parse(f.read_text(encoding='utf-8')) for f in files]; print({'mounted':p.is_dir(),'parsed':len(files),'state_excluded':not (p/'state').exists()})"`. This proves mounted inputs and syntax only, not dependency availability or passing tests.
+5. Write a task-local handoff with exact container cwd, current-vs-historical input labels, known verified behavior, bounded offline deliverables, output paths, and Main/cron/live-human ownership. Keep privileged publication behind Main's existing boundary; missing sandbox inputs do not require token injection or host access.
+6. Append the changed prerequisite and probe output to the same source card, then resume once. Read back the resulting status; if a ready-filter list is empty, check running before concluding the resume failed because the dispatcher may already have claimed it. Do not report implementation complete merely because dispatch resumed.
+
 ## Recovering blocked backlogs in parallel
 
 - Rank blocked cards from full attempt/comment evidence and inspect escalated triage sources too; a historical capability error is not a live diagnosis. Reuse source cards after a verified prerequisite correction instead of creating duplicate assignments.

@@ -32,6 +32,13 @@ Full docs: https://hermes-agent.nousresearch.com/docs/integrations/providers
 Multiple credentials per provider pool and rotate automatically (`hermes auth`).
 Fallback chain when the primary fails: `hermes fallback add|remove|list`.
 
+### Free-model replacement verification
+
+- Inspect the live Nous inference `/v1/models` catalog (production origin `https://inference-api.nousresearch.com`) for exact IDs, zero prompt/completion pricing, tool support and expiry; the static docs manifest can omit free variants. The public catalog is usable without credentials for selection, not for generation.
+- Pin the explicit `:free` row when the catalog lists paid and free versions under the same display name. A portal FREE badge or matching base name does not make the unsuffixed ID free.
+- Verify execution credentials with owning-profile `resolve_runtime_provider(requested='nous', target_model=<exact-id>)`, not only auth-store status; credential pools and runtime resolution may differ. Keep secrets out of output. Missing account login cannot be fixed by changing models, and a catalog read never proves a generation succeeded.
+- Preserve healthy profile defaults and intentional pauses when replacing stale blocked-job/task overrides. Record the exact model/provider change and credential limitation; do not resume obsolete bootstrap cards whose body would overwrite a working default.
+
 ### User-defined model aliases
 
 Work with `/model <name>` in CLI and every gateway platform. Resolved by
