@@ -355,6 +355,18 @@ git push -u origin HEAD
 # 8. Merge when green (see Section 6)
 ```
 
+## 8. Publishing a sanitized setup/config snapshot (e.g. wesley-hermes)
+
+When asked to "update GitHub with the current setup": locate the published repo first (`gh repo list <user>`, then find the local clone via `find ~ -maxdepth 5 -name .git`; the NousResearch `hermes-agent` checkout is upstream, not the target). Then follow the repo's own `docs/MAINTAINING.md`:
+
+1. Pull master, branch `docs/refresh-<date>`.
+2. Diff live files against the repo copies with CRLF normalized; copy over only drifted files. Skip any live file matching owner-bound patterns (user paths, Discord IDs, emails, tokens) so the sanitized version stays. Never copy a raw profile; known intentional divergences (e.g. a retired profile in a policy file) stay as in the repo.
+3. Regenerate `bundle-manifest.json` SHA-256s over profiles/extensions/reference/examples, update `inventory.json`, run `python tools/bundle.py validate` and `python -m unittest discover -s tests`.
+4. Set `git config user.name/user.email` to the account's noreply identity if commit fails with unknown author.
+5. Push, `gh pr create`, wait for `gh pr checks`, `gh pr merge --merge --delete-branch`, then compare `gh api repos/O/R/commits/master --jq .sha` with the local `origin/master`. Older already-merged branches may remain on the remote; list them and report rather than delete unasked.
+
+Pitfall: write helper scripts to a file rather than a bash heredoc containing backslash string literals — Windows git-bash mangles them.
+
 ## Useful PR Commands Reference
 
 | Action | gh | git + curl |

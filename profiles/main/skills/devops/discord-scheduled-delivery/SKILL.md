@@ -40,6 +40,24 @@ Deliver scheduled content to Discord channels reliably. Covers message length li
   - Use this for most scheduled delivery (briefings, digests, reports, alerts)
   - This is the correct setting for one-way informational delivery
 
+## Non-main profiles (dedicated channels, credentials, model override)
+
+For creating a per-job channel and making another profile's cron jobs deliver to it, read `references/profile-cron-delivery.md`.
+
+## Auditing jobs and cleaning the server
+
+For reviewing/cutting cron jobs, and tidying orphaned channels and threads, see `references/cron-audit-and-discord-cleanup.md`. Standing preference: the user wants fewer recurring jobs; propose cutting dead/overlapping ones rather than repurposing them.
+
+## Ad-hoc posts to a channel (e.g. "add this to the ideas channel")
+
+The `discord` and `discord_admin` model tools cannot send messages (only read, pin, thread, roles). To post once to a named channel:
+
+1. `discord_admin` `list_channels(guild_id)` to find the channel id (channel names carry emoji prefixes, so match on topic/id, not exact name).
+2. Write the post body to a file under the scratch dir (avoids shell-quoting of markdown).
+3. `hermes send -t discord:<channel_id> -f <file> --json` — reuses the profile's bot token, no gateway or LLM needed. Success returns `message_id`.
+
+Keep the post self-contained (what, plan, risks, setup needed, rejected options) since the reader lacks the chat thread; stay under 2,000 chars or split.
+
 ## Delivery Verification
 
 ### Check the Output File
@@ -86,7 +104,7 @@ continuity: true  # optional, for comparing with previous runs
 
 ```
 Schedule: 0 8 * * *
-Deliver: discord:0
+Deliver: discord:<channel-id>
 attach_to_session: false
 Prompt: Generate a concise briefing. Keep under 1500 characters.
 ```
@@ -95,7 +113,7 @@ Prompt: Generate a concise briefing. Keep under 1500 characters.
 
 ```
 Schedule: 0 2 * * *
-Deliver: discord:0
+Deliver: discord:<channel-id>
 attach_to_session: false
 Prompt: Review past 24 hours and post a structured journal entry.
 ```

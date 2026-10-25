@@ -6,7 +6,7 @@
     "image_input_mode": "native",
     "disabled_toolsets": [],
     "verbose": false,
-    "reasoning_effort": "high",
+    "reasoning_effort": "medium",
     "personalities": {
       "helpful": "You are a helpful, friendly AI assistant.",
       "concise": "You are a concise assistant. Keep responses brief and to the point.",
@@ -42,7 +42,7 @@
     "subagent_auto_approve": false
   },
   "memory": {
-    "memory_enabled": false,
+    "memory_enabled": true,
     "user_profile_enabled": false,
     "memory_char_limit": 2200,
     "user_char_limit": 1375,
@@ -60,15 +60,21 @@
   "plugins": {
     "enabled": [
       "briefing-curation",
-      "hermes-token-router",
-      "profile-permissions"
+      "kanban-sandbox-guard",
+      "profile-permissions",
+      "second-brain-retrieval"
     ],
-    "disabled": [],
+    "disabled": [
+      "hermes-token-router"
+    ],
     "entries": {
       "profile-permissions": {
         "allow_tool_override": false
       },
       "briefing-curation": {
+        "allow_tool_override": false
+      },
+      "second-brain-retrieval": {
         "allow_tool_override": false
       }
     }
@@ -103,7 +109,7 @@
   },
   "web": {
     "backend": "firecrawl",
-    "use_gateway": true
+    "use_gateway": false
   },
   "browser": {
     "inactivity_timeout": 120,
@@ -117,12 +123,12 @@
   "compression": {
     "enabled": true,
     "progress_notices": false,
-    "threshold": 0.5,
-    "target_ratio": 0.2,
+    "threshold": 0.12,
+    "target_ratio": 0.15,
     "protect_last_n": 20,
     "min_tail_user_messages": 1,
     "max_attempts": 3,
-    "proactive_prune_tokens": 0,
+    "proactive_prune_tokens": 40000,
     "proactive_prune_min_result_chars": 8000,
     "proactive_prune_min_reclaim_tokens": 4096,
     "protect_first_n": 3,
@@ -168,9 +174,8 @@
   },
   "group_sessions_per_user": true,
   "model": {
-    "default": "gpt-6.1-sol",
-    "provider": "openai-codex",
-    "base_url": "https://chatgpt.com/backend-api/codex"
+    "provider": "claude-subscription-directsdk-experimental",
+    "default": "sonnet"
   },
   "fallback_providers": []
 }

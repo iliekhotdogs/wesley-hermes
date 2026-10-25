@@ -1,7 +1,7 @@
 {
-  "captured_at": "2026-10-23T00:00:00+00:00",
+  "captured_at": "2026-10-25T20:47:55+00:00",
   "source": "Read-only inspection of the installed six named profiles (speedy since retired from this repository); no credentials or user records exported.",
-  "previous_repository_head": "df5f3988fa29ddc2ac747235e0f787c311d2cc60",
+  "previous_repository_head": "311f800a27869320876718bce25bc7d2d2990785",
   "profiles": {
     "main": {
       "role": "Primary assistant and specialist coordinator; handles recovery and integrates results.",
@@ -12,8 +12,9 @@
       "observed_approvals_mode": "off",
       "observed_plugins_enabled": [
         "briefing-curation",
-        "hermes-token-router",
-        "profile-permissions"
+        "kanban-sandbox-guard",
+        "profile-permissions",
+        "second-brain-retrieval"
       ],
       "observed_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
@@ -25,7 +26,9 @@
         "creative/sketch",
         "creative/touchdesigner-mcp",
         "devops/discord-scheduled-delivery",
+        "devops/kanban-blocked-task-triage",
         "devops/sdlc-review",
+        "devops/story-loop",
         "devops/system-health-watchdogs",
         "email/email-inbox-triage",
         "github/github-auth",
@@ -41,6 +44,7 @@
         "mlops/inference/llama-cpp",
         "mlops/inference/serving-llms-vllm",
         "note-taking/obsidian",
+        "note-taking/vault-wiki-maintenance",
         "personal-command-center",
         "productivity/canvas",
         "productivity/discord-connect",
@@ -48,6 +52,7 @@
         "productivity/nano-pdf",
         "productivity/ocr-and-documents",
         "productivity/session-librarian",
+        "productivity/video-content-analysis",
         "productivity/weekly-review-planning",
         "research/arxiv",
         "research/blogwatcher",
@@ -64,7 +69,7 @@
         "software-development/test-driven-development",
         "victory-hunter-dispatch"
       ],
-      "observed_skill_count": 47,
+      "observed_skill_count": 51,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
         "autonomous-ai-agents/merge-reconciler",
@@ -75,7 +80,9 @@
         "creative/sketch",
         "creative/touchdesigner-mcp",
         "devops/discord-scheduled-delivery",
+        "devops/kanban-blocked-task-triage",
         "devops/sdlc-review",
+        "devops/story-loop",
         "devops/system-health-watchdogs",
         "email/email-inbox-triage",
         "github/github-auth",
@@ -91,12 +98,15 @@
         "mlops/inference/llama-cpp",
         "mlops/inference/serving-llms-vllm",
         "note-taking/obsidian",
+        "note-taking/vault-wiki-maintenance",
+        "personal-command-center",
         "productivity/canvas",
         "productivity/discord-connect",
         "productivity/google-workspace",
         "productivity/nano-pdf",
         "productivity/ocr-and-documents",
         "productivity/session-librarian",
+        "productivity/video-content-analysis",
         "productivity/weekly-review-planning",
         "research/arxiv",
         "research/blogwatcher",
@@ -113,13 +123,17 @@
         "software-development/test-driven-development",
         "victory-hunter-dispatch"
       ],
-      "bundled_skill_count": 46,
+      "bundled_skill_count": 51,
       "excluded_skill_asset_count": 9,
       "observed_jobs": {
         "total": 4,
         "enabled": 3
       },
-      "observed_fallback_models": []
+      "observed_fallback_models": [],
+      "observed_live_model": {
+        "default": "sonnet",
+        "provider": "claude-subscription-directsdk-experimental"
+      }
     },
     "builder": {
       "role": "Implementation, local files, code, debugging, technical investigation and tests.",
@@ -163,7 +177,11 @@
           "provider": "openai-codex",
           "model": "gpt-6.1-sol"
         }
-      ]
+      ],
+      "observed_live_model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      }
     },
     "cowsearcher": {
       "role": "Source research, current-fact verification and evidence-based reports.",
@@ -289,7 +307,11 @@
           "provider": "openai-codex",
           "model": "gpt-6.1-sol"
         }
-      ]
+      ],
+      "observed_live_model": {
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
+      }
     },
     "cron": {
       "role": "Schedules, reminders and authorized routine Google Workspace API operations.",
@@ -313,19 +335,24 @@
       "observed_skill_count": 7,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
+        "personal-command-center",
         "productivity/budget-spreadsheet-reconciliation",
         "productivity/calendar-schedule-management",
         "productivity/canvas",
         "productivity/daily-journal-synthesis",
         "productivity/google-workspace"
       ],
-      "bundled_skill_count": 6,
+      "bundled_skill_count": 7,
       "excluded_skill_asset_count": 6,
       "observed_jobs": {
         "total": 21,
         "enabled": 12
       },
-      "observed_fallback_models": []
+      "observed_fallback_models": [],
+      "observed_live_model": {
+        "default": "gpt-6-luna",
+        "provider": "openai-codex"
+      }
     },
     "lib": {
       "role": "Memory curation: deduplicate, reconcile and prune durable memory on a schedule or on main's request.",
@@ -347,7 +374,6 @@
         "autonomous-ai-agents/codex",
         "autonomous-ai-agents/computer-use",
         "autonomous-ai-agents/hermes-agent",
-        "autonomous-ai-agents/hermes-provider-setup",
         "autonomous-ai-agents/merge-reconciler",
         "autonomous-ai-agents/opencode",
         "creative/architecture-diagram",
@@ -366,9 +392,7 @@
         "creative/sketch",
         "creative/songwriting-and-ai-music",
         "creative/touchdesigner-mcp",
-        "devops/discord-scheduled-delivery",
         "devops/sdlc-review",
-        "devops/system-health-watchdogs",
         "email/email-inbox-triage",
         "email/himalaya",
         "github/github-auth",
@@ -377,6 +401,7 @@
         "github/github-issues",
         "github/github-pr-workflow",
         "github/github-repo-management",
+        "lib-memory-format",
         "media/gif-search",
         "media/songsee",
         "media/youtube-content",
@@ -387,8 +412,6 @@
         "mlops/inference/serving-llms-vllm",
         "note-taking/obsidian",
         "note-taking/obsidian-second-brain",
-        "personal-command-center",
-        "productivity/agent-migration",
         "productivity/airtable",
         "productivity/box",
         "productivity/document-to-action-items",
@@ -421,7 +444,6 @@
         "software-development/hermes-agent-skill-authoring",
         "software-development/hermes-wave-implementation",
         "software-development/inspecting-hermes-desktop-dom",
-        "software-development/messaging-platform-tool-extensions",
         "software-development/node-inspect-debugger",
         "software-development/plan",
         "software-development/python-debugpy",
@@ -433,7 +455,7 @@
         "victory-hunter-dispatch",
         "web/blocked-page-recovery"
       ],
-      "observed_skill_count": 93,
+      "observed_skill_count": 88,
       "bundled_skill_directories": [
         "lib-memory-format",
         "note-taking/obsidian",
@@ -447,7 +469,11 @@
         "total": 0,
         "enabled": 0
       },
-      "observed_fallback_models": []
+      "observed_fallback_models": [],
+      "observed_live_model": {
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
+      }
     }
   },
   "core": {
@@ -524,5 +550,5 @@
       "status": "Sanitized source reference; owner paths, schedules, destinations and deployment-specific dependencies must be adapted and tested."
     }
   },
-  "refresh_note": "2026-10-23: synced drifted skills and profile-permissions plugin from live; files containing owner-bound paths were left at their sanitized versions."
+  "refresh_note": "2026-10-25: synced drifted skills, added main/cron custom skills (personal-command-center, video-content-analysis, vault-wiki-maintenance, kanban-blocked-task-triage, story-loop), refreshed sanitized live SOUL and settings references and observed models/plugins. Extension sources already parameterized were left at their sanitized versions; kanban-sandbox-guard and hermes-token-router plugins are not bundled."
 }
