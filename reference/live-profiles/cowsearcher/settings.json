@@ -4,7 +4,7 @@
     "max_turns": 15,
     "verify_on_stop": false,
     "verbose": false,
-    "reasoning_effort": "medium",
+    "reasoning_effort": "low",
     "disabled_toolsets": [
       "delegation",
       "code_execution",
@@ -66,13 +66,13 @@
     }
   },
   "model": {
-    "default": "meituan/longcat-2.5-preview:free",
-    "provider": "nous"
+    "provider": "claude-subscription-directsdk-experimental",
+    "default": "haiku"
   },
   "fallback_providers": [
     {
-      "model": "gpt-6.1-sol",
       "provider": "openai-codex",
+      "model": "gpt-6.1-sol",
       "base_url": "https://chatgpt.com/backend-api/codex",
       "api_mode": "codex_responses"
     }

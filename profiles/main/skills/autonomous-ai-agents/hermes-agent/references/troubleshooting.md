@@ -48,6 +48,14 @@ web:
 Blunt instruments: `web.cache_ttl_minutes: 1` (min) or
 `web.cache_enabled: false` disables both caches entirely.
 
+### Dashboard over Tailscale / reverse proxy ("Invalid Host header")
+The dashboard validates the Host header against its bound host (`127.0.0.1`) or the declared public hostname, so `tailscale serve` to a `*.ts.net` name returns `{"detail":"Invalid Host header..."}` until the name is declared. Keep the bind on loopback and:
+1. Set `HERMES_DASHBOARD_PUBLIC_URL=https://<machine>.<tailnet>.ts.net` (or `dashboard.public_url` in config.yaml). A non-loopback public URL engages the auth gate, so a provider is required too.
+2. Add the basic provider: `HERMES_DASHBOARD_BASIC_AUTH_USERNAME`, `..._PASSWORD` (or `..._PASSWORD_HASH`), `..._BASIC_AUTH_SECRET` (stable signing key). Generate secrets with `python -c "import secrets;print(secrets.token_urlsafe(24))"`; never echo them to chat, write the password to a local file instead.
+3. Put them in the `.env` the dashboard process actually reads. The dashboard is a machine-level server run as `-p default`, so use the default home's `.env` (`%LOCALAPPDATA%\hermes\.env`), not a profile `.env`. Verify with `grep -c HERMES_DASHBOARD` rather than trusting the user's edit.
+4. Restart: env is read only at startup, and `hermes dashboard --stop` is profile-scoped, so it may report "none running" while the machine-level server (find it via `hermes dashboard --status` / its PID) keeps serving old settings. Kill that PID (`powershell Stop-Process -Id <pid> -Force`; Git-bash `taskkill /F` mangles flags), then relaunch `hermes -p default dashboard --port 9119 --host 127.0.0.1 --no-open`.
+5. Verify: `curl -s -o /dev/null -w "%{http_code} %{redirect_url}" https://<host>.ts.net/` should be 302 to `/login`; `tailscale serve status` shows the proxy mapping. Do not use `tailscale funnel` (public internet).
+
 ### Skills not showing
 1. `hermes skills list` — verify installed
 2. `hermes skills config` — check platform enablement

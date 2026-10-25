@@ -50,7 +50,7 @@ In no-agent mode, Hermes delivers script stdout verbatim and suppresses delivery
 - Print no startup banners, debug status, or healthy summaries.
 - Capture child stdout/stderr when invoking health commands.
 - Emit the complete human-readable alert to stdout only when due.
-- Do not add a Discord webhook; Hermes is the delivery mechanism.
+- Do not add a Discord webhook when Hermes stdout delivery is the chosen architecture. When the requested repository supplies an independent `--standalone` webhook mode, use that exact mode instead; an OS-scheduled watchdog must not depend on a live Hermes gateway to deliver its outage alert.
 
 For a delivery simulation when `--script` cannot receive arguments, use a disposable Python runner in the scripts directory. It may set `HERMES_WATCHDOG_SIMULATE` and a test-state path, then invoke the real script with `runpy.run_path`. Create a temporary no-agent cron job, trigger it, verify execution and delivery, then remove the job, runner, and test state before creating the regular job.
 
@@ -61,7 +61,7 @@ Hermes cron is hosted by the gateway process. It is suitable for observing gatew
 For actual self-recovery on Windows:
 
 1. Keep the normal Hermes login/startup entry for reboot and sign-in startup.
-2. Use `gateway_watchdog.py --standalone` (see below), which calls the supported `hermes gateway status` and alerts through `WATCHDOG_WEBHOOK_URL`; it never restarts anything. Let the OS service manager (or a separate narrow task running `hermes gateway start` only when down) handle restarts.
+2. Create a small external script that calls the supported `hermes gateway status` and runs `hermes gateway start` only when down.
 3. Schedule that script with Windows Task Scheduler at a short interval.
 4. Use absolute paths to the Hermes executable and a windowless Python host where appropriate; scheduled tasks may have a smaller `PATH` than interactive shells.
 5. Keep healthy runs silent. Log only restart attempts, recoveries, and failures.
@@ -71,36 +71,43 @@ For actual self-recovery on Windows:
 
 The external recovery script should be deterministic and narrowly scoped: status, conditional start, bounded timeout, and no unrelated repairs. Hermes cron can remain responsible for richer alerts, disk/RAM checks, Discord state, and cron-execution health.
 
-## Gateway and Discord watchdog (OS scheduler, standalone)
+## Discord bot auto-restart (Hermes cron no-agent)
 
-The live setup merged the old gateway doctor, supervisor and Discord bot watchdogs into one `gateway_watchdog.py`. Extend that script rather than adding another watchdog.
+This pattern complements the gateway recovery above by providing automatic Discord bot recovery when the bot process crashes but Hermes remains running.
 
-### Why it runs outside Hermes
+### When to use
 
-A Hermes cron job stops when the gateway stops, so an in-Hermes watchdog cannot report a dead gateway. Run the watchdog from the OS scheduler with `--standalone`. In that mode it posts health changes to the Discord webhook in `WATCHDOG_WEBHOOK_URL` (for example #system-alerts).
+- Your Discord bot runs as a Node.js/Next.js process (e.g., poopyclaw)
+- The bot may crash due to unhandled errors, memory leaks, or external dependencies
+- You want silent-on-success monitoring with transition alerts only
+- You prefer Hermes cron recovery over external Task Scheduler when Hermes is already running
 
 ### Implementation
 
-1. Copy `gateway_watchdog.py` to `<HERMES_HOME>/scripts/`. Set `WATCHDOG_WEBHOOK_URL`, and `HERMES_HOME`/`HERMES_EXE` if they are not the defaults. Optional: `RAM_ALERT_PERCENT` (default 90), `RAM_ALERT_HOLD_MINUTES` (default 10).
+1. **Create a watchdog script** in `<HERMES_HOME>/scripts/` that:
+   - Checks for the Discord bot process (via `tasklist` or hermes gateway state)
+   - Attempts restart via `npm run start` in the bot's directory
+   - Logs all checks and restart attempts to a dedicated log file
+   - Emits NO output when healthy/unchanged (no-agent mode requirement)
 
-2. Schedule it every 5 minutes with the OS scheduler.
-
-   Windows Task Scheduler:
-   ```powershell
-   schtasks /Create /SC MINUTE /MO 5 /TN "Hermes gateway watchdog" /TR "python C:\Users\YOUR_USER\AppData\Local\hermes\scripts\gateway_watchdog.py --standalone"
+2. **Create a Hermes cron job** with:
    ```
-
-   Linux cron (`crontab -e`); on macOS use a launchd agent with `StartInterval` 300 running the same command:
-   ```sh
-   */5 * * * * HERMES_HOME=$HOME/.hermes WATCHDOG_WEBHOOK_URL=https://discord.com/api/webhooks/... python3 /path/to/gateway_watchdog.py --standalone
+   hermes cron create "every 5m" \
+     --name "Discord Bot Auto-Restart" \
+     --script "discord_bot_watchdog.py" \
+     --no-agent \
+     --deliver "discord:<channel-id>"
    ```
+   - `every 5m` = recurring interval (not one-shot `30m`)
+   - `--no-agent` = script stdout delivered verbatim, silent when healthy
+   - `--deliver discord:<channel-id>` = deliver alerts to Discord
 
-3. Script requirements:
+3. **Script requirements** (from the implemented `discord_bot_watchdog.py`):
    - No startup banners or healthy summaries
    - Capture child stdout/stderr when invoking health commands
-   - Post to the webhook only when status changes or a reminder is due
-
-The old `discord_bot_watchdog.py` also restarted a separate Next.js app (poopyclaw). The merged watchdog does not. If you still need that app, run it under its own OS service (Task Scheduler, launchd or systemd) with a restart policy.
+   - Emit complete human-readable alert to stdout only when status changes
+   - Do not add a Discord webhook; Hermes is the delivery mechanism
+   - Log file at `C:\Users\YOUR_USER\AppData\Local\hermes\logs\discord_bot_watchdog.log`
 
 ### Transition policy (integrated with system-health-watchdogs)
 
@@ -125,9 +132,9 @@ The old `discord_bot_watchdog.py` also restarted a separate Next.js app (poopycl
 - [ ] Dry-run leaves production state absent or byte-identical
 - [ ] Monitored runtime-state file remains hash-identical through simulation
 - [ ] State contains no numeric measurements
-- [ ] A test post to `WATCHDOG_WEBHOOK_URL` arrives in the target channel
-- [ ] The OS scheduled task shows a 5-minute recurring trigger
-- [ ] Run the scheduled task once manually and confirm it exits 0
+- [ ] Temporary cron delivery test completes and delivery target confirms exact receipt
+- [ ] Regular job shows recurring schedule and infinite repeat
+- [ ] After enabling production job, trigger it once through Hermes and verify durable execution row
 - [ ] If initial alert detected real failure, let it be delivered before running second silence check
 
 ### Integration with Hermes cron health
@@ -135,7 +142,8 @@ The old `discord_bot_watchdog.py` also restarted a separate Next.js app (poopycl
 This Discord watchdog integrates with the existing `system-health-watchdogs` framework:
 - Shares the same `first_alert_ts`/`reminder_sent` lifecycle model
 - Can share an incident group with gateway status (worse of the two statuses determines group severity)
-- Script runs from the OS scheduler with `--standalone` and posts to `WATCHDOG_WEBHOOK_URL`, so delivery works while the gateway is down
+- Script runs in no-agent mode, so Hermes cron handles delivery
+- State persisted in Hermes's durable execution DB (`executions.db`)
 
 For the full state design and transition policy, see the base `system-health-watchdogs` skill and its `references/hermes-windows-watchdog.md` reference.
 

@@ -1,11 +1,11 @@
 {
   "agent": {
     "bot_mode_protocol": false,
-    "max_turns": 16,
+    "max_turns": 60,
     "verify_on_stop": false,
     "image_input_mode": "native",
     "verbose": false,
-    "reasoning_effort": "medium",
+    "reasoning_effort": "low",
     "personalities": {
       "helpful": "You are a helpful, friendly AI assistant.",
       "concise": "You are a concise assistant. Keep responses brief and to the point.",
@@ -84,8 +84,6 @@
     "dispatch_interval_seconds": 5
   },
   "cron": {
-    "model": "meituan/longcat-2.0:free",
-    "model_provider": "nous",
     "effectiveness": {
       "max_repeated_activity": 20,
       "auto_pause_after": 3
@@ -171,10 +169,8 @@
   },
   "group_sessions_per_user": true,
   "model": {
-    "default": "gpt-6.1-sol",
-    "provider": "openai-codex",
-    "base_url": "https://chatgpt.com/backend-api/codex",
-    "api_mode": "chat_completions"
+    "provider": "claude-subscription-directsdk-experimental",
+    "default": "haiku"
   },
   "fallback_providers": []
 }

@@ -65,16 +65,15 @@
     }
   },
   "model": {
-    "default": "gpt-6.1-sol",
     "provider": "openai-codex",
-    "base_url": "https://chatgpt.com/backend-api/codex"
+    "default": "gpt-6.1-sol",
+    "base_url": "https://chatgpt.com/backend-api/codex",
+    "api_mode": "codex_responses"
   },
   "fallback_providers": [
     {
-      "model": "gpt-6.1-sol",
-      "provider": "openai-codex",
-      "base_url": "https://chatgpt.com/backend-api/codex",
-      "api_mode": "codex_responses"
+      "provider": "claude-subscription-directsdk-experimental",
+      "model": "sonnet"
     }
   ]
 }
