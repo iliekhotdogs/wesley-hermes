@@ -1,23 +1,36 @@
 {
-  "captured_at": "2026-10-25T20:47:55+00:00",
-  "source": "Read-only inspection of the installed six named profiles (speedy since retired from this repository); no credentials or user records exported.",
-  "previous_repository_head": "311f800a27869320876718bce25bc7d2d2990785",
+  "captured_at": "2026-11-13T06:52:28+00:00",
+  "source": "Read-only inspection of seven installed named profiles; default is separate. No credentials, personal memories or live job contents exported. Skill inventories exclude hidden/catalog/cache trees.",
+  "previous_repository_head": "f6677a68752a23431e8081c461eaf616aa1b1521",
   "profiles": {
     "main": {
-      "role": "Primary assistant and specialist coordinator; handles recovery and integrates results.",
+      "role": "Primary assistant, specialist coordinator, privileged recovery and final verification.",
       "model": {
         "default": "gpt-6.1-sol",
         "provider": "openai-codex"
       },
+      "observed_live_model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "claude-sonnet-5"
+        }
+      ],
       "observed_approvals_mode": "off",
+      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
         "briefing-curation",
+        "consistency-guards",
         "kanban-sandbox-guard",
         "profile-permissions",
         "second-brain-retrieval"
       ],
       "observed_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
+        "autonomous-ai-agents/hermes-model-benchmarking",
         "autonomous-ai-agents/merge-reconciler",
         "creative/ascii-art",
         "creative/comfyui",
@@ -38,6 +51,33 @@
         "github/github-pr-workflow",
         "github/github-repo-management",
         "lib-memory-format",
+        "mattpocock/ask-matt",
+        "mattpocock/code-review",
+        "mattpocock/codebase-design",
+        "mattpocock/diagnosing-bugs",
+        "mattpocock/domain-modeling",
+        "mattpocock/grill-me",
+        "mattpocock/grill-with-docs",
+        "mattpocock/grilling",
+        "mattpocock/handoff",
+        "mattpocock/implement",
+        "mattpocock/implement-spec",
+        "mattpocock/improve-codebase-architecture",
+        "mattpocock/pr",
+        "mattpocock/prototype",
+        "mattpocock/research",
+        "mattpocock/retro",
+        "mattpocock/setup-matt-pocock-skills",
+        "mattpocock/tdd",
+        "mattpocock/teach",
+        "mattpocock/to-questionnaire",
+        "mattpocock/to-spec",
+        "mattpocock/to-tickets",
+        "mattpocock/triage",
+        "mattpocock/wait-what",
+        "mattpocock/wayfinder",
+        "mattpocock/wizard",
+        "mattpocock/writing-for-agents",
         "mlops/evaluation/evaluating-llms-harness",
         "mlops/evaluation/weights-and-biases",
         "mlops/huggingface-hub",
@@ -51,27 +91,34 @@
         "productivity/google-workspace",
         "productivity/nano-pdf",
         "productivity/ocr-and-documents",
+        "productivity/office-document-editing",
         "productivity/session-librarian",
         "productivity/video-content-analysis",
         "productivity/weekly-review-planning",
         "research/arxiv",
         "research/blogwatcher",
+        "research/coffee-chat-research",
         "research/competitor-news-monitor",
         "research/grounded-citations",
         "research/polymarket",
         "research/professional-panel-research",
         "research/research-paper-writing",
+        "research/travel-planning",
         "smart-home/openhue",
         "software-development/github",
         "software-development/hermes-agent-skill-authoring",
         "software-development/hermes-wave-implementation",
         "software-development/plan",
+        "software-development/roblox-experience-development",
         "software-development/test-driven-development",
-        "victory-hunter-dispatch"
+        "typesafe-ai",
+        "victory-hunter-dispatch",
+        "workout-form-check"
       ],
-      "observed_skill_count": 51,
+      "observed_skill_count": 85,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
+        "autonomous-ai-agents/hermes-model-benchmarking",
         "autonomous-ai-agents/merge-reconciler",
         "creative/ascii-art",
         "creative/comfyui",
@@ -92,6 +139,33 @@
         "github/github-pr-workflow",
         "github/github-repo-management",
         "lib-memory-format",
+        "mattpocock/ask-matt",
+        "mattpocock/code-review",
+        "mattpocock/codebase-design",
+        "mattpocock/diagnosing-bugs",
+        "mattpocock/domain-modeling",
+        "mattpocock/grill-me",
+        "mattpocock/grill-with-docs",
+        "mattpocock/grilling",
+        "mattpocock/handoff",
+        "mattpocock/implement",
+        "mattpocock/implement-spec",
+        "mattpocock/improve-codebase-architecture",
+        "mattpocock/pr",
+        "mattpocock/prototype",
+        "mattpocock/research",
+        "mattpocock/retro",
+        "mattpocock/setup-matt-pocock-skills",
+        "mattpocock/tdd",
+        "mattpocock/teach",
+        "mattpocock/to-questionnaire",
+        "mattpocock/to-spec",
+        "mattpocock/to-tickets",
+        "mattpocock/triage",
+        "mattpocock/wait-what",
+        "mattpocock/wayfinder",
+        "mattpocock/wizard",
+        "mattpocock/writing-for-agents",
         "mlops/evaluation/evaluating-llms-harness",
         "mlops/evaluation/weights-and-biases",
         "mlops/huggingface-hub",
@@ -105,43 +179,55 @@
         "productivity/google-workspace",
         "productivity/nano-pdf",
         "productivity/ocr-and-documents",
+        "productivity/office-document-editing",
         "productivity/session-librarian",
         "productivity/video-content-analysis",
         "productivity/weekly-review-planning",
         "research/arxiv",
         "research/blogwatcher",
+        "research/coffee-chat-research",
         "research/competitor-news-monitor",
         "research/grounded-citations",
         "research/polymarket",
         "research/professional-panel-research",
         "research/research-paper-writing",
+        "research/travel-planning",
         "smart-home/openhue",
         "software-development/github",
         "software-development/hermes-agent-skill-authoring",
         "software-development/hermes-wave-implementation",
         "software-development/plan",
+        "software-development/roblox-experience-development",
         "software-development/test-driven-development",
-        "victory-hunter-dispatch"
+        "typesafe-ai",
+        "victory-hunter-dispatch",
+        "workout-form-check"
       ],
-      "bundled_skill_count": 51,
-      "excluded_skill_asset_count": 9,
+      "bundled_skill_count": 85,
+      "excluded_skill_asset_count": 5,
       "observed_jobs": {
-        "total": 4,
-        "enabled": 3
-      },
-      "observed_fallback_models": [],
-      "observed_live_model": {
-        "default": "sonnet",
-        "provider": "claude-subscription-directsdk-experimental"
+        "total": 9,
+        "enabled": 7
       }
     },
     "builder": {
-      "role": "Implementation, local files, code, debugging, technical investigation and tests.",
+      "role": "Implementation, local files, code, debugging and tests.",
       "model": {
         "default": "gpt-6.1-sol",
         "provider": "openai-codex"
       },
+      "observed_live_model": {
+        "default": "gpt-6.1-sol",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "sonnet"
+        }
+      ],
       "observed_approvals_mode": "off",
+      "observed_terminal_backend": "docker",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -167,10 +253,21 @@
         "software-development/test-driven-development"
       ],
       "bundled_skill_count": 8,
-      "excluded_skill_asset_count": 2,
+      "excluded_skill_asset_count": 0,
       "observed_jobs": {
         "total": 0,
         "enabled": 0
+      }
+    },
+    "cowsearcher": {
+      "role": "Source research and current-fact verification.",
+      "model": {
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
+      },
+      "observed_live_model": {
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
       },
       "observed_fallback_models": [
         {
@@ -178,18 +275,8 @@
           "model": "gpt-6.1-sol"
         }
       ],
-      "observed_live_model": {
-        "default": "gpt-6.1-sol",
-        "provider": "openai-codex"
-      }
-    },
-    "cowsearcher": {
-      "role": "Source research, current-fact verification and evidence-based reports.",
-      "model": {
-        "default": "meituan/longcat-2.5-preview:free",
-        "provider": "nous"
-      },
       "observed_approvals_mode": "off",
+      "observed_terminal_backend": "docker",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -297,29 +384,30 @@
         "web/blocked-page-recovery"
       ],
       "bundled_skill_count": 15,
-      "excluded_skill_asset_count": 6,
+      "excluded_skill_asset_count": 5,
       "observed_jobs": {
         "total": 0,
         "enabled": 0
-      },
-      "observed_fallback_models": [
-        {
-          "provider": "openai-codex",
-          "model": "gpt-6.1-sol"
-        }
-      ],
-      "observed_live_model": {
-        "default": "haiku",
-        "provider": "claude-subscription-directsdk-experimental"
       }
     },
     "cron": {
-      "role": "Schedules, reminders and authorized routine Google Workspace API operations.",
+      "role": "Schedules, reminders and authorized Google Workspace operations.",
       "model": {
-        "default": "gpt-6.1-sol",
+        "default": "gpt-6-luna",
         "provider": "openai-codex"
       },
+      "observed_live_model": {
+        "default": "gpt-6-luna",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "haiku"
+        }
+      ],
       "observed_approvals_mode": "off",
+      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -343,24 +431,30 @@
         "productivity/google-workspace"
       ],
       "bundled_skill_count": 7,
-      "excluded_skill_asset_count": 6,
+      "excluded_skill_asset_count": 0,
       "observed_jobs": {
-        "total": 21,
-        "enabled": 12
-      },
-      "observed_fallback_models": [],
-      "observed_live_model": {
-        "default": "gpt-6-luna",
-        "provider": "openai-codex"
+        "total": 7,
+        "enabled": 7
       }
     },
     "lib": {
-      "role": "Memory curation: deduplicate, reconcile and prune durable memory on a schedule or on main's request.",
+      "role": "Weekly scheduled memory curation only; main owns routine durable writes.",
       "model": {
-        "default": "gpt-6.1-sol",
-        "provider": "openai-codex"
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
       },
+      "observed_live_model": {
+        "default": "haiku",
+        "provider": "claude-subscription-directsdk-experimental"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "openai-codex",
+          "model": "gpt-6-luna"
+        }
+      ],
       "observed_approvals_mode": "off",
+      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
         "profile-permissions",
         "second-brain-retrieval"
@@ -464,57 +558,236 @@
         "research/llm-wiki"
       ],
       "bundled_skill_count": 5,
-      "excluded_skill_asset_count": 8,
+      "excluded_skill_asset_count": 0,
+      "observed_jobs": {
+        "total": 2,
+        "enabled": 2
+      }
+    },
+    "deep-thinking": {
+      "role": "Exceptional bounded planning and reasoning escalation, not implementation or routine review.",
+      "model": {
+        "default": "gpt-6-astra",
+        "provider": "openai-codex"
+      },
+      "observed_live_model": {
+        "default": "gpt-6-astra",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "claude-opus-5-5[1m]"
+        }
+      ],
+      "observed_approvals_mode": "not explicitly set",
+      "observed_terminal_backend": "local",
+      "observed_plugins_enabled": [
+        "claude-subscription-directsdk-experimental"
+      ],
+      "observed_skill_directories": [
+        "apple/apple-notes",
+        "apple/apple-reminders",
+        "apple/findmy",
+        "apple/imessage",
+        "autonomous-ai-agents/claude-code",
+        "autonomous-ai-agents/codex",
+        "autonomous-ai-agents/computer-use",
+        "autonomous-ai-agents/hermes-agent",
+        "autonomous-ai-agents/opencode",
+        "creative/architecture-diagram",
+        "creative/ascii-video",
+        "creative/baoyu-infographic",
+        "creative/claude-design",
+        "creative/design-md",
+        "creative/humanizer",
+        "creative/manim-video",
+        "creative/p5js",
+        "creative/popular-web-designs",
+        "creative/songwriting-and-ai-music",
+        "devops/sdlc-review",
+        "email/email-inbox-triage",
+        "email/himalaya",
+        "media/gif-search",
+        "media/songsee",
+        "media/youtube-content",
+        "note-taking/obsidian",
+        "productivity/airtable",
+        "productivity/box",
+        "productivity/document-to-action-items",
+        "productivity/docx",
+        "productivity/google-workspace",
+        "productivity/maps",
+        "productivity/meeting-action-items",
+        "productivity/notion",
+        "productivity/pdf",
+        "productivity/powerpoint",
+        "productivity/product-price-monitor",
+        "productivity/teams-meeting-pipeline",
+        "productivity/weekly-review-planning",
+        "productivity/xlsx",
+        "research/arxiv",
+        "research/competitor-news-monitor",
+        "research/grounded-citations",
+        "research/llm-wiki",
+        "social-media/xurl",
+        "software-development/codebase-inspection",
+        "software-development/dogfood",
+        "software-development/github",
+        "software-development/hermes-agent-skill-authoring",
+        "software-development/inspecting-hermes-desktop-dom",
+        "software-development/node-inspect-debugger",
+        "software-development/python-debugpy",
+        "software-development/requesting-code-review",
+        "software-development/simplify-code",
+        "software-development/spike",
+        "software-development/systematic-debugging",
+        "software-development/test-driven-development",
+        "web/blocked-page-recovery"
+      ],
+      "observed_skill_count": 58,
+      "bundled_skill_directories": [],
+      "bundled_skill_count": 0,
+      "excluded_skill_asset_count": 0,
       "observed_jobs": {
         "total": 0,
         "enabled": 0
+      }
+    },
+    "speedy": {
+      "role": "Small bounded transformations; retained primarily for compatibility.",
+      "model": {
+        "default": "gpt-6-luna",
+        "provider": "openai-codex"
       },
-      "observed_fallback_models": [],
       "observed_live_model": {
-        "default": "haiku",
-        "provider": "claude-subscription-directsdk-experimental"
+        "default": "gpt-6-luna",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "haiku"
+        }
+      ],
+      "observed_approvals_mode": "off",
+      "observed_terminal_backend": "not explicitly set",
+      "observed_plugins_enabled": [
+        "profile-permissions"
+      ],
+      "observed_skill_directories": [
+        "apple/apple-notes",
+        "apple/apple-reminders",
+        "apple/findmy",
+        "apple/imessage",
+        "autonomous-ai-agents/claude-code",
+        "autonomous-ai-agents/codex",
+        "autonomous-ai-agents/computer-use",
+        "autonomous-ai-agents/hermes-agent",
+        "autonomous-ai-agents/merge-reconciler",
+        "autonomous-ai-agents/opencode",
+        "creative/architecture-diagram",
+        "creative/ascii-art",
+        "creative/ascii-video",
+        "creative/baoyu-infographic",
+        "creative/claude-design",
+        "creative/comfyui",
+        "creative/design-md",
+        "creative/excalidraw",
+        "creative/humanizer",
+        "creative/manim-video",
+        "creative/p5js",
+        "creative/popular-web-designs",
+        "creative/pretext",
+        "creative/sketch",
+        "creative/songwriting-and-ai-music",
+        "creative/touchdesigner-mcp",
+        "devops/sdlc-review",
+        "email/email-inbox-triage",
+        "email/himalaya",
+        "github/github-auth",
+        "github/github-code-review",
+        "github/github-issue-to-pr",
+        "github/github-issues",
+        "github/github-pr-workflow",
+        "github/github-repo-management",
+        "media/gif-search",
+        "media/songsee",
+        "media/youtube-content",
+        "mlops/evaluation/evaluating-llms-harness",
+        "mlops/evaluation/weights-and-biases",
+        "mlops/huggingface-hub",
+        "mlops/inference/llama-cpp",
+        "mlops/inference/serving-llms-vllm",
+        "note-taking/obsidian",
+        "productivity/airtable",
+        "productivity/box",
+        "productivity/document-to-action-items",
+        "productivity/docx",
+        "productivity/google-workspace",
+        "productivity/maps",
+        "productivity/meeting-action-items",
+        "productivity/nano-pdf",
+        "productivity/notion",
+        "productivity/ocr-and-documents",
+        "productivity/pdf",
+        "productivity/powerpoint",
+        "productivity/product-price-monitor",
+        "productivity/session-librarian",
+        "productivity/teams-meeting-pipeline",
+        "productivity/weekly-review-planning",
+        "productivity/xlsx",
+        "research/arxiv",
+        "research/blogwatcher",
+        "research/competitor-news-monitor",
+        "research/grounded-citations",
+        "research/llm-wiki",
+        "research/research-paper-writing",
+        "smart-home/openhue",
+        "social-media/xurl",
+        "software-development/codebase-inspection",
+        "software-development/dogfood",
+        "software-development/github",
+        "software-development/hermes-agent-skill-authoring",
+        "software-development/inspecting-hermes-desktop-dom",
+        "software-development/node-inspect-debugger",
+        "software-development/plan",
+        "software-development/python-debugpy",
+        "software-development/requesting-code-review",
+        "software-development/simplify-code",
+        "software-development/spike",
+        "software-development/systematic-debugging",
+        "software-development/test-driven-development",
+        "web/blocked-page-recovery"
+      ],
+      "observed_skill_count": 83,
+      "bundled_skill_directories": [],
+      "bundled_skill_count": 0,
+      "excluded_skill_asset_count": 0,
+      "observed_jobs": {
+        "total": 0,
+        "enabled": 0
       }
     }
   },
   "core": {
-    "head": "3364b051b1059288e609fdc4ad09addbbe214358",
+    "head": "4e58c721c8cf9b51c46636ea84ea6a5cb540880a",
     "remotes": [
-      "origin\thttps://github.com/NousResearch/hermes-agent.git (fetch)",
-      "origin\thttps://github.com/NousResearch/hermes-agent.git (push)"
+      "https://github.com/NousResearch/hermes-agent.git"
     ],
     "dirty_files": [
-      "M .npmrc",
-      " M apps/desktop/electron/main.ts",
-      " M apps/desktop/package.json",
-      " M cron/scheduler_delivery.py",
-      " M gateway/run_turn.py",
-      " M hermes_cli/kanban.py",
-      " M hermes_cli/kanban_db.py",
-      " M hermes_cli/kanban_decompose.py",
-      " M hermes_cli/kanban_diagnostics.py",
-      " M package-lock.json",
-      " M package.json",
-      " M plugins/platforms/discord/adapter.py",
-      " M tests-js/package.json",
-      " M tests/gateway/test_discord_channel_controls.py",
-      " M tests/hermes_cli/test_kanban_db.py",
-      " M tests/hermes_cli/test_kanban_decompose.py",
-      " M tests/hermes_cli/test_kanban_diagnostics.py",
-      " M tests/tools/test_kanban_tools.py",
-      " M tests/tools/test_terminal_tool_requirements.py",
-      " M tools/kanban_tools.py",
-      " M tools/kanban_tools_schemas.py",
-      " M tools/registry.py",
-      " M ui-tui/package.json",
-      " M web/package.json",
+      "M gateway/session_automation.py",
+      " M hermes_cli/gateway_session_store.py",
+      " M tests/gateway/test_watch_notification_reset_pin.py",
       "?? optional-mcps/firecrawl/",
       "?? optional-skills/research/firecrawl/",
       "?? optional-skills/research/scrapling/scrapling_helper.py",
+      "?? tests/gateway/test_automation_route_identity.py",
       "?? tests/gateway/test_final_send_diagnostic.py",
       "?? tests/plugins/test_profile_permissions_local.py",
       "?? tests/scripts/test_local_hermes_reliability.py"
     ],
-    "reproducibility": "Local tracked and untracked core modifications exist; profile templates alone do not reproduce these changes. Do not publish unreviewed core patches."
+    "reproducibility": "Observed source HEAD and path-only drift inventory; local source modifications are NOT shipped. Historic engine-pin policy may differ from actual observed HEAD; no engine update was performed."
   },
   "safety_differences": [
     "manual dangerous-command approvals; deny dangerous unattended commands",
@@ -524,14 +797,13 @@
     "SOUL prompts adapted for portability; sanitized live prompts are reference only"
   ],
   "excluded_skill_categories": {
-    "personal-command-center": "Separate personal application/project design; not needed for this assistant.",
     "agent-migration": "Old-machine migration and decommission history; not a reproducible new installation."
   },
   "excluded_assets": "Hidden/archive trees, binaries (including upstream example PDFs), caches and runtime state; optional templates may link upstream binary examples not bundled here.",
   "extensions": {
     "profile-permissions": {
       "source_profile": "main",
-      "file_count": 2,
+      "file_count": 4,
       "auto_installed": false
     },
     "briefing-curation": {
@@ -550,5 +822,32 @@
       "status": "Sanitized source reference; owner paths, schedules, destinations and deployment-specific dependencies must be adapted and tested."
     }
   },
-  "refresh_note": "2026-10-25: synced drifted skills, added main/cron custom skills (personal-command-center, video-content-analysis, vault-wiki-maintenance, kanban-blocked-task-triage, story-loop), refreshed sanitized live SOUL and settings references and observed models/plugins. Extension sources already parameterized were left at their sanitized versions; kanban-sandbox-guard and hermes-token-router plugins are not bundled."
+  "refresh_note": "Current sanitized profile models, fallbacks, roles, settings and selected skills refreshed. Added deep-thinking and compatibility-only speedy templates. Existing parameterized historical extensions remain reference-only except profile-permissions refreshed from reviewed source. Plugins, credentials, routes, jobs and scheduler activation are not installed.",
+  "extension_status": {
+    "refreshed": [
+      "profile-permissions"
+    ],
+    "historical_parameterized_references": [
+      "briefing-curation",
+      "second-brain-retrieval",
+      "host-automation",
+      "operations",
+      "builder-isolation",
+      "second-brain",
+      "setup-awareness",
+      "discord-channel-management"
+    ],
+    "enabled_but_not_bundled": [
+      "consistency-guards",
+      "kanban-sandbox-guard",
+      "claude-subscription-directsdk-experimental"
+    ],
+    "warning": "Optional sources are not an exact current runtime export. External provider plugin and local core changes are absent; no full reproduction claim."
+  },
+  "known_gaps": [
+    "Existing portable main SOUL prompt not updated: native protected-instruction write refused; current routing/roles in README and reference only.",
+    "Deep-thinking safe config vision-only, unlike live; preserved prompt terminal warning does not grant tools.",
+    "Historical engine pin differs from observed source HEAD; no update/reset performed.",
+    "Optional provider/plugins and local engine patches not shipped."
+  ]
 }

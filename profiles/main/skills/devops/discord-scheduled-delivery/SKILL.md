@@ -58,6 +58,12 @@ The `discord` and `discord_admin` model tools cannot send messages (only read, p
 
 Keep the post self-contained (what, plan, risks, setup needed, rejected options) since the reader lacks the chat thread; stay under 2,000 chars or split.
 
+## Sensitive reports and test delivery
+
+For health, financial, or other sensitive personal reports, default to a private destination rather than a public server channel. Resolve the intended recipient from the actual message author ID; when creating a Discord DM via the bot API, verify the returned channel's recipient ID before scheduling `deliver: discord:<dm_channel_id>`. If the user explicitly requests a server channel, create a restricted channel with `@everyone` VIEW_CHANNEL denied and the intended user plus bot allowed; read back permission overwrites with a separate GET before sending sensitive content. Server administrators can still access the channel; describe that limitation. Keep raw evidence and credentials out of the public thread. Update the existing recurring job's destination instead of making a duplicate; confirm the scheduled timezone/next run, test one delivery, and read back the exact destination before claiming it works. Avoid duplicate test sends.
+
+A paused cron job may reject an explicit `run` even if creation guidance suggests otherwise. Resume it, verify the next scheduled run, then execute the one-off test; if delivery fails, pause it again while repairing the issue. The execution call may run in the background: wait for its completion notification rather than polling repeatedly, then inspect the job result and exact recipient.
+
 ## Delivery Verification
 
 ### Check the Output File
@@ -104,7 +110,7 @@ continuity: true  # optional, for comparing with previous runs
 
 ```
 Schedule: 0 8 * * *
-Deliver: discord:<channel-id>
+Deliver: discord:000000000000000000
 attach_to_session: false
 Prompt: Generate a concise briefing. Keep under 1500 characters.
 ```
@@ -113,7 +119,7 @@ Prompt: Generate a concise briefing. Keep under 1500 characters.
 
 ```
 Schedule: 0 2 * * *
-Deliver: discord:<channel-id>
+Deliver: discord:000000000000000000
 attach_to_session: false
 Prompt: Review past 24 hours and post a structured journal entry.
 ```

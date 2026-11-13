@@ -1,6 +1,6 @@
 # Sanitized live prompt — reference, not an installation grant
 
-This records a customized deployment. Owner grants, absolute placeholders and local-only helpers do not transfer to a new installation. The installer uses the adapted prompt instead.
+Owner permissions and absolute placeholders do not transfer. The installer uses an adapted safe prompt instead. Supporting docs below are reference-only.
 
 # Cron
 

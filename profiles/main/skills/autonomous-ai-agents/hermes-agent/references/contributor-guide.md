@@ -62,6 +62,17 @@ All handlers must return JSON strings. Use `get_hermes_home()` for paths,
 never hardcode `~/.hermes`. For custom/local-only tools, write a plugin in
 `~/.hermes/plugins/` instead of editing core — see the developer docs.
 
+### Deploying local policy plugins
+
+1. Inspect the installed engine's plugin interfaces and existing task/write safeguards before implementing a replacement. Stage only necessary nonsecret source into isolated workspaces; retain privileged validation and live deployment on main. Reuse existing deterministic remote IDs and operation ledgers before introducing a competing store.
+2. Run candidate tests on the deployment OS as well as the isolated worker backend. For SQLite fixtures use `with contextlib.closing(sqlite3.connect(path)) as db, db:` when both connection lifetime and transactions need context management: `with sqlite3.connect(...)` commits or rolls back but does not close the handle, which can break Windows temporary-directory cleanup. Join spawned workers and close their queues before cleanup.
+3. Declare exact registered names in manifest `provides_tools` and `provides_hooks` lists, not booleans or a substitute `hooks` list. Run `hermes plugins validate <candidate-path>` and `hermes plugins doctor <candidate-path> --ci`; an offline registration harness alone does not validate native admission. Review private-import warnings against the installed version rather than silently treating them as a stable public API.
+4. Bind the evidence manifest to final candidate hashes and rerun its declared checks on main after corrections. Preserve real output and label provider simulations explicitly; a local evidence PASS does not prove live external integration.
+5. Install into the intended profile and enable with the supported plugin CLI. Read back `hermes plugins show <name>` and run doctor against the installed name. Capture the gateway's reload result: hooks can become active immediately while tools remain deferred until a new session. Never claim the current conversation has new tools merely because registration passed.
+6. Exercise real plugin-produced vetoes through the installed native directive parser: a block requires a nonempty `message`; `reason` alone is ignored. Include exception fallback vetoes. Registration and action-only harness assertions cannot establish enforcement.
+7. Start observe-only, then verify a narrowly opted-in real workflow before enforcement. Inspect actual host dispatch, result shape, task/run identity, and controller-versus-container workspace paths; mocked callbacks do not establish real receipt issuance. Identify each participating profile explicitly: installing in main does not cover isolated specialists. Verify both callback failure handling and outer dispatcher failure handling before calling a guard fail-closed.
+8. Report four distinct states: files installed, runtime loaded, scopes opted in, actions enforced. An observer configured with no tasks is deployment scaffolding, not duplicate-work prevention. Keep the original acceptance task incomplete until required live integration is verified; preserve an explicit disable command and retain audit state for rollback.
+
 ### Adding a Slash Command
 
 1. Add `CommandDef` to `COMMAND_REGISTRY` in `hermes_cli/commands.py`
