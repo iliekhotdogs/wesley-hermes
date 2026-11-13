@@ -107,7 +107,7 @@ This pattern complements the gateway recovery above by providing automatic Disco
    - Capture child stdout/stderr when invoking health commands
    - Emit complete human-readable alert to stdout only when status changes
    - Do not add a Discord webhook; Hermes is the delivery mechanism
-   - Log file at `C:\Users\YOUR_USER\AppData\Local\hermes\logs\discord_bot_watchdog.log`
+   - Log file at `C:/Users/YOUR_USER\AppData\Local\hermes\logs\discord_bot_watchdog.log`
 
 ### Transition policy (integrated with system-health-watchdogs)
 

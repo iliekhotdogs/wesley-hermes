@@ -1,6 +1,6 @@
 {
   "model": {
-    "default": "gpt-6.1-sol",
+    "default": "gpt-6-luna",
     "provider": "openai-codex"
   },
   "fallback_providers": [],
@@ -40,9 +40,7 @@
   "plugins": {
     "enabled": [],
     "disabled": [
-      "profile-permissions",
-      "briefing-curation",
-      "second-brain-retrieval"
+      "profile-permissions"
     ]
   },
   "delegation": {
@@ -68,5 +66,10 @@
   "skills": {
     "write_approval": true,
     "disabled": []
+  },
+  "terminal": {
+    "backend": "local",
+    "cwd": ".",
+    "timeout": 180
   }
 }

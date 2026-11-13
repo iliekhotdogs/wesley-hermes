@@ -25,6 +25,8 @@ Gmail, Calendar, Drive, Contacts, Sheets, and Docs — through Hermes-managed OA
 
 - `references/gmail-search-syntax.md` — Gmail search operators (is:unread, from:, newer_than:, etc.)
 - `references/daily-brief.md` — daily/morning brief procedure: schedule + conflicts + meeting prep + urgent mail from Gmail and Calendar. Load it when the user asks for a morning brief, meeting preparation, or "what's on my calendar and what email needs attention."
+- `references/google-health-oauth.md` — read-only Google Health scopes, account linkage, and live-verification sequence when extending an existing Workspace OAuth project.
+- `references/docs-api-advanced-editing.md` — tables, paragraph alignment/centering, surgical text replacement, and batchUpdate ordering when the `docs` CLI's get/create/append can't do the edit (e.g. no tab-creation API).
 
 ## Scripts
 
@@ -110,10 +112,7 @@ Once they provide the path:
 $GSETUP --client-secret /path/to/client_secret.json
 ```
 
-If they paste the raw client ID / client secret values instead of a file path,
-write a valid Desktop OAuth JSON file for them yourself, save it somewhere
-explicit (for example `~/Downloads/hermes-google-client-secret.json`), then run
-`--client-secret` against that file.
+Do not solicit client secrets, downloaded credential JSON, OAuth callback URLs, authorization codes, or tokens in a group chat. If credential material is required, use an approved local/secure credential path and keep it out of transcripts; a public file path is not a secure way to transfer the file contents.
 
 ### Step 3: Get authorization URL
 
@@ -130,26 +129,13 @@ If `--services` is unavailable, explicitly show the fixed scopes from `setup.py`
 The supported setup flow returns JSON with an `auth_url` field and also saves the exact URL to `~/.hermes/google_oauth_last_url.txt`.
 
 Agent rules for this step:
-- Extract the `auth_url` field and send that exact URL to the user as a single line.
-- Tell the user that the browser will likely fail on `http://localhost:1` after approval, and that this is expected.
-- Tell them to copy the ENTIRE redirected URL from the browser address bar.
-- If the user gets `Error 403: access_denied`, send them directly to `https://console.cloud.google.com/auth/audience` to add themselves as a test user.
+- Prefer a local browser loopback OAuth flow on the user's machine (see **Safe reauthorization from Discord** below), so the authorization code returns directly to the local listener and never enters Discord.
+- If the installed script offers only its manual `localhost:1` callback flow, do not ask for the redirected URL or code in chat. Arrange a local secure exchange or implement a loopback callback before proceeding; a callback URL contains a short-lived credential.
+- If the user gets `Error 403: access_denied`, check the project's Audience test-user list at `https://console.cloud.google.com/auth/audience`.
 
-### Step 4: Exchange the code
+### Step 4: Complete the local exchange
 
-The user will paste back either a URL like `http://localhost:1/?code=4/0A...&scope=...`
-or just the code string. Either works. The `--auth-url` step stores a temporary
-pending OAuth session locally so `--auth-code` can complete the PKCE exchange
-later, even on headless systems:
-
-```bash
-$GSETUP --auth-code "THE_URL_OR_CODE_THE_USER_PASTED" --format json
-```
-
-If `--auth-code` fails because the code expired, was already used, or came from
-an older browser tab, it now returns a fresh `fresh_auth_url`. In that case,
-immediately send the new URL to the user and have them retry with the newest
-browser redirect only.
+Run the local loopback flow with the selected scopes and let the user consent in their browser. Keep authorization URLs, callbacks, codes, and token JSON out of the chat and tool logs. Save the token only after verifying the account and scopes; if the callback times out, report that no new credential was saved rather than repeatedly creating flows.
 
 ### Step 5: Verify
 
@@ -279,7 +265,40 @@ $GAPI sheets update SHEET_ID "Sheet1!A1:B2" --values '[["Name","Score"],["Alice"
 $GAPI sheets append SHEET_ID "Sheet1!A:C" --values '[["new","row","data"]]'
 ```
 
+### Gmail attachments
+
+The `gws`/`google_api.py` CLI's `gmail send`/`reply` take no attachment flag. To send a file, build the MIME message yourself and go through `build_service` directly:
+
+```python
+import sys, os, base64
+sys.path.insert(0, r"<profile>\skills\productivity\google-workspace\scripts")
+os.environ.setdefault("HERMES_HOME", r"<profile>")
+import google_api as ga
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+
+svc = ga.build_service("gmail", "v1")
+msg = MIMEMultipart()
+msg["To"], msg["Subject"] = "user@example.com", "Subject"
+msg.attach(MIMEText("body text", "plain"))
+with open(path, "rb") as f:
+    part = MIMEBase("application", "octet-stream")
+    part.set_payload(f.read()); encoders.encode_base64(part)
+    part.add_header("Content-Disposition", "attachment", filename="name.ext")
+    msg.attach(part)
+raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+svc.users().messages().send(userId="me", body={"raw": raw}).execute()
+```
+
+If `googleapiclient`/`google_auth_oauthlib` aren't importable in the interpreter `terminal` runs, that's just a missing install in that interpreter — `python3 -m pip install --quiet google-api-python-client google-auth google-auth-oauthlib` and retry; it doesn't mean email/attachments are unsupported.
+
 ### Docs
+
+Before reviewing or summarizing an entire Doc, retrieve **all tabs and nested child tabs**, preserving tab titles and boundaries. A successful `docs get` or a short legacy `body` is not proof of complete content. For complete-document reads, use `build_service('docs', 'v1').documents().get(documentId=DOC_ID, includeTabsContent=True).execute()` and the extraction recipe in `references/docs-api-advanced-editing.md`. Compare conflicting drafts by tab; do not silently combine them into one agreed specification.
+
+For academic document formatting, read the actual assignment instructions and rubric alongside the course baseline **before editing**; assignment-specific requirements override the baseline. Preserve the student's prose during visual-only work. For BUS 201, use Times New Roman 11pt, 1-inch margins, and the assignment's required spacing; keep the title and headings at 11pt unless an explicit exception permits larger text. Use bold, alignment, and restrained paragraph spacing for hierarchy instead. Required title-page fields are the course title, confirmed tutorial number, assignment title, instructor and TA full names, submission date, and student name/number/email. A lecture section is not automatically a tutorial number. Do not invent missing fields, citations, or assignment requirements. Read `references/docs-api-advanced-editing.md` for the formatting and layout-verification procedure, including separate title/reference/rubric pages and exact screenshot reproduction.
 
 ```bash
 # Read
@@ -292,6 +311,8 @@ $GAPI docs create --title "Draft" --body "First paragraph..."
 # Append text to the end of an existing Doc
 $GAPI docs append DOC_ID --text "Additional content to append"
 ```
+
+For tables, centering/alignment, in-place text replacement, or anything structural, the CLI has no verb — go to the raw Docs API. See `references/docs-api-advanced-editing.md` (also covers: Docs has no tab-creation API at all, so don't attempt a "new tab" request programmatically).
 
 ## Output Format
 
@@ -315,9 +336,31 @@ All commands return JSON. Parse with `jq` or read directly. Key fields:
 - **Docs create**: `{status: "created", documentId, title, url}`
 - **Docs append**: `{status: "appended", documentId, inserted_at, characters}`
 
+## Sheets transaction imports and categorization
+
+1. Read the complete transaction columns and inspect headers, formulas, validation, side lists, and existing category meanings before choosing a write range. Compute the last populated transaction from date/description/amount fields, not a sampled window or prefilled ID column; templates can contain IDs far below the actual ledger. Re-read the proposed target immediately before writing and assert that transaction cells are empty. Preserve prefilled IDs and existing side content.
+2. Transcribe screenshot dates, descriptions, references, debit/credit amounts, and balances separately. Use bank-column position and balance progression to establish direction; never import running balances as purchase amounts or treat incoming transfers as confirmed earnings. Preserve distinct transactions with the same merchant.
+3. Deduplicate against the complete ledger using the exact bank reference when present. Extract reference digits explicitly rather than taking the description's final word, which may be a person's name. Without a reference, use date, signed amount, description, and occurrence count so legitimate repeated purchases survive. Calculate totals with Decimal.
+4. Preserve the user's existing taxonomy, including manually assigned meal categories. Add broad categories only in verified empty cells and distinguish purpose categories from amount-based labels. If the user requests an external bot's classification, verify that integration and obtain real responses before attributing choices to it. Label any safe interim assignments provisional; leave ambiguous transfers for review and state whether historical transactions are still uncategorized. A category list alone is not a completed classification or dropdown setup.
+5. For API capabilities absent from the wrapper CLI, import its installed `google_api` module and call `build_service('sheets', 'v4')` using the active profile's credentials. Use `spreadsheets().values().batchUpdate` with explicit ranges and `valueInputOption='RAW'` for literal dates and numeric amounts. Preserve surrounding formulas and inspect their ranges before claiming downstream totals include new rows; formulas, formatting, and validation require separate handling.
+6. Read back every changed range with `valueRenderOption='UNFORMATTED_VALUE'` and compare exact values, count, signed totals, and duplicate keys. Report saved ranges and remaining classification/formula gaps once; an ad-hoc checker is not a full test suite, and successful verification does not justify repeating writes or sending redundant completion messages.
+
+## Organizing a shared Drive folder (sorting/triage jobs)
+
+- Before writing any automated sort (one-shot or recurring cron job), scope the `files().list` query's `mimeType` filter to the exact file type the user actually wants sorted (e.g. `mimeType contains 'video/'`). A folder mixing media with unrelated documents/PDFs will have those documents swept up by a generic "sort everything in root" query — restrict the query, don't rely on prompt prose alone to keep the agent's hands off other file types.
+- When a user asks for organization "by topic" (or any content-based criterion), date/filename-based sorting is not a substitute even if it's easier to implement — it must reflect what the file is actually about. For video, determine topic by actually sampling frames + transcribing audio (ffmpeg + faster_whisper, see video-content-analysis skill), not by filename or creation date. Group clearly sequential parts of the same talk/series into one topic folder together.
+- After creating or editing a Drive-sorting cron job, fire one verification run and inspect the actual before/after folder contents yourself (`files().list` on both the source and destination) rather than trusting the job's self-reported summary — a wrong `mimeType`/criteria filter can silently move files that should have been left alone, and reverting (addParents back to source, removeParents from the wrong folder, delete the empty wrong folder) is cheap if caught immediately but costly if left running on a schedule.
+
+## Generating and delivering a study/document deliverable via Drive
+
+- When a user says files are "in Drive" or "in the inbox" without a link, check the shared Drive inbox folder (its ID is a durable fact — see memory/vault notes) before asking them for a link; `drive search "'<FOLDER_ID>' in parents and trashed=false" --raw-query --max 100` lists its contents and any subfolders.
+- If a PDF page extraction fails with `NeedsOcrError`, don't give up on that file — run `pdftotext -layout <file>.pdf out.txt` (bundled with the Git-for-Windows/MSYS toolchain `/mingw64/bin/pdftotext` on this host) as a fast fallback; it recovers the text layer even when the auto-extractor can't.
+- Building a PDF deliverable needs `reportlab`, but `pip`/`python` on PATH resolve to different interpreters here (see `python3.11`/pip version-mismatch note in environment facts) — run `pip show reportlab -f | grep Location` to find which venv pip actually targets, then invoke that venv's `python.exe` directly (e.g. `.../hermes-agent/venv/Scripts/python.exe build_pdf.py`) rather than the bare `python` command, or the import will fail in the interpreter that actually runs the script.
+- When the user asks for a generated deliverable (practice exam, study guide, report) to be put "into Drive"/"the inbox", upload it to the **root of the shared inbox folder** (its own `--parent FOLDER_ID`), not inside an existing subject subfolder someone else's materials live in, unless told otherwise. **Name the file so the user can tell it came from the assistant** — e.g. suffix it `(prepared by Hermes)` / `(from Hermes)` — since the folder is shared with multiple sources and plain filenames look indistinguishable from the user's own uploads.
+
 ## Rules
 
-1. **Never send email, create/update/delete calendar events, delete Drive files, share files, or modify Docs/Sheets without confirming with the user first.** Show what will be done (recipients, event/file IDs, changed fields, content, share role) and ask for approval. For `drive delete`, prefer the default trash (reversible) over `--permanent`.
+1. **Require user authorization for external mutations.** A clear request to edit a named spreadsheet, document, event, or file authorizes the scoped change; do not demand a second approval for the same work. Confirm genuinely missing recipients, destructive scope, or sharing audiences before acting, and do not expand the request. For `drive delete`, prefer the default trash (reversible) over `--permanent`.
 2. **Check auth before first use** — run `setup.py --check`. If it fails, guide the user through setup.
 3. **Use the Gmail search syntax reference** for complex queries — load it with `skill_view("google-workspace", file_path="references/gmail-search-syntax.md")`.
 4. **Calendar times must include timezone** — always use ISO 8601 with offset (e.g., `2026-03-01T10:00:00-06:00`) or UTC (`Z`).
@@ -329,11 +372,17 @@ All commands return JSON. Parse with `jq` or read directly. Key fields:
 |---------|-----|
 | `NOT_AUTHENTICATED` | Run setup Steps 2-5 above |
 | `REFRESH_FAILED` | Token revoked or expired — redo Steps 3-5 |
-| `HttpError 403: Insufficient Permission` | Missing API scope — `$GSETUP --revoke` then redo Steps 3-5 |
-| `AUTHENTICATED (partial)` or "Token missing scopes" | New write capabilities (Drive write/delete, Docs create/edit) require re-authorization. `$GSETUP --revoke` then redo Steps 3-5 to grant the upgraded scopes. |
+| `HttpError 403: Insufficient Permission` | Check the exact operation's required scopes and resource access; if a required grant is absent, use the safe reauthorization flow below without revoking working credentials by default. |
+| `AUTHENTICATED (partial)` or "Token missing scopes" | Compare missing scopes with the requested operation. An unrelated missing Contacts scope does not block Sheets work; test a scoped resource read before requesting any additional consent. |
 | `HttpError 403: Access Not Configured` | API not enabled — user needs to enable it in Google Cloud Console |
 | `ModuleNotFoundError` | Run `$GSETUP --install-deps` |
 | Advanced Protection blocks auth | Workspace admin must allowlist the OAuth client ID |
+
+## Extending an existing OAuth project to another Google API
+
+- First distinguish the **Cloud project and OAuth client** from the **user's granted token**. An existing project/client can often be reused after enabling the new API and declaring its scopes, but the Workspace token does not acquire new scopes or switch user accounts merely because Console settings changed. Do not revoke, overwrite, or broaden the Gmail/Calendar token to integrate an unrelated API.
+- Check the existing client's application type and the project's API enablement/Audience; add the intended Google account as a test user if needed. The account holding the new data may differ from the Workspace account. Select only the new API's necessary read-only scopes and create a separately stored OAuth grant through an appropriate callback flow.
+- When the user has already completed Cloud setup and asks how to connect, move to connector implementation and verification instead of repeating Console instructions. Provide a browser consent step only after the callback and isolated token storage exist; verify the intended account and a real read-only API response before calling the API connected. For a device integration, verify the named device is present and syncing separately before claiming its data is connected; an authorized Health profile can contain only phone-sourced steps. When a metric is missing, separate four layers—live sensor display, phone-app history, linked Health account, and API records—before diagnosing; an empty API response does not prove the device is unpaired. Ask what exactly is absent rather than resolving an ambiguous “it” into a pairing failure. If the user confirms pairing, an app graph, or a matching account, retire each ruled-out hypothesis instead of repeatedly asking them to pair or reauthorize. State the remaining API-side uncertainty plainly. Never ask for secrets or callback codes in Discord.
 
 ## Safe reauthorization from Discord
 
@@ -363,5 +412,7 @@ $GSETUP --revoke
 ## Retry-safe creation
 
 Calendar and Tasks creation use the Python API client to keep retry decisions structured. Pass a stable `--idempotency-key` for each logical request and reuse it unchanged on retries; for a recurring task, include its intended occurrence date. With no explicit key, identical creation payloads reuse the same operation. Use a new key only for an intentionally separate user request. Calendar creation requires a timezone offset.
+
+Calendar creation in main now performs an independent exact-ID GET after successful insert and conservatively compares requested fields before ledger completion. Treat a field mismatch (including provider normalization) as a review stop, not permission to change the key or recreate. Deterministic IDs prevent duplicate insertion after a lost response but do not by themselves prove read-after-write verification. Keep provider simulations distinct from live account tests.
 
 Creation may return `status: existing`; this means the earlier action is already present, not a failure. Calendar events have a stable remote ID. Tasks carry a small operation marker in their notes; preserve it when updating notes. Task lookups include completed/hidden items and all pages. If task creation has an uncertain outcome and its marker cannot be found, stop and escalate to main instead of retrying with a different key. These checks do not deduplicate older events/tasks that were created before this protection. Do not rerun mutations solely because delivery of a completion message failed. When recovering an old blocked creation request, list all existing tasks (paginate and include completed/hidden items) before creating anything. If every requested title already exists with the intended status and due-date settings, verify each exact remote ID with Tasks API GET and report the existing result; do not create duplicates merely because the old card's failure summary says nothing was created.

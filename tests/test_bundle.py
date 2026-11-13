@@ -94,6 +94,31 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertFalse((self.target / 'profiles/main/skills/demo/__pycache__').exists())
 
+    def test_full_seven_profile_install_exactly_matches_manifest(self):
+        root = CLI.parents[1]
+        manifest = json.loads((root / 'bundle-manifest.json').read_text(encoding='utf-8'))
+        names = ['main', 'builder', 'cowsearcher', 'cron', 'lib', 'deep-thinking', 'speedy']
+        self.assertEqual(manifest['profiles'], names)
+        for with_skills in (False, True):
+            with self.subTest(with_skills=with_skills):
+                target = self.base / ('full-skills' if with_skills else 'full-plain')
+                argv = [sys.executable, str(CLI), '--root', str(root), 'install', '--target', str(target), '--profiles', *names]
+                if with_skills:
+                    argv.append('--with-skills')
+                result = subprocess.run(argv, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                report = json.loads(result.stdout)
+                self.assertEqual(report['installed'], names)
+                self.assertIs(report['gateway_started'], False)
+                self.assertIs(report['schedules_activated'], False)
+                expected = {rel: digest for rel, digest in manifest['files'].items()
+                            if rel.startswith(tuple(f'profiles/{name}/' for name in names))
+                            and (with_skills or len(Path(rel).parts) == 3)}
+                actual = {p.relative_to(target).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                          for p in target.rglob('*') if p.is_file()}
+                self.assertEqual(set(actual), set(expected))
+                self.assertEqual(actual, expected)
+
     def test_fresh_install_is_explicit_and_contains_no_runtime_state(self):
         result = self.call('install', '--target', str(self.target), '--profiles', 'main')
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

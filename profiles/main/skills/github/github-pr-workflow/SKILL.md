@@ -355,17 +355,31 @@ git push -u origin HEAD
 # 8. Merge when green (see Section 6)
 ```
 
-## 8. Publishing a sanitized setup/config snapshot (e.g. wesley-hermes)
+## 8. Publishing a sanitized setup/config snapshot (e.g. the owner-hermes)
 
 When asked to "update GitHub with the current setup": locate the published repo first (`gh repo list <user>`, then find the local clone via `find ~ -maxdepth 5 -name .git`; the NousResearch `hermes-agent` checkout is upstream, not the target). Then follow the repo's own `docs/MAINTAINING.md`:
+
+**Owner rule: do every step up to and including opening the PR and reading CI results, then STOP. Never merge, and make no other irreversible change (force-push, branch/repo deletion, release); the owner merges. Report the PR URL and check results.** Clone workspace: `C:/Users/YOUR_USER/hermes-workspaces/main/wh/repo` (default branch is `master`; set git user.name/email to the GitHub noreply address). `inventory.json` `model` must stay the installable default (a test enforces it); record live models in `observed_live_model`.
 
 1. Pull master, branch `docs/refresh-<date>`.
 2. Diff live files against the repo copies with CRLF normalized; copy over only drifted files. Skip any live file matching owner-bound patterns (user paths, Discord IDs, emails, tokens) so the sanitized version stays. Never copy a raw profile; known intentional divergences (e.g. a retired profile in a policy file) stay as in the repo.
 3. Regenerate `bundle-manifest.json` SHA-256s over profiles/extensions/reference/examples, update `inventory.json`, run `python tools/bundle.py validate` and `python -m unittest discover -s tests`.
 4. Set `git config user.name/user.email` to the account's noreply identity if commit fails with unknown author.
-5. Push, `gh pr create`, wait for `gh pr checks`, `gh pr merge --merge --delete-branch`, then compare `gh api repos/O/R/commits/master --jq .sha` with the local `origin/master`. Older already-merged branches may remain on the remote; list them and report rather than delete unasked.
+5. Push, `gh pr create`, wait for exact-head `gh pr checks`, then STOP and report the PR URL, head commit and check results. Read back the published branch/inventory to verify the push. Under the owner rule above, do not merge or delete branches unless the current user explicitly overrides that rule. Older already-merged branches may remain on the remote; report rather than delete unasked.
 
-Pitfall: write helper scripts to a file rather than a bash heredoc containing backslash string literals — Windows git-bash mangles them.
+Scope of "fully update" (drift is more than changed files):
+- Skills: also copy live skills that are missing from the repo (custom ones), not just drifted ones; scan new text for owner name, emails, Discord/job IDs and `/c/Users/<name>` paths and replace with placeholders (`YOUR_USER`, `<channel-id>`, `the owner`) before writing.
+- `reference/live-profiles/<p>/SOUL.md`: keep the 3-line sanitized header, replace the body with the sanitized live SOUL. `settings.json`: overwrite each existing key from the live `config.yaml` (drop keys no longer live); check for secrets/IDs afterwards.
+- `inventory.json`: `model` must stay the INSTALLABLE default (the snapshot test compares it to `profiles/<p>/config.yaml`); record live models in a separate `observed_live_model` field, plus observed plugins/skill counts.
+- Extension scripts whose live copies hardcode owner paths/IDs are intentionally left parameterized; list them as not synced.
+- Default branch may be `master`, not `main`: read it from `gh pr view N --json baseRefName`. Repo clones can be staged under the main workspace (`hermes-workspaces/main/...`); no gitleaks → state that a regex check was used instead.
+- `git show REF:file` output piped through a length-truncating helper breaks `json.loads`; call subprocess directly for JSON.
+
+Pitfall: write helper scripts to a file rather than a bash heredoc containing backslash string literals — Windows git-bash mangles them. A recursive `find /` on this host times out; look in `~/hermes-workspaces`, `~/hermes-projects` or use `gh repo clone` instead.
+
+## 9. Merging a PR with late fixes
+
+Check `gh pr view N --json state,headRefOid` before pushing fix commits to a PR branch; a merged PR silently ignores later pushes. Merge with `--match-head-commit <sha>` so only the verified head lands. If the PR already merged, open a new fix PR from the same branch and verify with `git merge-base --is-ancestor <fix-sha> origin/main`. `gh pr merge <branch>` finds no PR until `gh pr create` has run, and mergeability reads UNKNOWN for a few seconds after a push, so sleep briefly before merging.
 
 ## Useful PR Commands Reference
 

@@ -38,9 +38,7 @@
   "plugins": {
     "enabled": [],
     "disabled": [
-      "profile-permissions",
-      "briefing-curation",
-      "second-brain-retrieval"
+      "profile-permissions"
     ]
   },
   "delegation": {
@@ -66,5 +64,10 @@
   "skills": {
     "write_approval": true,
     "disabled": []
+  },
+  "terminal": {
+    "backend": "local",
+    "cwd": ".",
+    "timeout": 180
   }
 }

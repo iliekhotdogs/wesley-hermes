@@ -272,8 +272,17 @@ class PermissionTests(unittest.TestCase):
     def test_builder_rm_blocked(self):
         self.assertEqual(self.run_terminal('builder', 'rm x')['action'], 'block')
 
-    def test_speedy_role_blocked(self):
-        result = permissions.make_guard('speedy', self.home)('read_file', {'path': str(self.home / 'a.txt')})
+    def test_speedy_compatibility_read_allowed(self):
+        guard = permissions.make_guard('speedy', self.home)
+        self.assertIsNone(guard('read_file', {'path': str(self.home / 'a.txt')}))
+
+    def test_speedy_substantive_terminal_work_blocked(self):
+        result = self.assert_blocked('speedy', 'python implement_feature.py')
+        self.assertIn('exceeds the profile role', result['message'])
+
+    def test_unknown_specialist_role_still_fails_closed(self):
+        result = permissions.make_guard('unknown-specialist', self.home)('read_file', {'path': str(self.home / 'a.txt')})
+        self.assertEqual(result['action'], 'block')
         self.assertIn('no approved specialist role', result['message'])
 
     def test_block_log_omits_command(self):

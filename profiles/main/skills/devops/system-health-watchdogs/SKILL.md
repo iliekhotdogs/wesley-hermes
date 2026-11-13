@@ -156,8 +156,8 @@ This pattern ensures Hermes gateway resilience through three complementary mecha
 2. **Cron watchdog** — A recurring Hermes cron job (every 10 minutes by default) runs `gateway_watchdog.py` which:
    - Checks `hermes gateway status` to determine if the process is running
    - If not running, attempts `hermes gateway run` to restart
-   - Logs all activity to `C:\Users\YOUR_USER\AppData\Local\hermes\logs\gateway_watchdog.log`
-   - Job ID: `<job-id>` (configured via `cronjob(action='create', ...)`)
+   - Logs all activity to `C:/Users/YOUR_USER\AppData\Local\hermes\logs\gateway_watchdog.log`
+   - Job ID: `857db5725ed9` (configured via `cronjob(action='create', ...)`)
 
 3. **Failure flow**:
    - Cron watchdog detects gateway down within 10 minutes
@@ -167,7 +167,7 @@ This pattern ensures Hermes gateway resilience through three complementary mecha
 
 ### Script: `gateway_watchdog.py`
 
-Located at `C:\Users\YOUR_USER\AppData\Local\hermes\scripts\gateway_watchdog.py`:
+Located at `C:/Users/YOUR_USER\AppData\Local\hermes\scripts\gateway_watchdog.py`:
 - Checks gateway status via `hermes gateway status`
 - Restarts via `hermes gateway run` when not running
 - Persistent logging for troubleshooting
@@ -194,13 +194,13 @@ After setup:
 hermes cron list | grep -i "gateway watchdog"
 
 # Test manually
-python C:\Users\YOUR_USER\AppData\Local\hermes\scripts\gateway_watchdog.py
+python C:/Users/YOUR_USER\AppData\Local\hermes\scripts\gateway_watchdog.py
 
 # Check logs
-type C:\Users\YOUR_USER\AppData\Local\hermes\logs\gateway_watchdog.log
+type C:/Users/YOUR_USER\AppData\Local\hermes\logs\gateway_watchdog.log
 ```
 
 ### Related Existing Patterns
 
-- **Discord Bot Watchdog** (job #<job-id>): every 5m, uses `discord_bot_watchdog.py` — similar pattern for bot process monitoring
-- **Paused Gateway Watchdog** (job #<job-id>): every 5m, previously set up but paused — this new job supersedes it with a 10m interval and updated script
+- **Discord Bot Watchdog** (job #67ed12e695a1): every 5m, uses `discord_bot_watchdog.py` — similar pattern for bot process monitoring
+- **Paused Gateway Watchdog** (job #2909af255b5b): every 5m, previously set up but paused — this new job supersedes it with a 10m interval and updated script

@@ -1,4 +1,21 @@
-# Validation evidence — 2026-10-19 snapshot
+# Validation evidence — November 12 Pacific / November 13 UTC, 2026
+
+## Current refresh: executed by main after bounded Builder handoff
+
+- `python tools/bundle.py validate`: PASS, seven profiles and 680 payload hashes.
+- `python -m unittest discover -s tests -v`: **78 tests passed** on native Windows Python 3.14.7. Includes seven-profile installs with/without skills, exact file/hash comparison, model/reference/template equality, bounded speedy policy, unknown-role fail-closed behavior and payload syntax.
+- Full opt-in temporary installation: **607 files**, exact manifest subset and hashes verified. No gateway started or schedules activated.
+- Actual installed CLI (`python -m hermes_cli.main config get model --json` and `config path`): seven successful temporary-home readbacks. No inference/API request. Packaged launcher initially timed out bootstrapping a separate data-root runtime; direct installed CLI succeeded.
+- Payload syntax: 111 Python and 18 JSON files parsed successfully. Public sample seed, author attributions and academic article identifiers preserved.
+- Gitleaks 8.30.1 current-tree scan: zero findings; verified archive SHA-256 `d29144deff3a68aa93ced33dddf84b7fdc26070add4aa0f4513094c8332afc4e`. Existing narrow generated-manifest exclusion only. Not a new historical scan or proof all private data is absent.
+- Known owner-home paths, owner emails and private inbox identifier checked without publishing sensitive values.
+- Observed engine remained at the source HEAD recorded in inventory.json with existing local changes; no engine update/reset.
+
+Builder preserved three test edits then blocked on protected SOUL writes. Main completed config/docs/verification. This is **self-review and execution**, not independent specialist approval. Protected-prompt edits were refused to main too and not retried through another path. Existing portable main prompt remains unchanged; current README, references and inventory known_gaps disclose the role/routing mismatch. Deep-thinking safe config is vision-only; preserved terminal-warning wording grants no terminal.
+
+Publication is a PR plus exact-head checks and branch readback, **not auto-merge**. Read actual checks on GitHub; local evidence does not assert CI has already passed or master changed. Owner merges.
+
+## Historical evidence below — not current counts or deployment
 
 ## Local executions
 
