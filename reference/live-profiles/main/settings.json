@@ -1,6 +1,6 @@
 {
   "model": {
-    "default": "gpt-6.1-sol",
+    "default": "gpt-6.2-sol",
     "provider": "openai-codex"
   },
   "fallback_model": {
@@ -11,6 +11,7 @@
     "enabled": [
       "briefing-curation",
       "consistency-guards",
+      "engagement-status-guard",
       "kanban-sandbox-guard",
       "profile-permissions",
       "second-brain-retrieval"
@@ -21,16 +22,15 @@
   },
   "agent": {
     "max_turns": 150,
-    "reasoning_effort": "high",
-    "verify_on_stop": true,
-    "disabled_toolsets": []
+    "reasoning_effort": "medium",
+    "verify_on_stop": true
   },
   "approvals": {
-    "mode": "off",
     "cron_mode": "approve",
+    "destructive_slash_confirm": false,
+    "mode": "off",
     "single_query_mode": "approve",
-    "unattended_mode": "approve",
-    "destructive_slash_confirm": false
+    "unattended_mode": "approve"
   },
   "delegation": {
     "max_concurrent_children": 1,
@@ -38,36 +38,32 @@
     "subagent_auto_approve": false
   },
   "memory": {
-    "memory_enabled": true,
-    "user_profile_enabled": false,
     "memory_char_limit": 2200,
-    "user_char_limit": 1375
+    "memory_enabled": true,
+    "user_char_limit": 1375,
+    "user_profile_enabled": false
   },
   "terminal": {
     "backend": "local",
-    "timeout": 180,
-    "docker_mount_cwd_to_workspace": false
+    "docker_mount_cwd_to_workspace": false,
+    "timeout": 180
   },
   "kanban": {
     "dispatch_interval_seconds": 5,
-    "max_in_progress": 2,
-    "max_in_progress_per_profile": 1
+    "max_in_progress": 6,
+    "max_in_progress_per_profile": 4
   },
   "cron": {
-    "model": "gpt-6-sol",
-    "model_provider": "openai-codex",
-    "max_parallel_jobs": 1
+    "max_parallel_jobs": 1,
+    "model_provider": "openai-codex"
   },
   "compression": {
     "enabled": true,
-    "threshold": 0.12,
+    "protect_last_n": 20,
     "target_ratio": 0.15,
-    "protect_last_n": 20
+    "threshold": 0.12
   },
   "skills": {
-    "disabled": [
-      "youtube-content"
-    ],
     "write_approval": false
   }
 }

@@ -1,53 +1,45 @@
 {
   "model": {
-    "default": "haiku",
+    "default": "claude-haiku-5-5[1m]",
     "provider": "claude-subscription-directsdk-experimental"
   },
-  "fallback_model": {
-    "provider": "openai-codex",
-    "model": "gpt-6-luna"
-  },
+  "fallback_model": {},
   "plugins": {
     "enabled": [
-      "profile-permissions",
-      "second-brain-retrieval"
+      "profile-permissions"
     ],
-    "disabled": []
+    "disabled": [
+      "second-brain-retrieval"
+    ]
   },
   "agent": {
     "max_turns": 60,
     "reasoning_effort": "low",
-    "verify_on_stop": false,
-    "disabled_toolsets": [
-      "delegation",
-      "code_execution",
-      "computer_use",
-      "discord_admin"
-    ]
+    "verify_on_stop": false
   },
   "approvals": {
-    "mode": "off",
     "cron_mode": "approve",
+    "destructive_slash_confirm": true,
+    "mode": "off",
     "single_query_mode": "approve",
-    "unattended_mode": "approve",
-    "destructive_slash_confirm": true
+    "unattended_mode": "approve"
   },
   "delegation": {
     "max_concurrent_children": 1,
     "max_iterations": 50,
-    "subagent_auto_approve": false,
-    "orchestrator_enabled": false
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false
   },
   "memory": {
-    "memory_enabled": true,
-    "user_profile_enabled": true,
     "memory_char_limit": 2200,
-    "user_char_limit": 1375
+    "memory_enabled": true,
+    "user_char_limit": 1375,
+    "user_profile_enabled": true
   },
   "terminal": {
     "backend": "local",
-    "timeout": 180,
-    "docker_mount_cwd_to_workspace": false
+    "docker_mount_cwd_to_workspace": false,
+    "timeout": 180
   },
   "kanban": {
     "dispatch_interval_seconds": 5
@@ -55,14 +47,11 @@
   "cron": {},
   "compression": {
     "enabled": true,
-    "threshold": 0.5,
+    "protect_last_n": 20,
     "target_ratio": 0.2,
-    "protect_last_n": 20
+    "threshold": 0.5
   },
   "skills": {
-    "disabled": [
-      "youtube-content"
-    ],
     "write_approval": false
   }
 }

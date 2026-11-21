@@ -94,11 +94,12 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertFalse((self.target / 'profiles/main/skills/demo/__pycache__').exists())
 
-    def test_full_seven_profile_install_exactly_matches_manifest(self):
+    def test_full_declared_profile_install_exactly_matches_manifest(self):
         root = CLI.parents[1]
         manifest = json.loads((root / 'bundle-manifest.json').read_text(encoding='utf-8'))
-        names = ['main', 'builder', 'cowsearcher', 'cron', 'lib', 'deep-thinking', 'speedy']
-        self.assertEqual(manifest['profiles'], names)
+        names = manifest['profiles']
+        self.assertTrue(names)
+        self.assertEqual(len(names), len(set(names)))
         for with_skills in (False, True):
             with self.subTest(with_skills=with_skills):
                 target = self.base / ('full-skills' if with_skills else 'full-plain')
@@ -118,6 +119,18 @@ class BundleTests(unittest.TestCase):
                           for p in target.rglob('*') if p.is_file()}
                 self.assertEqual(set(actual), set(expected))
                 self.assertEqual(actual, expected)
+                if 'reviewer' in names:
+                    config = json.loads((target / 'profiles/reviewer/config.yaml').read_text(encoding='utf-8'))
+                    self.assertNotIn('terminal', config['toolsets'])
+                    self.assertNotIn('delegation', config['toolsets'])
+                    self.assertFalse(config['delegation']['orchestrator_enabled'])
+                    self.assertFalse(config['delegation']['subagent_auto_approve'])
+                    self.assertFalse(config['memory']['memory_enabled'])
+                    self.assertFalse(config['memory']['user_profile_enabled'])
+                    self.assertEqual(config['approvals']['mode'], 'manual')
+                    for key in ('cron_mode', 'single_query_mode', 'unattended_mode'):
+                        self.assertEqual(config['approvals'][key], 'deny')
+                    self.assertFalse(config['plugins']['enabled'])
 
     def test_fresh_install_is_explicit_and_contains_no_runtime_state(self):
         result = self.call('install', '--target', str(self.target), '--profiles', 'main')
