@@ -1,5 +1,7 @@
 # Cron inventory
 
+Current sanitized snapshot counts (November 12 Pacific / November 13 UTC, 2026): main 2 total / 1 enabled; cron 25 / 17; lib 1 / 1; builder, cowsearcher, deep-thinking and speedy each 0 / 0. These are observations, not health checks. No job prompts, destinations or active records are shipped. The review rules below are optional historical guidance, not changes applied by this refresh.
+
 Review every scheduled job before keeping it. The inventory script is read-only and never prints prompt text.
 
 ## Run it

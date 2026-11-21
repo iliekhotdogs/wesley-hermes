@@ -16,7 +16,7 @@
 The active vault may differ from an older documented path. Resolve it before running a summary. For the owner’s current setup, the verified active vault is:
 
 ```text
-C:\Users\YOUR_USER\OneDrive\Desktop\thesleyfiles
+C:/Users/YOUR_USER\OneDrive\Desktop\the owner vault 1\thesleyfiles
 ```
 
 Older paths may still contain historical notes, but should not be treated as the active vault without verification.

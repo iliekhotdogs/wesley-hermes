@@ -40,6 +40,22 @@ def _existing(conn,key,payload):
 def _status(exc):
  return getattr(getattr(exc,'resp',None),'status',None)
 
+def _dt_equal(requested,remote):
+ # Google normalizes the offset/timeZone representation of an identical
+ # instant (e.g. -08:00 -> -07:00 + timeZone) on read-after-insert; compare
+ # the actual instants, not the raw string/dict representation.
+ if requested==remote: return True
+ if not isinstance(requested,dict) or not isinstance(remote,dict): return False
+ from datetime import datetime
+ for field in ('dateTime',):
+  rq,rm=requested.get(field),remote.get(field)
+  if rq is None or rm is None: continue
+  try:
+   if datetime.fromisoformat(rq)==datetime.fromisoformat(rm): return True
+  except ValueError: return False
+ if requested.get('date') and requested.get('date')==remote.get('date'): return True
+ return False
+
 def calendar_once(service,home,token_path,calendar,body,explicit_key=None):
  path,key,payload=operation(home,token_path,'calendar',calendar,body,explicit_key)
  # Hex is valid Calendar base32hex; a stable remote ID closes the crash window.
@@ -59,6 +75,17 @@ def calendar_once(service,home,token_path,calendar,body,explicit_key=None):
     if _status(insert_exc)!=409:raise
     result=service.events().get(calendarId=calendar,eventId=event_id).execute()
     status='existing'
+  # Confirm by an independent exact-resource GET, never by the insert response.
+  if status=='created':
+   result=service.events().get(calendarId=calendar,eventId=event_id).execute()
+  # Conservative comparison: provider normalization can require main review,
+  # but must never silently confirm a remotely modified request.
+  def _mismatch(field,value):
+   remote=result.get(field)
+   if field in ('start','end'): return not _dt_equal(value,remote)
+   return remote!=value
+  if any(_mismatch(field,value) for field,value in body.items() if field not in ('id','extendedProperties')):
+   raise ValueError('Remote event fields differ from the requested payload; main must review without recreating.')
   if result.get('status')=='cancelled':
    raise ValueError('This operation refers to a deleted event. Main must review it; do not recreate it automatically.')
   remote_payload=result.get('extendedProperties',{}).get('private',{}).get('hermesPayload')

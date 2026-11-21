@@ -21,6 +21,12 @@
 - **Config changes:** In gateway: `/restart`. In CLI: exit and relaunch.
 - **Code changes:** Restart the CLI or gateway process
 
+### File mutation timed out or verifier reports a failed edit
+1. Read the exact target path before claiming it exists; a tool timeout can leave no file despite other work in the turn succeeding. Distinguish an ordinary project Git repository from Hermes's separate shadow checkpoint store (`<profile-home>/checkpoints/store`); `git status` in a scratch directory with no `.git` cannot verify its shadow checkpoint state.
+2. Correlate the tool call with the profile's `logs/errors.log` and `logs/agent.log`. A concurrent `tools.checkpoint_manager` `git add -A` timeout or locked runtime file is evidence of checkpoint trouble, **not proof** it caused the original `write_file` timeout; keep those causal claims separate.
+3. If checkpoint staging reaches browser or other volatile runtime data, scope a `.gitignore` in the affected work tree to that data rather than disabling checkpoints or resetting source. For a profile-root work tree, `/cache/browser-use/` excludes browser state; check whether any affected path is already tracked, because ignore rules do not untrack it. Verify with `GIT_DIR=<profile-home>/checkpoints/store GIT_WORK_TREE=<worktree> GIT_INDEX_FILE=<store>/indexes/<project-hash> git -C <worktree> check-ignore -v <relative-path>` when testing the shadow store. Do not print or snapshot cookie contents.
+4. Retry a minimal write **of the same extension** in the affected work tree (a `.py` write exercises Python lint; a `.txt` write does not), inspect its verified result, and remove the probe. For deeper checks, put an ad-hoc `hermes-verify-*.py` under `tempfile.gettempdir()`, run it, report its real output, and clean it up. Label these checks as ad-hoc verification, never as a passing canonical test suite.
+
 ### web_extract shows a stale page (result caching)
 `web_search`/`web_extract` cache results for 20 minutes (PR #94618) — a
 repeat fetch of the same URL within the TTL is served from cache, which

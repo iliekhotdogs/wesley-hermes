@@ -151,6 +151,29 @@ something, not that it is true; pair it with a primary source or label it as
 sentiment. Report per-platform coverage gaps ("Reddit search returned nothing
 newer than March") rather than silently narrowing to what worked.
 
+## Restricted or Copyrighted Source Material
+
+Some source documents (course case studies, licensed reports, NDA'd material)
+carry an explicit rule distinguishing "ask AI about the topic" from
+"upload/feed the document to AI." Read any instructions file bundled with the
+material *before* opening the restricted document itself — once you've opened
+it and only then find the rule, you cannot un-expose it.
+
+- Never register the restricted file as a ledger source, and never pass its
+  text to a subagent, a classifier, or any third-party API (including
+  fact-checking / entailment services) — treat it like a credential, not like
+  research input.
+- Build the entire ledger and draft from independently-retrievable public
+  sources only (`web_search`/`web_extract`/official sites), even though the
+  restricted document is what prompted the question.
+- When delegating the public-source half to a subagent or a separate task,
+  restate the exact permitted/forbidden boundary in the dispatch body itself —
+  not just in your own reasoning — so an isolated worker that never saw the
+  restricted file still can't be steered toward reconstructing it.
+- Label the resulting deliverable explicitly as a research aid, not a
+  finished submission, and tell the user to independently evaluate it against
+  the actual restricted material themselves.
+
 ## Fact-Checking Mode
 
 For work where the reader must be able to check the chain — medical, legal,
@@ -205,6 +228,16 @@ faith. Use `--replace-in <draft>` to rewrite an existing Sources block in place
 to stdout instead. Both emit the heading `## Sources` (`--style plain` emits
 `Sources:`).
 
+⑤ **Optional independent entailment cross-check, for high-stakes drafts.** The
+ledger's own `verify` only confirms a quote appears verbatim on the page; it
+cannot judge whether the quote actually supports the claim sitting next to it.
+If the `typesafe-ai` skill is installed and the deliverable is high-stakes,
+send a handful of `{claim, source_excerpt}` pairs to TypeSafe Jev as a
+`choice` question (`supports` / `contradicts` / `unsupported`) and hard-assert
+`supports` at a reasonable confidence floor before shipping. This is a second,
+independent opinion on entailment, not a replacement for reading the source
+yourself or for `verify --evidence`.
+
 **What `--min-coverage` counts.** Coverage is
 `sentences with declared provenance / prose sentences`. A prose sentence is a
 non-empty line fragment of 4+ words after the Sources block, headings (`#`),
@@ -252,6 +285,20 @@ and read the `info: stats:` line to see the counts before picking a number.
   retrieval, not more markers.
 - **Hand-editing the Sources block.** Use `render --replace-in <draft>`; slicing
   the file yourself risks a stale or duplicated block that `verify` then flags.
+- **Passing a long evidence quote as a raw CLI argument on Windows.** `quote
+  --text "<whole paragraph>"` can blow past the Windows command-line argument
+  length limit and fail with `WinError 206` ("filename or extension too
+  long"). If the matched span is large, narrow it to the single sentence/line
+  that actually contains the needle before passing it as `--text`, rather than
+  the whole paragraph the needle was found in.
+- **Defaulting to `--strict` on every verify pass.** `--strict` escalates
+  benign warnings — an intermediate navigation URL that got registered but
+  never directly cited, or the ">3 citations per sentence" heuristic
+  mis-firing on a paragraph-like block — into hard failures. Run plain
+  `verify --evidence` (which still hard-fails on real problems: unknown ids,
+  a stale Sources block, missing evidence) for day-to-day checks, and reserve
+  `--strict` for a final pass once you've deliberately cleaned up every
+  warning it would raise.
 
 ## Verification
 

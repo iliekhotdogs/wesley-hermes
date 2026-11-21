@@ -65,6 +65,11 @@ Update tasks/projects, create calendar holds, archive processed items, and draft
 6. Proposed updates awaiting approval
 7. Coverage gaps
 
+## Scheduled cron execution
+
+- For role-restricted cron runs, use a main-installed fixed read-only pre-run collector (`cron/scripts/weekly_review_evidence.py`) rather than asking the agent to execute arbitrary setup/API commands. Pin HERMES_HOME to the owning cron profile, check authentication there, paginate Calendar and Tasks, and emit explicit source failures and coverage gaps. An unrelated missing Contacts scope must not block successful Calendar/Tasks reads.
+- Keep the agent synthesis prompt tool-free when evidence is injected; optional session history must not block the required review. Verify recovery by running the existing job once and reading the exact delivered Discord message, without changing permission regexes or replaying external mutations.
+
 ## Pitfalls
 
 - Planning from tasks without calendar capacity.

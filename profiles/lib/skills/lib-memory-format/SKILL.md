@@ -117,7 +117,7 @@ A learning from a specific event. The value is in the *why*, not just the conclu
 
 - Include `[source: ...]` when the entry records something the user said, a specific event, or a claim that could be wrong and should be verifiable.
 - Skip it for obvious facts, self-evident procedural notes, or entries where provenance adds no value.
-- Format: be specific but brief. E.g. `source: user via Discord thread <thread-id> (2026-09-26)`.
+- Format: be specific but brief. E.g. `source: user via Discord thread 000000000000000000 (2026-09-26)`.
 
 ---
 

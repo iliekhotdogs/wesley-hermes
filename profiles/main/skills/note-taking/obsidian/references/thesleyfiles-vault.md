@@ -1,6 +1,6 @@
 # thesleyfiles Vault
 
-**Real vault path:** `C:\Users\YOUR_USER\OneDrive\Desktop\thesleyfiles`
+**Real vault path:** `C:/Users/YOUR_USER\OneDrive\Desktop\thesleyfiles`
 
 Discovered and set via `OBSIDIAN_VAULT_PATH` in `~/.hermes/.env` on session 2026-08-27.
 

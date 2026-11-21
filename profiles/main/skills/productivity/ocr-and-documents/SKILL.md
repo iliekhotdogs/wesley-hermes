@@ -22,7 +22,7 @@ This skill covers **text extraction from PDFs and scanned documents**.
 
 ## Step 1: Remote URL Available?
 
-If the document has a URL, **always try `web_extract` first**:
+For a public document URL, **try `web_extract` first**. For an authenticated Google Drive link, use the `google-workspace` skill to retrieve metadata and download the exact file by ID, then extract locally; a sharing/view URL is not necessarily a directly accessible PDF.
 
 ```
 web_extract(urls=["https://arxiv.org/pdf/2402.03300"])
@@ -31,7 +31,19 @@ web_extract(urls=["https://example.com/report.pdf"])
 
 This handles PDF-to-markdown conversion via Firecrawl with no local dependencies.
 
-Only use local extraction when: the file is local, web_extract fails, or you need batch processing.
+Use local extraction when the file is local, authenticated retrieval is required, web_extract fails, or you need batch processing.
+
+## Math, Charts, and Layout Verification
+
+1. Extract text first to locate relevant pages and enumerate the questions or sections.
+2. Render and visually inspect pages containing equations, answer choices, or charts before using their content. Text extraction can silently lose minus signs, derivative primes, exponent grouping, fraction bars, and entire plotted curves even when every page reports extracted text.
+3. Transcribe formulas and option labels from the rendered page, then verify calculations separately. A symbolic check validates the transcribed expression, not whether the PDF was read correctly.
+4. Label graph-derived coordinates and interval endpoints as approximate; restrict intervals to the displayed domain unless the source explicitly defines behavior beyond it. Do not invent an exact function from a plotted curve.
+5. Preserve source numbering and units when presenting results, and distinguish visually estimated answers from exact calculations. For an answer-list request, lead with the answers in source order and keep explanations focused on ambiguities or necessary qualifications.
+6. Compare multiple-choice expressions for algebraic equivalence before selecting a letter; report every correct equivalent option rather than forcing a unique answer when the source contains duplicates.
+7. When a question explicitly requests a graph, deliver a rendered graph with the required labels, not only coordinates or plotting instructions. Inspect the delivered image and use a detail inset when the full-range scale hides nearby critical or inflection points.
+
+For a small number of equation/chart pages, prefer PyMuPDF rendering plus vision over installing a bulk OCR stack. See [references/math-and-chart-pdfs.md](references/math-and-chart-pdfs.md) for the rendering and verification recipe.
 
 ## Step 2: Choose Local Extractor
 
@@ -166,7 +178,7 @@ No extra dependencies needed — pymupdf covers split, merge, search, and text e
 
 ## Notes
 
-- `web_extract` is always first choice for URLs
+- Use `web_extract` first for public document URLs; use authenticated provider retrieval for private files.
 - pymupdf is the safe default — instant, no models, works everywhere
 - marker-pdf is for OCR, scanned docs, equations, complex layouts — install only when needed
 - Both helper scripts accept `--help` for full usage

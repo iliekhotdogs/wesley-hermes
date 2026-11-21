@@ -1,6 +1,10 @@
 # Reproducibility: what this repository is and is not
 
-Snapshot date: **2026-10-19**. The machine-readable source inventory is [`inventory.json`](../inventory.json); payload byte hashes are in [`bundle-manifest.json`](../bundle-manifest.json).
+Current observation: **2026-11-12 Pacific / 2026-11-13 UTC**, seven named profiles. The machine-readable source inventory is [`inventory.json`](../inventory.json); literal LF payload hashes are in [`bundle-manifest.json`](../bundle-manifest.json). Older deployment measurements below are historical only.
+
+**Known portable-prompt gap:** protected-instruction edits were refused during this refresh. Existing main SOUL remains unchanged, omits deep-thinking/speedy and retains older memory/routing wording. Current roles are in README and sanitized references; the installable coordinator prompt is not certified fully current. The new deep-thinking config is vision-only, no delegation/plugins, high effort; its preserved prompt's local-terminal warning does not grant a terminal. Local tools/prompt policy are not OS sandboxing.
+
+**Extension boundary:** only profile-permissions policy refreshed. Other parameterized extension sources and Docker repair/delegation measurements are historical. Current enabled consistency-guards, kanban-sandbox-guard and experimental Claude subscription provider sources are absent. Provider names do not install a plugin or grant account access. Main/cron are currently native-local; builder/cowsearcher use Docker terminal workspaces, not a containerized Windows controller. Portable templates do not deploy that isolation.
 
 ## Three different things
 
@@ -26,9 +30,9 @@ The later [delegation latency MVP](DELEGATION-MVP.md) adjusts Main's portable di
 
 Observed source repository: `https://github.com/NousResearch/hermes-agent.git`.
 
-Observed HEAD: **`3364b051b1059288e609fdc4ad09addbbe214358`**.
+Observed HEAD: **`4e58c721c8cf9b51c46636ea84ea6a5cb540880a`**. Installed CLI reported `v0.22.4+70.g4e58c72.dirty`. Historical pin-policy references record an older commitment, not this observation or a downgrade instruction. No engine update/reset was performed; the pin-policy discrepancy remains separate.
 
-The source checkout also had **30 modified or untracked paths** at inspection. The exact path list is recorded in `inventory.json`. It includes gateway/Discord handling, scheduler delivery, Kanban CLI/tools/diagnostics, registry/terminal-related tests, desktop changes and package metadata.
+The exact current modified/untracked path-only list is recorded in `inventory.json`. It includes session automation/store changes, tests and optional research source. It contains no patch contents and is not a full recovery backup.
 
 **Those core modifications are not shipped as an installable patch or supported fork here.** Installing that upstream commit alone also does not reproduce the dirty checkout. The repository does not claim that custom permission/recovery behavior or every Discord receipt/lifecycle behavior is reproduced on stock Hermes. The bundled extension source likewise does not supply missing core modifications by itself.
 
@@ -38,7 +42,7 @@ A current official Hermes release may implement related capabilities differently
 
 This public repository cannot restore the owner's machine. Keep a separate **private** repository as the deployment record:
 
-- the reviewed core patches for the 30 modified or untracked Hermes paths listed in `inventory.json`, applied against the recorded upstream HEAD;
+- the reviewed core patches for the modified or untracked Hermes paths listed in `inventory.json`, applied against the recorded upstream HEAD;
 - live `config.yaml`, `policy.json` and profile prompts as actually deployed;
 - scheduler job definitions (prompts, schedules, destinations) with credentials and tokens stripped;
 - rollback steps: the upstream commit to return to, how to revert each patch, and how to restore config and jobs from the last known-good copy.

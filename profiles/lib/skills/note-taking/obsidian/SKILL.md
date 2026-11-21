@@ -27,7 +27,7 @@ If the vault path is unknown, `terminal` is acceptable for resolving `OBSIDIAN_V
 
 ## Known vaults
 
-- **thesleyfiles vault** (`C:\Users\YOUR_USER\OneDrive\Desktop\thesleyfiles`) — see `references/thesleyfiles-vault.md` for structure, note counts, and usage notes.
+- **thesleyfiles vault** (`C:/Users/YOUR_USER\OneDrive\Desktop\thesleyfiles`) — see `references/thesleyfiles-vault.md` for structure, note counts, and usage notes.
 
 ## Read a note
 

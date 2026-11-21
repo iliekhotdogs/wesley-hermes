@@ -1,0 +1,35 @@
+{
+  "model": {
+    "default": "gpt-6-astra",
+    "provider": "openai-codex"
+  },
+  "fallback_model": {
+    "provider": "claude-subscription-directsdk-experimental",
+    "model": "claude-opus-5-5[1m]"
+  },
+  "plugins": {
+    "enabled": [
+      "claude-subscription-directsdk-experimental"
+    ],
+    "disabled": []
+  },
+  "agent": {
+    "max_turns": 80,
+    "reasoning_effort": "high"
+  },
+  "approvals": {},
+  "delegation": {},
+  "memory": {
+    "memory_enabled": true,
+    "user_profile_enabled": false,
+    "memory_char_limit": 2200
+  },
+  "terminal": {
+    "backend": "local",
+    "timeout": 180
+  },
+  "kanban": {},
+  "cron": {},
+  "compression": {},
+  "skills": {}
+}

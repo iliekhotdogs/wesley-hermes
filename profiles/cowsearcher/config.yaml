@@ -1,7 +1,7 @@
 {
   "model": {
-    "default": "meituan/longcat-2.5-preview:free",
-    "provider": "nous"
+    "default": "haiku",
+    "provider": "claude-subscription-directsdk-experimental"
   },
   "fallback_providers": [],
   "agent": {
@@ -38,9 +38,7 @@
   "plugins": {
     "enabled": [],
     "disabled": [
-      "profile-permissions",
-      "briefing-curation",
-      "second-brain-retrieval"
+      "profile-permissions"
     ]
   },
   "delegation": {
@@ -66,5 +64,10 @@
   "skills": {
     "write_approval": true,
     "disabled": []
+  },
+  "terminal": {
+    "backend": "local",
+    "cwd": ".",
+    "timeout": 180
   }
 }

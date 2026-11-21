@@ -29,8 +29,10 @@
   "plugins": {
     "enabled": [],
     "disabled": [
-      "profile-permissions",
       "briefing-curation",
+      "consistency-guards",
+      "kanban-sandbox-guard",
+      "profile-permissions",
       "second-brain-retrieval"
     ]
   },

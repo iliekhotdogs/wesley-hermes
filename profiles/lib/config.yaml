@@ -1,7 +1,7 @@
 {
   "model": {
-    "default": "gpt-6.1-sol",
-    "provider": "openai-codex"
+    "default": "haiku",
+    "provider": "claude-subscription-directsdk-experimental"
   },
   "fallback_providers": [],
   "agent": {
@@ -25,7 +25,7 @@
   ],
   "memory": {
     "memory_enabled": true,
-    "user_profile_enabled": true
+    "user_profile_enabled": false
   },
   "approvals": {
     "mode": "manual",
@@ -39,7 +39,6 @@
     "enabled": [],
     "disabled": [
       "profile-permissions",
-      "briefing-curation",
       "second-brain-retrieval"
     ]
   },
@@ -68,5 +67,10 @@
     "disabled": [
       "youtube-content"
     ]
+  },
+  "terminal": {
+    "backend": "local",
+    "cwd": ".",
+    "timeout": 180
   }
 }

@@ -1,6 +1,6 @@
 ---
 name: discord-connect
-description: "Verify and troubleshoot an existing Hermes Discord connection on Windows; guide setup only when requested."
+description: "Use for Discord connection issues AND any channel/category management (rename, add emoji, reorganize, move) on this server; main already has a working PATCH helper, never say admin access is missing."
 version: 1.0.0
 author: Local adaptation of AtlasOmnia/donna-starter
 license: MIT
@@ -12,7 +12,9 @@ metadata:
 
 # Discord connection for this Hermes setup
 
-Use this skill when the user asks to connect Discord or diagnose why the existing bot is offline, silent, missing a channel, or replying in the wrong place. `main` coordinates the work; route hands-on technical changes to `builder` under the existing profile rules. The current `main` profile already has a Discord gateway, so inspect it before proposing setup.
+**Channel renames/emojis/reorganization/moves: skip straight to the "Channel-management recovery" section below and use `scripts/discord_rest.py`. Do not conclude "no admin access" because the `discord_admin` MCP tool lacks an edit action — it is read/pin/role-only by design; the REST helper is the real admin path.**
+
+Use this skill when the user asks to connect Discord, diagnose why the existing bot is offline/silent/missing a channel, or manage/organize/rename/categorize channels. `main` coordinates the work; route hands-on technical changes to `builder` under the existing profile rules. The current `main` profile already has a Discord gateway, so inspect it before proposing setup.
 
 ## Read-only checks first
 
@@ -27,6 +29,8 @@ Use this skill when the user asks to connect Discord or diagnose why the existin
 - **Online but silent:** check Discord Message Content Intent, Hermes' configured user or role allowlist, whether the message requires an `@mention`, and channel-level View Channel, Send Messages, and Read Message History permissions. Do not widen access or turn on allow-all as a quick fix.
 - **Missing destination:** compare `hermes send --list discord` with the intended server/channel. Check visibility and directory refresh before changing authentication. A gateway restart can refresh discovery after a newly authorized channel, but confirm the owner and current work before restarting.
 - **Replies in a shared channel rather than threads:** inspect the current channel and Hermes thread settings. Mention-free or free-response channels may intentionally answer inline. Do not infer that a connected bot automatically creates a new thread per conversation.
+- **Delegated or background work finishes but no follow-up appears:** correlate the originating thread's inbound, completion/watch injection, `response ready`, and send records by chat ID and time. Check Kanban wake records separately from process-watch and async-delegation notifications: successful Kanban delivery does not prove a background completion was admitted. If the gateway repeatedly logs `Watch notification not admitted ... admission_conflict`, inspect the automation admission checks for route/session owner, compression lineage, and source identity; the generic warning alone does not identify the failing branch. Verify the persisted result before retrying work, since a refused wake is not proof the worker failed. Preserve the original conversation boundary: follow verified compression continuations but do not inject an orphaned completion into a new or unrelated session. Propose branch-specific instrumentation and a retrievable failed-delivery outcome rather than an unbounded silent retry; claim the fix only after a regression test and an actual reply in the originating thread.
+- **Discord auto-thread wake mismatch:** compare the saved `sessions.json` route origin with the last committed human `state.db` admission source using only routing fields. `auto_thread_created` and `auto_thread_initial_name` may exist only on the saved origin; treating those presentation/creation fields as route identity can strand valid async-delegation wakes with `admission_conflict`. Preserve chat/thread/parent/scope/user/profile and `/new` pin checks; test the mismatch red/green, then prove a fresh gateway process admits the queued result and read back the actual bot reply in the original thread. The source checkout and active installed workspace can differ, so verify which module the gateway loads before patching or testing. A gateway-hosted restart must run from an independent host process, target `-p default` on this multiplexer, wait for idle rather than force a live turn, and confirm a changed healthy PID.
 - **Slash commands absent:** distinguish command installation and channel permissions from ordinary message delivery. Use Discord's Developer Portal-generated install flow; do not construct a broad-permission invite URL from a copied numeric permission preset.
 
 ## Channel-management recovery
@@ -56,6 +60,8 @@ Use this skill when the user asks to connect Discord or diagnose why the existin
 
 The multiplexed gateway refuses to start a second profile whose Discord credential equals another's, so each profile that needs Discord gets its own Developer Portal application. Order of work:
 
+0. For channel renames/moves/category edits, use C:/Users/YOUR_USER/AppData/Local/hermes/profiles/main/scripts/discord_rest.py (PATCH /channels/ID --json {"name":"..."} --reason "..."; also accepts parent_id to move between categories). It already holds the bot token and validates paths stay inside the authorized guild. The discord_admin MCP tool is read/pin/role-only and does NOT support renaming or moving channels — don't conclude admin access is missing just because that tool lacks the action.
+
 1. User creates the application, enables **Message Content Intent** (and any other privileged intents the main bot uses) on the Bot tab, saves, resets the token, invites the bot to the server, and writes `DISCORD_BOT_TOKEN` into `profiles/<name>/.env` themselves. Never accept the token in chat.
 2. Validate without printing the token: `curl -H "Authorization: Bot $t" https://discord.com/api/v10/users/@me` (expect the bot's username; 401 means a wrong or truncated value, not a gateway problem) and `/users/@me/guilds` (expect the target server).
 3. Check the profile's `.env` `DISCORD_ALLOWED_USERS`: a copied template may hold `0`, which ignores every user. Copy the real value from the main profile's `.env` (report presence only).
@@ -64,7 +70,11 @@ The multiplexed gateway refuses to start a second profile whose Discord credenti
 
 ## Remote control when the gateway is down
 
-See `references/remote-terminal-bridge.md` for the separate-bot PowerShell bridge, private channel creation, bot-permission grant and no-admin Windows autostart.
+Distinguish a gateway-hosted Hermes terminal from an independently running PC terminal bridge before advising a restart. The former can interrupt or block its own restart; the latter can execute a host PowerShell command while the gateway is offline. Check the bridge process/script and its authorized channel rather than assuming every Discord command shares the gateway.
+
+On a multiplexed installation, target the host-owning `default` profile explicitly (`hermes -p default gateway status`, then `hermes -p default gateway restart` from the independent bridge). A bare `hermes gateway restart` can inherit `HERMES_HOME`/profile `main` and refuse because child profiles do not own gateways. Do not recommend `--force`, `gateway.standalone`, reinstall, or migration to solve a profile-selection error; these alter gateway topology. Check live work before using restart `-y`, which interrupts sessions and is needed only if the noninteractive command refuses to prompt. Verify status afterward and distinguish a proposed restart command from an actually executed and verified one.
+
+See `references/remote-terminal-bridge.md` for the separate-bot PowerShell bridge, private channel creation, bot-permission grant, startup, and restart diagnosis.
 
 ## Persistent buttons on the existing gateway
 

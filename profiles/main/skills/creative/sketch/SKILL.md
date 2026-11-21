@@ -38,13 +38,17 @@ intake  →  variants  →  head-to-head  →  pick winner (or iterate)
 
 ### 1. Intake (skip if the user already gave you enough)
 
-Before generating variants, get three things — one question at a time, not all at once:
+Before generating variants, establish the core action, desired feel, and references. Batch independent questions in one compact intake; ask sequentially only when an answer changes what must be asked next. If the user explicitly invites many questions, group them by product goal, visual direction, existing assets, and delivery constraints, and mark the few that block design decisions. Do not send a second duplicate questionnaire when a delegated review returns.
+
+Get these three inputs:
 
 1. **Feel.** "What should this feel like? Adjectives, emotions, a vibe." — *"calm, editorial, like Linear"* tells you more than *"minimal"*.
 2. **References.** "What apps, sites, or products capture the feel you're imagining?" — actual references beat abstract descriptions.
 3. **Core action.** "What's the single most important thing a user does on this screen?" — the variants should all serve this well; if they don't, they're just decoration.
 
-Reflect each answer briefly before the next question. If the user already gave you all three upfront, skip straight to variants.
+Reuse answers already present in the conversation. If the user already gave you all three upfront, skip straight to variants. For a critique/intake-only request, return explicitly provisional design directions; do not call prose alternatives built mockups or start production implementation without that scope.
+
+For data-driven maps, scientific dashboards, or interactive 3D scenes, load `references/data-driven-3d-design.md` before choosing the scene architecture or illustrative content.
 
 ### 2. Variants (2-3, never 1, rarely 4+)
 
@@ -82,19 +86,24 @@ Each variant is a **single self-contained HTML file**:
 - Inline `<style>` — no build step, no external CSS
 - System fonts or one Google Font via `<link>`
 - Tailwind via CDN (`<script src="https://cdn.tailwindcss.com"></script>`) is fine
-- Realistic fake content — actual sentences, actual names, not "Lorem ipsum"
+- Realistic sample content — actual sentences, not "Lorem ipsum". Label sample scientific metrics and generated geography as illustrative; never present invented outputs as observations, validated predictions, or measured benefits.
 - **Interactive**: links clickable, hovers real, at least one state transition (open/close, filter, toggle). A frozen static image is a worse spike than a sloppy animated one.
 
 Open it in a browser. If it looks broken, fix it before showing the user.
 
 **Verify variants visually — use Hermes' browser tools.** Don't just write HTML and hope it renders; load each variant and look at it:
 
-```
-browser_navigate(url="file:///absolute/path/to/sketches/001-calm-editorial/index.html")
-browser_vision(question="Does this layout look clean and readable? Any visible bugs (overlapping text, unstyled elements, broken images)?")
+Use `browser_exec` to navigate and capture each variant, then inspect the returned screenshot directly:
+
+```python
+# Inspecting the editorial design variant
+new_tab('file:///absolute/path/to/sketches/001-calm-editorial/index.html')
+wait_for_load()
+print(page_info())
+capture_screenshot()
 ```
 
-`browser_vision` returns an AI description of what's actually on the page plus a screenshot path — catches layout bugs that pure source inspection misses (e.g. a font import that silently failed, a flex container that collapsed). Fix and re-navigate until each variant looks right.
+Use `goto_url` for subsequent variants in the same tab. If the browser runs on another host and cannot access local files, serve or stage the nonsecret sketch through a reachable preview rather than assuming a local file URL is shared. Check wrapping, contrast, overlap, and at least one actual interaction. Fix and recapture until each variant looks right.
 
 **Default CSS reset + system font stack** for fast starts:
 
@@ -209,8 +218,7 @@ Propose 2-4 named candidates. Let the user pick.
 terminal("mkdir -p sketches/001-calm-editorial")
 write_file("sketches/001-calm-editorial/index.html", "<!doctype html>...")
 write_file("sketches/001-calm-editorial/README.md", "## Variant: Calm editorial\n...")
-browser_navigate(url="file://$(pwd)/sketches/001-calm-editorial/index.html")
-browser_vision(question="How does this look? Any obvious layout issues?")
+browser_exec(code="# Inspecting the design variant\nnew_tab('file:///absolute/path/to/sketches/001-calm-editorial/index.html')\nwait_for_load()\ncapture_screenshot()")
 ```
 
 Repeat for each variant, then present the comparison table.
