@@ -1,11 +1,11 @@
 {
   "model": {
-    "default": "gpt-6-astra",
-    "provider": "openai-codex"
+    "default": "claude-opus-5-5[1m]",
+    "provider": "claude-subscription-directsdk-experimental"
   },
   "fallback_model": {
-    "provider": "claude-subscription-directsdk-experimental",
-    "model": "claude-opus-5-5[1m]"
+    "provider": "openai-codex",
+    "model": "gpt-6.2-astra"
   },
   "plugins": {
     "enabled": [
@@ -20,9 +20,9 @@
   "approvals": {},
   "delegation": {},
   "memory": {
+    "memory_char_limit": 2200,
     "memory_enabled": true,
-    "user_profile_enabled": false,
-    "memory_char_limit": 2200
+    "user_profile_enabled": false
   },
   "terminal": {
     "backend": "local",

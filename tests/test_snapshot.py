@@ -8,6 +8,26 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_reviewer_template_safety_when_present(self):
+        manifest = json.loads((ROOT / 'bundle-manifest.json').read_text(encoding='utf-8'))
+        path = ROOT / 'profiles/reviewer/config.yaml'
+        declared = 'reviewer' in manifest['profiles']
+        if not declared and not path.exists():
+            self.skipTest('reviewer is not part of this snapshot')
+        self.assertTrue(declared, 'reviewer template must be declared in the manifest')
+        self.assertIn('profiles/reviewer/config.yaml', manifest['files'])
+        config = json.loads(path.read_text(encoding='utf-8'))
+        self.assertNotIn('terminal', config['toolsets'])
+        self.assertNotIn('delegation', config['toolsets'])
+        self.assertFalse(config['delegation']['orchestrator_enabled'])
+        self.assertFalse(config['delegation']['subagent_auto_approve'])
+        self.assertFalse(config['memory']['memory_enabled'])
+        self.assertFalse(config['memory']['user_profile_enabled'])
+        self.assertEqual(config['approvals']['mode'], 'manual')
+        for key in ('cron_mode', 'single_query_mode', 'unattended_mode'):
+            self.assertEqual(config['approvals'][key], 'deny')
+        self.assertFalse(config['plugins']['enabled'])
+
     def test_installable_model_choices_match_the_observed_inventory(self):
         inventory = json.loads((ROOT / 'inventory.json').read_text(encoding='utf-8'))
         for name, observed in inventory['profiles'].items():

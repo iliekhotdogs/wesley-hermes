@@ -5,7 +5,7 @@
   },
   "fallback_model": {
     "provider": "openai-codex",
-    "model": "gpt-6.1-sol"
+    "model": "gpt-6.2-sol"
   },
   "plugins": {
     "enabled": [
@@ -16,25 +16,19 @@
   "agent": {
     "max_turns": 15,
     "reasoning_effort": "medium",
-    "verify_on_stop": false,
-    "disabled_toolsets": [
-      "delegation",
-      "code_execution",
-      "computer_use",
-      "discord_admin"
-    ]
+    "verify_on_stop": false
   },
   "approvals": {
-    "mode": "off",
     "cron_mode": "approve",
+    "destructive_slash_confirm": true,
+    "mode": "off",
     "single_query_mode": "approve",
-    "unattended_mode": "approve",
-    "destructive_slash_confirm": true
+    "unattended_mode": "approve"
   },
   "delegation": {
     "max_concurrent_children": 1,
-    "subagent_auto_approve": false,
-    "orchestrator_enabled": false
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false
   },
   "memory": {
     "memory_enabled": false,
@@ -48,7 +42,6 @@
   "cron": {},
   "compression": {},
   "skills": {
-    "disabled": [],
     "write_approval": false
   }
 }

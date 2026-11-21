@@ -1,0 +1,27 @@
+{
+  "model": {
+    "default": "gpt-6.1-terra",
+    "provider": "openai-codex"
+  },
+  "fallback_model": {
+    "provider": "claude-subscription-directsdk-experimental",
+    "model": "haiku"
+  },
+  "plugins": {
+    "enabled": [],
+    "disabled": []
+  },
+  "agent": {
+    "reasoning_effort": "medium"
+  },
+  "approvals": {},
+  "delegation": {},
+  "memory": {},
+  "terminal": {
+    "backend": "docker"
+  },
+  "kanban": {},
+  "cron": {},
+  "compression": {},
+  "skills": {}
+}

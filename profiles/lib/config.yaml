@@ -1,6 +1,6 @@
 {
   "model": {
-    "default": "haiku",
+    "default": "claude-haiku-5-5[1m]",
     "provider": "claude-subscription-directsdk-experimental"
   },
   "fallback_providers": [],

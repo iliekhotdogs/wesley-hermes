@@ -1,16 +1,16 @@
 {
-  "captured_at": "2026-11-13T06:52:28+00:00",
-  "source": "Read-only inspection of seven installed named profiles; default is separate. No credentials, personal memories or live job contents exported. Skill inventories exclude hidden/catalog/cache trees.",
-  "previous_repository_head": "f6677a68752a23431e8081c461eaf616aa1b1521",
+  "captured_at": "2026-11-21T07:32:34+00:00",
+  "source": "Read-only inspection of eight installed named profiles. The separate default profile is excluded. Settings are allowlisted and scheduler counts are aggregate only.",
+  "previous_repository_head": "1ded71c8ec4891a9f38d1373f0d22bc347e999a2",
   "profiles": {
     "main": {
       "role": "Primary assistant, specialist coordinator, privileged recovery and final verification.",
       "model": {
-        "default": "gpt-6.1-sol",
+        "default": "gpt-6.2-sol",
         "provider": "openai-codex"
       },
       "observed_live_model": {
-        "default": "gpt-6.1-sol",
+        "default": "gpt-6.2-sol",
         "provider": "openai-codex"
       },
       "observed_fallback_models": [
@@ -24,6 +24,7 @@
       "observed_plugins_enabled": [
         "briefing-curation",
         "consistency-guards",
+        "engagement-status-guard",
         "kanban-sandbox-guard",
         "profile-permissions",
         "second-brain-retrieval"
@@ -32,14 +33,17 @@
         "autonomous-ai-agents/hermes-agent",
         "autonomous-ai-agents/hermes-model-benchmarking",
         "autonomous-ai-agents/merge-reconciler",
+        "autonomous-ai-agents/skill-router",
         "creative/ascii-art",
         "creative/comfyui",
         "creative/excalidraw",
+        "creative/hallmark-ui-design",
         "creative/pretext",
         "creative/sketch",
         "creative/touchdesigner-mcp",
         "devops/discord-scheduled-delivery",
         "devops/kanban-blocked-task-triage",
+        "devops/multi-agent-task-orchestration",
         "devops/sdlc-review",
         "devops/story-loop",
         "devops/system-health-watchdogs",
@@ -86,9 +90,11 @@
         "note-taking/obsidian",
         "note-taking/vault-wiki-maintenance",
         "personal-command-center",
+        "productivity/be-ambitious",
         "productivity/canvas",
         "productivity/discord-connect",
         "productivity/google-workspace",
+        "productivity/humanize-my-writing",
         "productivity/nano-pdf",
         "productivity/ocr-and-documents",
         "productivity/office-document-editing",
@@ -103,19 +109,21 @@
         "research/polymarket",
         "research/professional-panel-research",
         "research/research-paper-writing",
+        "research/tavily-fallback",
         "research/travel-planning",
         "smart-home/openhue",
         "software-development/github",
         "software-development/hermes-agent-skill-authoring",
         "software-development/hermes-wave-implementation",
         "software-development/plan",
+        "software-development/repo-fit-evaluation",
         "software-development/roblox-experience-development",
         "software-development/test-driven-development",
         "typesafe-ai",
         "victory-hunter-dispatch",
         "workout-form-check"
       ],
-      "observed_skill_count": 85,
+      "observed_skill_count": 92,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
         "autonomous-ai-agents/hermes-model-benchmarking",
@@ -206,18 +214,19 @@
       "bundled_skill_count": 85,
       "excluded_skill_asset_count": 5,
       "observed_jobs": {
-        "total": 9,
-        "enabled": 7
-      }
+        "total": 13,
+        "enabled": 8
+      },
+      "observed_reasoning_effort": "medium"
     },
     "builder": {
       "role": "Implementation, local files, code, debugging and tests.",
       "model": {
-        "default": "gpt-6.1-sol",
+        "default": "gpt-6.1-terra",
         "provider": "openai-codex"
       },
       "observed_live_model": {
-        "default": "gpt-6.1-sol",
+        "default": "gpt-6.1-terra",
         "provider": "openai-codex"
       },
       "observed_fallback_models": [
@@ -233,6 +242,7 @@
       ],
       "observed_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
+        "creative/hallmark-ui-design",
         "productivity/canvas",
         "productivity/discord-connect",
         "productivity/google-workspace",
@@ -241,7 +251,7 @@
         "software-development/runtime-state-debugging",
         "software-development/test-driven-development"
       ],
-      "observed_skill_count": 8,
+      "observed_skill_count": 9,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
         "productivity/canvas",
@@ -257,7 +267,8 @@
       "observed_jobs": {
         "total": 0,
         "enabled": 0
-      }
+      },
+      "observed_reasoning_effort": "high"
     },
     "cowsearcher": {
       "role": "Source research and current-fact verification.",
@@ -272,7 +283,7 @@
       "observed_fallback_models": [
         {
           "provider": "openai-codex",
-          "model": "gpt-6.1-sol"
+          "model": "gpt-6.2-sol"
         }
       ],
       "observed_approvals_mode": "off",
@@ -388,7 +399,8 @@
       "observed_jobs": {
         "total": 0,
         "enabled": 0
-      }
+      },
+      "observed_reasoning_effort": "medium"
     },
     "cron": {
       "role": "Schedules, reminders and authorized Google Workspace operations.",
@@ -400,12 +412,7 @@
         "default": "gpt-6-luna",
         "provider": "openai-codex"
       },
-      "observed_fallback_models": [
-        {
-          "provider": "claude-subscription-directsdk-experimental",
-          "model": "haiku"
-        }
-      ],
+      "observed_fallback_models": [],
       "observed_approvals_mode": "off",
       "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
@@ -435,29 +442,24 @@
       "observed_jobs": {
         "total": 7,
         "enabled": 7
-      }
+      },
+      "observed_reasoning_effort": "medium"
     },
     "lib": {
       "role": "Weekly scheduled memory curation only; main owns routine durable writes.",
       "model": {
-        "default": "haiku",
+        "default": "claude-haiku-5-5[1m]",
         "provider": "claude-subscription-directsdk-experimental"
       },
       "observed_live_model": {
-        "default": "haiku",
+        "default": "claude-haiku-5-5[1m]",
         "provider": "claude-subscription-directsdk-experimental"
       },
-      "observed_fallback_models": [
-        {
-          "provider": "openai-codex",
-          "model": "gpt-6-luna"
-        }
-      ],
+      "observed_fallback_models": [],
       "observed_approvals_mode": "off",
       "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
-        "profile-permissions",
-        "second-brain-retrieval"
+        "profile-permissions"
       ],
       "observed_skill_directories": [
         "apple/apple-notes",
@@ -562,22 +564,23 @@
       "observed_jobs": {
         "total": 2,
         "enabled": 2
-      }
+      },
+      "observed_reasoning_effort": "low"
     },
     "deep-thinking": {
       "role": "Exceptional bounded planning and reasoning escalation, not implementation or routine review.",
       "model": {
-        "default": "gpt-6-astra",
-        "provider": "openai-codex"
+        "default": "claude-opus-5-5[1m]",
+        "provider": "claude-subscription-directsdk-experimental"
       },
       "observed_live_model": {
-        "default": "gpt-6-astra",
-        "provider": "openai-codex"
+        "default": "claude-opus-5-5[1m]",
+        "provider": "claude-subscription-directsdk-experimental"
       },
       "observed_fallback_models": [
         {
-          "provider": "claude-subscription-directsdk-experimental",
-          "model": "claude-opus-5-5[1m]"
+          "provider": "openai-codex",
+          "model": "gpt-6.2-astra"
         }
       ],
       "observed_approvals_mode": "not explicitly set",
@@ -652,24 +655,20 @@
       "observed_jobs": {
         "total": 0,
         "enabled": 0
-      }
+      },
+      "observed_reasoning_effort": "high"
     },
     "speedy": {
       "role": "Small bounded transformations; retained primarily for compatibility.",
       "model": {
-        "default": "gpt-6-luna",
-        "provider": "openai-codex"
+        "default": "claude-haiku-5-5[1m]",
+        "provider": "claude-subscription-directsdk-experimental"
       },
       "observed_live_model": {
-        "default": "gpt-6-luna",
-        "provider": "openai-codex"
+        "default": "claude-haiku-5-5[1m]",
+        "provider": "claude-subscription-directsdk-experimental"
       },
-      "observed_fallback_models": [
-        {
-          "provider": "claude-subscription-directsdk-experimental",
-          "model": "haiku"
-        }
-      ],
+      "observed_fallback_models": [],
       "observed_approvals_mode": "off",
       "observed_terminal_backend": "not explicitly set",
       "observed_plugins_enabled": [
@@ -767,7 +766,44 @@
       "observed_jobs": {
         "total": 0,
         "enabled": 0
-      }
+      },
+      "observed_reasoning_effort": "medium"
+    },
+    "reviewer": {
+      "role": "Independent read-only review of an exact staged candidate; main owns acceptance and publishing.",
+      "excluded_skill_asset_count": 0,
+      "model": {
+        "default": "gpt-6.1-terra",
+        "provider": "openai-codex"
+      },
+      "observed_live_model": {
+        "default": "gpt-6.1-terra",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [
+        {
+          "provider": "claude-subscription-directsdk-experimental",
+          "model": "haiku"
+        }
+      ],
+      "observed_plugins_enabled": [],
+      "observed_reasoning_effort": "medium",
+      "observed_terminal_backend": "docker",
+      "observed_approvals_mode": "not explicitly set",
+      "observed_skill_directories": [
+        "autonomous-ai-agents/hermes-agent"
+      ],
+      "observed_skill_count": 1,
+      "bundled_skill_directories": [],
+      "bundled_skill_count": 0,
+      "observed_jobs": {
+        "total": 0,
+        "enabled": 0
+      },
+      "observed_toolsets": [
+        "terminal",
+        "kanban"
+      ]
     }
   },
   "core": {
@@ -776,7 +812,7 @@
       "https://github.com/NousResearch/hermes-agent.git"
     ],
     "dirty_files": [
-      "M gateway/session_automation.py",
+      " M gateway/session_automation.py",
       " M hermes_cli/gateway_session_store.py",
       " M tests/gateway/test_watch_notification_reset_pin.py",
       "?? optional-mcps/firecrawl/",
@@ -822,7 +858,7 @@
       "status": "Sanitized source reference; owner paths, schedules, destinations and deployment-specific dependencies must be adapted and tested."
     }
   },
-  "refresh_note": "Current sanitized profile models, fallbacks, roles, settings and selected skills refreshed. Added deep-thinking and compatibility-only speedy templates. Existing parameterized historical extensions remain reference-only except profile-permissions refreshed from reviewed source. Plugins, credentials, routes, jobs and scheduler activation are not installed.",
+  "refresh_note": "Refreshes profile roster, observed settings and inventories. Bundled skills and portable prompts are separately curated, not mirrors of the running fleet.",
   "extension_status": {
     "refreshed": [
       "profile-permissions"
@@ -845,9 +881,9 @@
     "warning": "Optional sources are not an exact current runtime export. External provider plugin and local core changes are absent; no full reproduction claim."
   },
   "known_gaps": [
-    "Existing portable main SOUL prompt not updated: native protected-instruction write refused; current routing/roles in README and reference only.",
-    "Deep-thinking safe config vision-only, unlike live; preserved prompt terminal warning does not grant tools.",
-    "Historical engine pin differs from observed source HEAD; no update/reset performed.",
-    "Optional provider/plugins and local engine patches not shipped."
+    "Portable main prompt was not replaced after a previously refused protected-instruction edit; see the current README and earlier sanitized references for role context.",
+    "Portable reviewer and deep-thinking templates are vision-only. Live review policy, Docker mounts, runtime skills and dispatch state are not bundled or reproduced.",
+    "Prior sanitized prompts, curated skill files, optional extensions and inert automation examples are reference material, not complete copies of live content.",
+    "Local engine drift is listed by path only and is not shipped."
   ]
 }

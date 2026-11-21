@@ -3,10 +3,7 @@
     "default": "gpt-6-luna",
     "provider": "openai-codex"
   },
-  "fallback_model": {
-    "provider": "claude-subscription-directsdk-experimental",
-    "model": "haiku"
-  },
+  "fallback_model": {},
   "plugins": {
     "enabled": [
       "profile-permissions"
@@ -16,25 +13,19 @@
   "agent": {
     "max_turns": 20,
     "reasoning_effort": "medium",
-    "verify_on_stop": false,
-    "disabled_toolsets": [
-      "delegation",
-      "code_execution",
-      "computer_use",
-      "discord_admin"
-    ]
+    "verify_on_stop": false
   },
   "approvals": {
-    "mode": "off",
     "cron_mode": "approve",
+    "destructive_slash_confirm": true,
+    "mode": "off",
     "single_query_mode": "approve",
-    "unattended_mode": "approve",
-    "destructive_slash_confirm": true
+    "unattended_mode": "approve"
   },
   "delegation": {
     "max_concurrent_children": 1,
-    "subagent_auto_approve": false,
-    "orchestrator_enabled": false
+    "orchestrator_enabled": false,
+    "subagent_auto_approve": false
   },
   "memory": {
     "memory_enabled": false,

@@ -1,6 +1,12 @@
-# Validation evidence — November 12 Pacific / November 13 UTC, 2026
+# Validation evidence
 
-## Current refresh: executed by main after bounded Builder handoff
+## November 20 Pacific / November 21 UTC, 2026
+
+- Bundle validation passed for eight profiles and 684 payload hashes. All 79 tests passed on Windows, including the reviewer safety assertions and full manifest-driven installs with and without skills.
+- A temporary opt-in install matched all 610 expected files byte for byte. The installed Hermes CLI read back model and config path for all eight profiles. No inference, gateway or schedules were started.
+- Builder supplied test changes; main integrated and verified them. This was not independent review. GitHub status is tracked on the pull request.
+
+## Prior refresh — November 12 Pacific / November 13 UTC, 2026
 
 - `python tools/bundle.py validate`: PASS, seven profiles and 680 payload hashes.
 - `python -m unittest discover -s tests -v`: **78 tests passed** on native Windows Python 3.14.7. Includes seven-profile installs with/without skills, exact file/hash comparison, model/reference/template equality, bounded speedy policy, unknown-role fail-closed behavior and payload syntax.
