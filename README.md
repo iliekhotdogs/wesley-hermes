@@ -4,7 +4,7 @@
 
 This collection uses [Hermes Agent](https://github.com/NousResearch/hermes-agent). Main coordinates specialist work through Discord/CLI and Hermes Kanban. Models, accounts and integrations require your own access.
 
-**Current observation: November 20, 2026 Pacific / November 21 UTC.** Exact capture time, settings and counts: [`inventory.json`](inventory.json). Actual observed source HEAD: `4e58c721c8cf9b51c46636ea84ea6a5cb540880a`, with local changes **not shipped here**. No running engine update/reset was performed for this refresh. Historical engine-pin policy in reference docs differs from the observed HEAD; it is not a command to downgrade.
+**Current observation: November 24, 2026.** Exact capture time, settings and counts: [`inventory.json`](inventory.json). Actual observed source HEAD: `4e58c721c8cf9b51c46636ea84ea6a5cb540880a`, with local changes **not shipped here**. No running engine update/reset was performed for this refresh. Historical engine-pin policy in reference docs differs from the observed HEAD; it is not a command to downgrade.
 
 ## Current named profiles
 
@@ -16,8 +16,9 @@ This collection uses [Hermes Agent](https://github.com/NousResearch/hermes-agent
 - **deep-thinking** — exceptional bounded analysis, not implementation/routine review: `claude-opus-5-5[1m]` / `claude-subscription-directsdk-experimental`.
 - **speedy** — bounded transformations, primarily compatibility: `claude-haiku-5-5[1m]` / `claude-subscription-directsdk-experimental`.
 - **reviewer** — independent bounded review; main accepts and publishes: `gpt-6.1-terra` / `openai-codex`.
+- **support** — customer-support assistant; observed only, with no portable template or prompt in this bundle.
 
-These are observed configured defaults, not guaranteed account capabilities or the model used by every job/session. Fallback observations are reference-only; safe templates do not inherit them. The separate `default` profile is excluded.
+These are observed configured defaults, not guaranteed account capabilities or the model used by every job/session. Main's configured fallback list includes Gemini routes after its Sonnet fallback. Fallback observations are reference-only; safe templates do not inherit them. The separate `default` profile is excluded.
 
 Use deep-thinking on explicit request, or only when a consequential decision retains a concrete unresolved reasoning/design question and an independent pass is likely to change the approach. One bounded `high`-effort pass is the default, never silently `max`. Mentioning an agent does not dispatch it. Main retains coordination and verification.
 
@@ -33,7 +34,7 @@ Use deep-thinking on explicit request, or only when a consequential decision ret
 - Reviewed optional extension source, exact SHA-256 manifest, non-clobbering installer, tests and CI.
 - Inert automation examples and schedule **counts only**, not live job contents or activation.
 
-**Important limits:** portable prompts are adapted rather than exact live replicas. The older main portable prompt remains unchanged in this refresh because the protected-instruction edit was refused; it does not enumerate all current roles or fully match current memory/routing conventions. Use the current role descriptions above and inspect reference prompts, but do not treat owner-specific grants as your authorization. This gap is explicitly not certified as a fully current installable coordinator prompt.
+**Important limits:** portable prompts are adapted rather than exact live replicas and were not changed in this refresh. The older main portable prompt does not enumerate all current roles or fully match current memory/routing conventions. Use the current role descriptions above and inspect reference prompts, but do not treat owner-specific grants as your authorization.
 
 The optional extension sources and curated skill payload are carried forward from the prior snapshot, not copied from the live deployment. Other parameterized extension sources, Docker repair/delegation measurements and old deployment guides remain **historical references**, not evidence of current production health. Current active but unbundled components include `consistency-guards`, `kanban-sandbox-guard` and the experimental Claude subscription provider. A template naming that provider does not install its plugin or grant authentication. Choose a provider/model supported by your own Hermes installation.
 

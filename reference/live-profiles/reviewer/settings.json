@@ -7,10 +7,7 @@
     "provider": "claude-subscription-directsdk-experimental",
     "model": "haiku"
   },
-  "plugins": {
-    "enabled": [],
-    "disabled": []
-  },
+  "plugins": {},
   "agent": {
     "reasoning_effort": "medium"
   },

@@ -10,8 +10,7 @@
   "plugins": {
     "enabled": [
       "claude-subscription-directsdk-experimental"
-    ],
-    "disabled": []
+    ]
   },
   "agent": {
     "max_turns": 80,
