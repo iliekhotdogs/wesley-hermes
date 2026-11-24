@@ -3,7 +3,10 @@
     "default": "claude-haiku-5-5[1m]",
     "provider": "claude-subscription-directsdk-experimental"
   },
-  "fallback_model": {},
+  "fallback_model": {
+    "provider": "openai-codex",
+    "model": "gpt-6-luna"
+  },
   "plugins": {
     "enabled": [
       "profile-permissions"

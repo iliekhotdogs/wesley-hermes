@@ -1,7 +1,7 @@
 {
-  "captured_at": "2026-11-21T07:32:34+00:00",
-  "source": "Read-only inspection of eight installed named profiles. The separate default profile is excluded. Settings are allowlisted and scheduler counts are aggregate only.",
-  "previous_repository_head": "1ded71c8ec4891a9f38d1373f0d22bc347e999a2",
+  "captured_at": "2026-11-24T20:55:06+00:00",
+  "source": "Read-only inspection of nine named profiles, including one observed-only profile. The separate default profile is excluded. Settings are allowlisted and scheduler counts are aggregate only.",
+  "previous_repository_head": "c2ea464dbd1a40f236defb89d69166ccc8030aa6",
   "profiles": {
     "main": {
       "role": "Primary assistant, specialist coordinator, privileged recovery and final verification.",
@@ -17,11 +17,18 @@
         {
           "provider": "claude-subscription-directsdk-experimental",
           "model": "claude-sonnet-5"
+        },
+        {
+          "provider": "antigravity-subscription-directsdk",
+          "model": "gemini-3.8-flash"
+        },
+        {
+          "provider": "antigravity-subscription-directsdk",
+          "model": "gemini-4-hydrogen"
         }
       ],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
+        "antigravity-subscription-directsdk",
         "briefing-curation",
         "consistency-guards",
         "engagement-status-guard",
@@ -44,6 +51,7 @@
         "devops/discord-scheduled-delivery",
         "devops/kanban-blocked-task-triage",
         "devops/multi-agent-task-orchestration",
+        "devops/overnight-improvement-review",
         "devops/sdlc-review",
         "devops/story-loop",
         "devops/system-health-watchdogs",
@@ -101,6 +109,7 @@
         "productivity/session-librarian",
         "productivity/video-content-analysis",
         "productivity/weekly-review-planning",
+        "productivity/writing-origin",
         "research/arxiv",
         "research/blogwatcher",
         "research/coffee-chat-research",
@@ -123,7 +132,7 @@
         "victory-hunter-dispatch",
         "workout-form-check"
       ],
-      "observed_skill_count": 92,
+      "observed_skill_count": 94,
       "bundled_skill_directories": [
         "autonomous-ai-agents/hermes-agent",
         "autonomous-ai-agents/hermes-model-benchmarking",
@@ -214,10 +223,12 @@
       "bundled_skill_count": 85,
       "excluded_skill_asset_count": 5,
       "observed_jobs": {
-        "total": 13,
-        "enabled": 8
+        "total": 12,
+        "enabled": 9
       },
-      "observed_reasoning_effort": "medium"
+      "observed_reasoning_effort": "medium",
+      "observed_terminal_backend": "local",
+      "observed_approvals_mode": "off"
     },
     "builder": {
       "role": "Implementation, local files, code, debugging and tests.",
@@ -235,8 +246,6 @@
           "model": "sonnet"
         }
       ],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "docker",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -268,7 +277,9 @@
         "total": 0,
         "enabled": 0
       },
-      "observed_reasoning_effort": "high"
+      "observed_reasoning_effort": "high",
+      "observed_terminal_backend": "docker",
+      "observed_approvals_mode": "off"
     },
     "cowsearcher": {
       "role": "Source research and current-fact verification.",
@@ -286,8 +297,6 @@
           "model": "gpt-6.2-sol"
         }
       ],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "docker",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -400,7 +409,9 @@
         "total": 0,
         "enabled": 0
       },
-      "observed_reasoning_effort": "medium"
+      "observed_reasoning_effort": "medium",
+      "observed_terminal_backend": "docker",
+      "observed_approvals_mode": "off"
     },
     "cron": {
       "role": "Schedules, reminders and authorized Google Workspace operations.",
@@ -413,8 +424,6 @@
         "provider": "openai-codex"
       },
       "observed_fallback_models": [],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -443,7 +452,9 @@
         "total": 7,
         "enabled": 7
       },
-      "observed_reasoning_effort": "medium"
+      "observed_reasoning_effort": "medium",
+      "observed_terminal_backend": "local",
+      "observed_approvals_mode": "off"
     },
     "lib": {
       "role": "Weekly scheduled memory curation only; main owns routine durable writes.",
@@ -455,9 +466,12 @@
         "default": "claude-haiku-5-5[1m]",
         "provider": "claude-subscription-directsdk-experimental"
       },
-      "observed_fallback_models": [],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "local",
+      "observed_fallback_models": [
+        {
+          "provider": "openai-codex",
+          "model": "gpt-6-luna"
+        }
+      ],
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -565,7 +579,9 @@
         "total": 2,
         "enabled": 2
       },
-      "observed_reasoning_effort": "low"
+      "observed_reasoning_effort": "low",
+      "observed_terminal_backend": "local",
+      "observed_approvals_mode": "off"
     },
     "deep-thinking": {
       "role": "Exceptional bounded planning and reasoning escalation, not implementation or routine review.",
@@ -583,8 +599,6 @@
           "model": "gpt-6.2-astra"
         }
       ],
-      "observed_approvals_mode": "not explicitly set",
-      "observed_terminal_backend": "local",
       "observed_plugins_enabled": [
         "claude-subscription-directsdk-experimental"
       ],
@@ -656,7 +670,8 @@
         "total": 0,
         "enabled": 0
       },
-      "observed_reasoning_effort": "high"
+      "observed_reasoning_effort": "high",
+      "observed_terminal_backend": "local"
     },
     "speedy": {
       "role": "Small bounded transformations; retained primarily for compatibility.",
@@ -668,9 +683,12 @@
         "default": "claude-haiku-5-5[1m]",
         "provider": "claude-subscription-directsdk-experimental"
       },
-      "observed_fallback_models": [],
-      "observed_approvals_mode": "off",
-      "observed_terminal_backend": "not explicitly set",
+      "observed_fallback_models": [
+        {
+          "provider": "openai-codex",
+          "model": "gpt-6-luna"
+        }
+      ],
       "observed_plugins_enabled": [
         "profile-permissions"
       ],
@@ -767,7 +785,8 @@
         "total": 0,
         "enabled": 0
       },
-      "observed_reasoning_effort": "medium"
+      "observed_reasoning_effort": "medium",
+      "observed_approvals_mode": "off"
     },
     "reviewer": {
       "role": "Independent read-only review of an exact staged candidate; main owns acceptance and publishing.",
@@ -787,9 +806,6 @@
         }
       ],
       "observed_plugins_enabled": [],
-      "observed_reasoning_effort": "medium",
-      "observed_terminal_backend": "docker",
-      "observed_approvals_mode": "not explicitly set",
       "observed_skill_directories": [
         "autonomous-ai-agents/hermes-agent"
       ],
@@ -803,7 +819,9 @@
       "observed_toolsets": [
         "terminal",
         "kanban"
-      ]
+      ],
+      "observed_reasoning_effort": "medium",
+      "observed_terminal_backend": "docker"
     }
   },
   "core": {
@@ -823,7 +841,8 @@
       "?? tests/plugins/test_profile_permissions_local.py",
       "?? tests/scripts/test_local_hermes_reliability.py"
     ],
-    "reproducibility": "Observed source HEAD and path-only drift inventory; local source modifications are NOT shipped. Historic engine-pin policy may differ from actual observed HEAD; no engine update was performed."
+    "reproducibility": "Observed source HEAD, previously public drift paths and an aggregate count of other drift paths. Local source modifications are not shipped. No engine update was performed.",
+    "other_local_drift_path_count": 0
   },
   "safety_differences": [
     "manual dangerous-command approvals; deny dangerous unattended commands",
@@ -858,7 +877,7 @@
       "status": "Sanitized source reference; owner paths, schedules, destinations and deployment-specific dependencies must be adapted and tested."
     }
   },
-  "refresh_note": "Refreshes profile roster, observed settings and inventories. Bundled skills and portable prompts are separately curated, not mirrors of the running fleet.",
+  "refresh_note": "Refreshes observed settings, roster and inventories. The eight portable templates, bundled skills, prompts and examples are unchanged. The support profile is observed only; its configuration and prompt are not bundled.",
   "extension_status": {
     "refreshed": [
       "profile-permissions"
@@ -885,5 +904,23 @@
     "Portable reviewer and deep-thinking templates are vision-only. Live review policy, Docker mounts, runtime skills and dispatch state are not bundled or reproduced.",
     "Prior sanitized prompts, curated skill files, optional extensions and inert automation examples are reference material, not complete copies of live content.",
     "Local engine drift is listed by path only and is not shipped."
-  ]
+  ],
+  "observed_only_profiles": {
+    "support": {
+      "role": "Customer-support assistant; not included in the portable bundle.",
+      "observed_live_model": {
+        "default": "gpt-6.2-sol",
+        "provider": "openai-codex"
+      },
+      "observed_fallback_models": [],
+      "observed_plugins_enabled": [
+        "support-desk-pilot"
+      ],
+      "observed_skill_count": 1,
+      "observed_jobs": {
+        "total": 0,
+        "enabled": 0
+      }
+    }
+  }
 }

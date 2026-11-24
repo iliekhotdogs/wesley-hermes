@@ -9,6 +9,7 @@
   },
   "plugins": {
     "enabled": [
+      "antigravity-subscription-directsdk",
       "briefing-curation",
       "consistency-guards",
       "engagement-status-guard",
@@ -65,5 +66,19 @@
   },
   "skills": {
     "write_approval": false
-  }
+  },
+  "fallback_models_ordered": [
+    {
+      "provider": "claude-subscription-directsdk-experimental",
+      "model": "claude-sonnet-5"
+    },
+    {
+      "provider": "antigravity-subscription-directsdk",
+      "model": "gemini-3.8-flash"
+    },
+    {
+      "provider": "antigravity-subscription-directsdk",
+      "model": "gemini-4-hydrogen"
+    }
+  ]
 }
